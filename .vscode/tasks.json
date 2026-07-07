@@ -9,7 +9,7 @@
                 "-std=c++17",
                 "${file}",
                 "-o",
-                "${fileDirname}/build/${fileBasenameNoExtension}.exe",
+                "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",
                 "-I",
                 "C:/msys64/ucrt64/include",
                 "-L",
