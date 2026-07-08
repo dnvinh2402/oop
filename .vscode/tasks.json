@@ -7,9 +7,19 @@
             "command": "g++",
             "args": [
                 "-std=c++17",
-                "${file}",
+                
+                // 1. Gom tất cả các file .cpp trong thư mục src để biên dịch cùng lúc
+                "${workspaceFolder}/src/*.cpp",
+                
+                // 2. Báo cho compiler biết các file .hpp đang nằm ở đâu
+                "-I",
+                "${workspaceFolder}/include",
+                
+                // 3. Xuất file thực thi ra thư mục build với tên main.exe
                 "-o",
-                "${workspaceFolder}/build/${fileBasenameNoExtension}.exe",
+                "${workspaceFolder}/build/main.exe",
+                
+                // 4. Đường dẫn thư viện SFML (Giữ nguyên của bạn)
                 "-I",
                 "C:/msys64/ucrt64/include",
                 "-L",

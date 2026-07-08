@@ -1,32 +1,14 @@
-#include <SFML/Graphics.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/System.hpp>
-#include <SFML/Audio.hpp>
-#include <SFML/Network.hpp>
-#include <bits/stdc++.h>
-
-using namespace std;
+#include "Game.hpp"
 
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800, 600}), "My first game");
-    optional<sf::Event> event;
+    // Bước 1: Tạo ra một đối tượng game (cỗ máy)
+    // Lúc này, Constructor của Game sẽ chạy và tự động mở cửa sổ 800x600
+    Game myGame;
 
-    // Game loop
-    while (window.isOpen()){
+    // Bước 2: Kích hoạt vòng lặp vô tận của game
+    myGame.Run();
 
-        //Event polling
-        while (const optional event = window.pollEvent()){
-            
-            if (event->is<sf::Event::Closed>()){ //when close button is clicked
-                window.close();
-            }
-        }
-   
-        window.clear(sf::Color(127, 127, 127));
-
-        window.display();
-    }
-    
-
+    // Bước 3: Khi người chơi bấm dấu X, vòng lặp Run() kết thúc, chương trình nhảy xuống đây và thoát.
+    // Lúc này, Destructor ~Game() sẽ tự động chạy để dọn dẹp RAM.
     return 0;
 }
