@@ -8,8 +8,16 @@ Game::Game() : window(sf::VideoMode({800, 600}), "My first game") {
     resourceManager.LoadTexture("player", "assets/images/player.png");
     std::cout << "Da load xong player texture\n";
 
+    resourceManager.LoadTexture("enemy", "assets/images/enemy.png");
+    
+    // Khởi tạo nhạc trưởng và sinh ra bầy quái
+    alienManager = new AlienManager();
+    alienManager->InitializeSwarm(resourceManager.GetTexture("enemy"));
+
     resourceManager.LoadTexture("bullet", "assets/images/bullet.png");
     std::cout << "Da load xong bullet texture\n";
+    resourceManager.LoadTexture("alien_bullet", "assets/images/alien_bullet.png");
+    std::cout << "Da load xong alien bullet texture\n";
 
     resourceManager.LoadTexture("background", "assets/images/background.png");
     std::cout << "Da load xong background texture\n";
@@ -33,6 +41,7 @@ Game::Game() : window(sf::VideoMode({800, 600}), "My first game") {
 Game::~Game() {
     delete player;
     delete backgroundSprite;
+    delete alienManager; 
 
     for (Bullet* bullet : bullets) {
         delete bullet;
@@ -58,6 +67,9 @@ void Game::ProcessEvents() {
 void Game::Update(float deltaTime) {
     player->Update(deltaTime);
 
+    alienManager->Update(deltaTime);
+    alienManager->AlienShoot(bullets, resourceManager.GetTexture("alien_bullet"));
+
     for (Bullet* bullet : bullets) {
         bullet->Update(deltaTime);
     }
@@ -80,6 +92,7 @@ void Game::Render() {
 
     window.draw(*backgroundSprite); 
     player->Render(window);
+    alienManager->Render(window);
 
     for (Bullet* bullet : bullets) {
         bullet->Render(window);
