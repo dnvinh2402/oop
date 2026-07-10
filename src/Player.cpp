@@ -53,6 +53,17 @@ void Player::Shoot(std::vector<Bullet*>& bulletList, sf::Texture* bulletTexture)
     // TODO: hoàn thiện sau khi có class Bullet
     // Ý tưởng: nếu currentCooldown <= 0, tạo Bullet mới tại vị trí Player,
     // push_back vào bulletList, rồi reset currentCooldown = fireCooldown
+    if (currentCooldown <= 0.0f) {
+        sf::Vector2f bulletStartPos = position;
+        bulletStartPos.y -= 20.0f; // đặt đạn xuất hiện phía trên đầu Player một chút
+
+        sf::Vector2f bulletVelocity(0.0f, -500.0f); // bay thẳng lên, tốc độ 500px/s
+
+        Bullet* newBullet = new Bullet(bulletTexture, bulletStartPos, bulletVelocity, true);
+        bulletList.push_back(newBullet);
+
+        currentCooldown = fireCooldown; // reset thời gian hồi chiêu
+    }
 }
 
 void Player::TakeDamage() {

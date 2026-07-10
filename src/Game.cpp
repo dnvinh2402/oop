@@ -1,76 +1,43 @@
-// #include "Game.hpp"
-// #include <optional>
-
-// // 1. Constructor (Hàm khởi tạo)
-// // Chú ý: Ta dùng Initializer List để khởi tạo cửa sổ ngay khi Game được tạo ra
-// Game::Game() : window(sf::VideoMode({800, 600}), "My first game") {
-//     // Khởi tạo các con trỏ bằng nullptr để an toàn (sẽ cấp phát bằng new sau)
-//     player = nullptr;
-// }
-
-// // 2. Destructor (Hàm hủy)
-// Game::~Game() {
-//     // Dọn dẹp bộ nhớ khi tắt game
-//     if (player != nullptr) {
-//         delete player;
-//     }
-    
-//     for (int i = 0; i < bullets.size(); i++) {
-//         delete bullets[i];
-//     }
-//     bullets.clear();
-// }
-
-// // 3. Hàm xử lý sự kiện (Tách từ vòng lặp trong main cũ)
-// void Game::ProcessEvents() {
-//     std::optional<sf::Event> event;
-//     while (event = window.pollEvent()) {
-//         if (event->is<sf::Event::Closed>()) {
-//             window.close();
-//         }
-//     }
-// }
-
-// // 4. Hàm cập nhật logic game (Di chuyển, va chạm...)
-// void Game::Update(float deltaTime) {
-//     // Tạm thời chưa có logic gì, sau này hàm update của player, đạn, quái sẽ nằm ở đây
-// }
-
-// // 5. Hàm vẽ đồ họa (Tách từ phần clear và display trong main cũ)
-// void Game::Render() {
-//     window.clear(sf::Color(127, 127, 127));
-    
-//     // Sau này các lệnh vẽ player->Render(window) sẽ đặt ở đây
-    
-//     window.display();
-// }
-
-// // 6. TRÁI TIM CỦA GAME: Vòng lặp chính
-// void Game::Run() {
-//     // sf::Clock dùng để tính deltaTime (chưa dùng tới trong bài test này nhưng chuẩn bị sẵn)
-//     sf::Clock clock;
-
-//     // Đây chính là vòng lặp game loop quen thuộc của bạn
-//     while (window.isOpen()) {
-//         float deltaTime = clock.restart().asSeconds();
-
-//         ProcessEvents();
-//         Update(deltaTime);
-//         Render();
-//     }
-// }
-
-
 #include "Game.hpp"
+#include <iostream>
 #include <optional> // Bắt buộc phải có cho SFML 3 Event
 
 // Khởi tạo cửa sổ y hệt code cũ của bạn
 Game::Game() : window(sf::VideoMode({800, 600}), "My first game") {
-    // Hiện tại chưa cấp phát con trỏ nào nên để trống
+    
+    resourceManager.LoadTexture("player", "assets/images/player.png");
+    std::cout << "Da load xong player texture\n";
+
+    resourceManager.LoadTexture("bullet", "assets/images/bullet.png");
+    std::cout << "Da load xong bullet texture\n";
+
+    resourceManager.LoadTexture("background", "assets/images/background.png");
+    std::cout << "Da load xong background texture\n";
+    resourceManager.LoadFont("arial", "assets/font/arial.ttf");
+    std::cout << "Da load xong font\n";
+
+    sf::Vector2f startPos(400.0f, 550.0f);
+    player = new Player(resourceManager.GetTexture("player"), startPos);
+    std::cout << "Da tao xong Player\n";
+
+    backgroundSprite = new sf::Sprite(*resourceManager.GetTexture("background"));
+
+    // Co giãn ảnh nền cho vừa khít cửa sổ 800x600
+    sf::Vector2u textureSize = resourceManager.GetTexture("background")->getSize();
+    float scaleX = 800.0f / textureSize.x;
+    float scaleY = 600.0f / textureSize.y;
+    backgroundSprite->setScale(sf::Vector2f(scaleX, scaleY));
+    std::cout << "Da tao xong Background\n";
 }
 
 Game::~Game() {
-    // Trống (chưa có con trỏ nào để delete)
+    delete player;
+    delete backgroundSprite;
+
+    for (Bullet* bullet : bullets) {
+        delete bullet;
+    }
+    bullets.clear();
 }
 
 void Game::ProcessEvents() {
@@ -79,17 +46,45 @@ void Game::ProcessEvents() {
         if (event->is<sf::Event::Closed>()) {
             window.close();
         }
+
+        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+            if (keyPressed->code == sf::Keyboard::Key::Space) {
+                player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+            }
+        }
     }
 }
 
 void Game::Update(float deltaTime) {
-    // Tạm thời để trống, sau này tàu và quái sẽ di chuyển ở đây
+    player->Update(deltaTime);
+
+    for (Bullet* bullet : bullets) {
+        bullet->Update(deltaTime);
+    }
+
+    CleanUpDeadEntities();
+}
+
+void Game::CleanUpDeadEntities() {
+    for (int i = bullets.size() - 1; i >= 0; i--) {
+        if (!bullets[i]->IsActive()) {
+            delete bullets[i];
+            bullets.erase(bullets.begin() + i);
+        }
+    }
 }
 
 void Game::Render() {
     // Bôi màu nền xám giống hệt file main cũ của bạn
     window.clear(sf::Color(127, 127, 127));
-    
+
+    window.draw(*backgroundSprite); 
+    player->Render(window);
+
+    for (Bullet* bullet : bullets) {
+        bullet->Render(window);
+    }
+
     window.display();
 }
 

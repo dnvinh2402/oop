@@ -42,32 +42,33 @@
 #include <vector>
 
 // Tạm thời khóa các thư viện chưa có file .cpp
-// #include "GameState.hpp"
-// #include "ResourceManager.hpp"
-// #include "Player.hpp"
-// #include "Bullet.hpp"
-// #include "AlienManager.hpp"
-// #include "CollisionManager.hpp"
-// #include "UI.hpp"
+#include "GameState.hpp"
+#include "ResourceManager.hpp"
+#include "Player.hpp"
+#include "Bullet.hpp"
+#include "AlienManager.hpp"
+#include "CollisionManager.hpp"
+#include "UI.hpp"
 
 class Game {
 private:
     sf::RenderWindow window;
+    sf::Sprite* backgroundSprite;
     
     // Tạm thời khóa các Class Quản lý và Thực thể
     // GameState currentState;
-    // ResourceManager resourceManager;
+    ResourceManager resourceManager;
     // CollisionManager collisionManager;
     // UI* ui;
-    // Player* player;
-    // AlienManager* alienManager;
-    // std::vector<Bullet*> bullets;
+    Player* player;
+    AlienManager* alienManager;
+    std::vector<Bullet*> bullets;
 
     // Các hàm nội bộ
     void ProcessEvents();
     void Update(float deltaTime);
     void Render();
-    // void CleanUpDeadEntities(); 
+    void CleanUpDeadEntities(); 
 
 public:
     Game();

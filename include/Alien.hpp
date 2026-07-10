@@ -13,5 +13,6 @@ public:
     void Render(sf::RenderWindow& window) override;
 
     void MoveDown(float distance);
+    void MoveHorizontal(float distance); 
     int GetPoints() { return pointValue; }
-};
+};  
