@@ -73,6 +73,7 @@ void Game::Update(float deltaTime) {
     for (Bullet* bullet : bullets) {
         bullet->Update(deltaTime);
     }
+    collisionManager.CheckCollisions(player, alienManager->GetAliens(), bullets);
 
     CleanUpDeadEntities();
 }

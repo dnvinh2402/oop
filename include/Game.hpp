@@ -58,7 +58,7 @@ private:
     // Tạm thời khóa các Class Quản lý và Thực thể
     // GameState currentState;
     ResourceManager resourceManager;
-    // CollisionManager collisionManager;
+    CollisionManager collisionManager;
     // UI* ui;
     Player* player;
     AlienManager* alienManager;
