@@ -9,6 +9,9 @@ private:
     float moveSpeed;
     bool movingRight;
 
+    int currentRound;
+    int maxRounds;
+
 public:
     AlienManager();
     ~AlienManager();
@@ -20,4 +23,9 @@ public:
     void AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bulletTexture);
     
     std::vector<Alien*>& GetAliens() { return aliens; }
+
+    void StartNextRound(sf::Texture* alienTexture);
+    bool IsRoundCleared();       
+    bool IsFinalRound();        
+    int GetCurrentRound() { return currentRound; }
 };

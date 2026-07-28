@@ -5,6 +5,8 @@
 AlienManager::AlienManager() {
     moveSpeed = 100.0f; // Tốc độ di chuyển ngang (100 pixel/giây)
     movingRight = true; // Bầy quái bắt đầu đi từ trái sang phải
+    currentRound = 1;
+    maxRounds = 3;
 }
 
 AlienManager::~AlienManager() {
@@ -17,7 +19,7 @@ AlienManager::~AlienManager() {
 
 void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
     // Cấu hình mạng lưới quái vật: 4 hàng x 8 cột
-    int rows = 4;
+    int rows = 2 + currentRound;
     int cols = 8;
     float startX = 60.0f;
     float startY = 50.0f;
@@ -36,7 +38,12 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
             aliens.push_back(newAlien);
         }
     }
-    std::cout << "Da khoi tao xong bay quai vat!\n";
+
+    moveSpeed = 100.0f + (currentRound - 1) * 30.0f;
+    movingRight = true;
+
+
+    std::cout << "Da khoi tao Round " << currentRound << " voi " << rows << " hang quai vat!\n";
 }
 void AlienManager::Update(float deltaTime) {
     if (aliens.empty()) return;
@@ -137,4 +144,29 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
             currentAlienBullets++;
         }
     }
+}
+
+bool AlienManager::IsRoundCleared() {
+    // Nếu danh sách rỗng hoặc mọi con đều không còn active -> round đã bị tiêu diệt hết
+    for (Alien* alien : aliens) {
+        if (alien->IsActive()) return false;
+    }
+    return true;
+}
+
+bool AlienManager::IsFinalRound() {
+    return currentRound >= maxRounds;
+}
+
+void AlienManager::StartNextRound(sf::Texture* alienTexture) {
+    // Dọn sạch danh sách quái cũ đã chết (giải phóng bộ nhớ)
+    for (Alien* alien : aliens) {
+        delete alien;
+    }
+    aliens.clear();
+
+    currentRound++;
+    InitializeSwarm(alienTexture);
+
+
 }

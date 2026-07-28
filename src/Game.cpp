@@ -1,5 +1,6 @@
 #include "Game.hpp"
 #include <iostream>
+#include <fstream>
 #include <optional> // Bắt buộc phải có cho SFML 3 Event
 
 // Khởi tạo cửa sổ y hệt code cũ của bạn
@@ -27,6 +28,9 @@ Game::Game() : window(sf::VideoMode({800, 600}), "My first game") {
     sf::Vector2f startPos(400.0f, 550.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);
     std::cout << "Da tao xong Player\n";
+
+    currentState = GameState::Playing;
+    LoadHighScore();
 
     backgroundSprite = new sf::Sprite(*resourceManager.GetTexture("background"));
 
@@ -65,17 +69,47 @@ void Game::ProcessEvents() {
 }
 
 void Game::Update(float deltaTime) {
-    player->Update(deltaTime);
+    if (currentState == GameState::Playing) {
+        player->Update(deltaTime);
+        alienManager->Update(deltaTime);\
 
-    alienManager->Update(deltaTime);
-    alienManager->AlienShoot(bullets, resourceManager.GetTexture("alien_bullet"));
+        for (Bullet* bullet : bullets) {
+            bullet->Update(deltaTime);
+        }
 
-    for (Bullet* bullet : bullets) {
-        bullet->Update(deltaTime);
+        alienManager->AlienShoot(bullets, resourceManager.GetTexture("bullet"));
+        collisionManager.CheckCollisions(player, alienManager->GetAliens(), bullets);
+
+        CleanUpDeadEntities();
+
+        // Kiểm tra Player còn sống không
+        if (!player->IsActive()) {
+            currentState = GameState::GameOver;
+            if (player->GetScore() > highScore) {
+                highScore = player->GetScore();
+                SaveHighScore();
+                std::cout << "KY LUC MOI! Diem: " << highScore << "\n";
+            } else {
+                std::cout << "Game Over. Diem: " << player->GetScore() << " | Ky luc: " << highScore << "\n";
+            }
+        }
+        // Kiểm tra đợt quái hiện tại đã bị tiêu diệt hết chưa
+        else if (alienManager->IsRoundCleared()) {
+            if (alienManager->IsFinalRound()) {
+                // Đã dẹp sạch đợt cuối cùng -> Thắng game
+                currentState = GameState::Victory;
+                if (player->GetScore() > highScore) {
+                    highScore = player->GetScore();
+                    SaveHighScore();
+                }
+                std::cout << "CHIEN THANG! Diem cuoi cung: " << player->GetScore() << "\n";
+            } else {
+                // Còn round tiếp theo -> chuyển sang đợt mới mạnh hơn
+                alienManager->StartNextRound(resourceManager.GetTexture("enemy"));
+                std::cout << "Chuyen sang Round " << alienManager->GetCurrentRound() << "!\n";
+            }
+        }
     }
-    collisionManager.CheckCollisions(player, alienManager->GetAliens(), bullets);
-
-    CleanUpDeadEntities();
 }
 
 void Game::CleanUpDeadEntities() {
@@ -110,5 +144,23 @@ void Game::Run() {
         ProcessEvents();
         Update(deltaTime);
         Render();
+    }
+}
+
+void Game::LoadHighScore(){
+    std::ifstream file ("highscore.txt");
+    if(file.is_open()){
+        file >> highScore;
+        file.close();
+    }
+    else{
+        highScore = 0;
+    }
+}
+void Game::SaveHighScore(){
+    std::ofstream file("highscore.txt");
+    if(file.is_open()){
+        file << highScore;
+        file.close();
     }
 }
