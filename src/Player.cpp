@@ -41,21 +41,49 @@ void Player::HandleInput()
 void Player::Update(float deltaTime)
 {
     // Di chuyển trái/phải
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
     {
         position.x -= speed * deltaTime;
     }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D))
     {
         position.x += speed * deltaTime;
     }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W))
+    {
+        position.y -= speed * deltaTime;
+    }
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S))
+    {
+        position.y += speed * deltaTime;
+    }
+    // // Giới hạn trong màn hình
+    // if (position.x < 0.0f)
+    //     position.x = 0.0f;
+    // if (position.x > 750.0f)
+    //     position.x = 750.0f;
 
-    // Giới hạn trong màn hình
-    if (position.x < 0.0f)
-        position.x = 0.0f;
-    if (position.x > 750.0f)
-        position.x = 750.0f;
+    if (position.x < 0.f)
+    {
+        position.x = 0.f;
+    }
+    else if (position.x > 800.f)
+    {
+        position.x = 800.f;
+    }
 
+    // Giới hạn trục Y (Giữ phi thuyền ở nửa dưới màn hình để không bay xuyên bầy quái)
+    float maxY = 600.f; // Đáy màn hình
+    float minY = 350.f; // Giới hạn bay cao nhất (bạn có thể tinh chỉnh số 350 này)
+
+    if (position.y < minY)
+    {
+        position.y = minY;
+    }
+    else if (position.y > maxY)
+    {
+        position.y = maxY;
+    }
     sprite.setPosition(position);
 
     // Đếm ngược thời gian hồi chiêu bắn đạn
