@@ -24,6 +24,9 @@ private:
     AlienManager* alienManager;
     std::vector<Bullet*> bullets;
 
+    sf::RectangleShape restartButton;
+    sf::Text* restartButtonText;
+
     // Các hàm nội bộ
     void ProcessEvents();
     void Update(float deltaTime);
@@ -31,6 +34,8 @@ private:
     void CleanUpDeadEntities(); 
     void LoadHighScore();
     void SaveHighScore();
+
+    void RestartGame();
 
 public:
     Game();

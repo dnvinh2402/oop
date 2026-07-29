@@ -25,6 +25,7 @@ void CollisionManager::CheckCollisions(Player* player, std::vector<Alien*>& alie
                     alien->Destroy();  // Kích hoạt hàm hủy của quái (ẩn đi)
                     bullet->Destroy(); // Phá hủy viên đạn
 
+                    player->AddScore(alien->GetPoints());
                     // Tạm in ra console để theo dõi (sau này sẽ làm UI cộng điểm)
                     std::cout << "BUM! Tieu diet quai vat (+ " << alien->GetPoints() << " diem)\n";
                     break; // Viên đạn này đã nổ, chuyển sang xét viên đạn khác
