@@ -35,6 +35,9 @@ private:
     // bool explosionActive;
     // float explosionTimer;
 
+    sf::RectangleShape restartButton;
+    sf::Text* restartButtonText;
+
     // Các hàm nội bộ
     void DestroyNearestAliens(sf::Vector2f center);
     void ProcessEvents();
@@ -44,6 +47,8 @@ private:
     void LoadHighScore();
     void SaveHighScore();
     
+
+    void RestartGame();
 
 public:
     Game();

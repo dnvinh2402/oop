@@ -28,4 +28,6 @@ public:
     bool IsRoundCleared();       
     bool IsFinalRound();        
     int GetCurrentRound() { return currentRound; }
+
+    void Reset(sf:: Texture* alienTexture);
 };

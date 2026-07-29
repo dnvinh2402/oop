@@ -115,11 +115,11 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
     }
 
     // Giới hạn cấp độ khó: Tối đa 6 viên đạn quái xuất hiện cùng lúc
-    int maxBulletsAllowed = 6; 
+    int maxBulletsAllowed = 4 + currentRound; 
     if (currentAlienBullets >= maxBulletsAllowed) return;
 
     // 3. Tỉ lệ nổ súng (Ví dụ: 2% cơ hội xảy ra mỗi frame)
-    if (rand() % 100 < 2) {
+    if (rand() % 100 < 1) {
         // Random số lượng quái xả đạn trong đợt này (1 hoặc 2 con)
         int shootersCount = rand() % 2 + 1;
         
@@ -136,7 +136,8 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
             bulletPos.x = bounds.position.x + bounds.size.x / 2.0f - 5.0f;
             bulletPos.y = bounds.position.y + bounds.size.y;
 
-            sf::Vector2f bulletVel(0.0f, 250.0f); // Tốc độ đạn rơi
+            float bulletSpeed = 150.0f + (currentRound - 1) * 75.0f;
+            sf::Vector2f bulletVel(0.0f, bulletSpeed); // Tốc độ đạn rơi
             
             Bullet* newBullet = new Bullet(bulletTexture, bulletPos, bulletVel, false);
             bulletList.push_back(newBullet);
@@ -167,6 +168,18 @@ void AlienManager::StartNextRound(sf::Texture* alienTexture) {
 
     currentRound++;
     InitializeSwarm(alienTexture);
+}
 
+void AlienManager::Reset(sf::Texture* alienTexture){
+    for (Alien* alien : aliens){
+        delete alien;
+    }
 
+    aliens.clear();
+
+    currentRound = 1;
+    moveSpeed = 100.0f;
+    movingRight = true;
+
+    InitializeSwarm(alienTexture);
 }
