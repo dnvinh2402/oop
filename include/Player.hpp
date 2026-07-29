@@ -1,28 +1,52 @@
 #pragma once
 #include "GameObject.hpp"
 #include "Bullet.hpp"
+#include "Alien.hpp"
 #include <vector>
 
-class Player : public GameObject {
+class Player : public GameObject
+{
 private:
     float speed;
     int lives;
     int score;
+
     float fireCooldown;
     float currentCooldown;
 
+    // ===== Buff =====
+    bool rapidFire;
+    bool shield;
+
+    float rapidFireTimer;
+    float shieldTimer;
+
+    bool bombReady;
+    float bombTimer;
+    // ================
+
+
 public:
-    Player(sf::Texture* texture, sf::Vector2f startPos);
+    Player(sf::Texture *texture, sf::Vector2f startPos);
     ~Player();
 
     void Update(float deltaTime) override;
-    void Render(sf::RenderWindow& window) override;
+    void Render(sf::RenderWindow &window) override;
 
     void HandleInput();
-    
-    // Hàm bắn: Đẩy đạn mới (dùng toán tử new) vào mảng bulletList
-    void Shoot(std::vector<Bullet*>& bulletList, sf::Texture* bulletTexture);
+
+    void Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture);
     void TakeDamage();
+
+    // ===== Buff =====
+    void ActivateRapidFire();
+    void ActivateShield();
+    void ActivateBomb();
+    bool IsBombReady() const;
+    void ResetBomb();
+
+    bool HasShield() const;
+    // ================
 
     int GetLives() { return lives; }
     int GetScore() { return score; }

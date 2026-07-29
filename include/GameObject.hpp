@@ -22,4 +22,5 @@ public:
     bool IsActive() { return isActive; }
     void Destroy() { isActive = false; }
     sf::FloatRect GetBounds() { return sprite.getGlobalBounds(); }
+    sf::Vector2f GetPosition() const{ return position;  }
 };

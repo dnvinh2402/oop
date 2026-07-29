@@ -3,6 +3,9 @@
 #include "Player.hpp"
 #include "Alien.hpp"
 #include "Bullet.hpp"
+#include "BuffManager.hpp"
+#include "ResourceManager.hpp"
+#include "Buff.hpp"
 
 class CollisionManager {
 public:
@@ -10,5 +13,11 @@ public:
     ~CollisionManager();
 
     // Thuật toán AABB quét va chạm giữa các mảng
-    void CheckCollisions(Player* player, std::vector<Alien*>& aliens, std::vector<Bullet*>& bullets);
+void CheckCollisions(
+    Player* player,
+    std::vector<Alien*>& aliens,
+    std::vector<Bullet*>& bullets,
+    std::vector<Buff*>& buffs,
+    BuffManager* buffManager,
+    ResourceManager& resourceManager);
 };
