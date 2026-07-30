@@ -29,7 +29,7 @@ private:
     int currentHealth;
 
 public:
-    Alien(sf::Texture* texture, sf::Vector2f orbitCenterPos, float radius, float speed, float delay, int points);
+    Alien(sf::Texture* texture, sf::Vector2f orbitCenterPos, float radius, float speed, float delay, int points, MovementType type = MovementType::Orbit, int hp  = 1);
     ~Alien();
 
     void Update(float deltaTime) override;

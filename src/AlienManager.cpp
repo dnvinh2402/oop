@@ -1,7 +1,7 @@
 #include "AlienManager.hpp"
 #include <cstdlib> // Thư viện hỗ trợ hàm rand() để random tỉ lệ nhả đạn
 #include <iostream>
-
+const float WORLD_WIDTH_HALF = 450.0f;
 AlienManager::AlienManager() {
     moveSpeed = 100.0f; // Tốc độ di chuyển ngang (100 pixel/giây)
     movingRight = true; // Bầy quái bắt đầu đi từ trái sang phải
@@ -17,91 +17,158 @@ AlienManager::~AlienManager() {
     aliens.clear();
 }
 
+// void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
+//     // Cấu hình mạng lưới quái vật: 4 hàng x 8 cột
+//     int rows = 2 + currentRound;
+//     int cols = 8;
+//     float startX = 60.0f;
+//     float startY = 50.0f;
+//     float spacingX = 70.0f;
+//     float spacingY = 60.0f;
+
+//     float baseAngularSpeed = 1.0f + (currentRound - 1) * 0.3f; // round sau quay nhanh hơn
+//     float staggerDelay = 0.15f; // mỗi con cách nhau 0.15s xuất hiện
+
+//     int index = 0;
+//     for (int row = 0; row < rows; row++) {
+//         for (int col = 0; col < cols; col++) {
+//             sf::Vector2f center(startX + col * spacingX, startY + row * spacingY);
+            
+//             float radius = 20.0f + (row % 3) * 10.0f; // bán kính khác nhau theo hàng, tạo cảm giác đa dạng
+//             float speed = baseAngularSpeed + (rand() % 50) / 100.0f; // mỗi con tốc độ hơi khác nhau
+//             float delay = index * staggerDelay;
+//             int points = (rows - row) * 10;//diem tieu diet
+
+            
+//             Alien* newAlien = new Alien(alienTexture, center, radius, speed, delay, points);
+//             aliens.push_back(newAlien);
+//             index++;
+//         }
+//     }
+
+//     moveSpeed = 100.0f + (currentRound - 1) * 30.0f;
+//     movingRight = true;
+
+
+//     std::cout << "Da khoi tao Round " << currentRound << " voi " << rows << " hang quai vat!\n";
+// }
+
 void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
-    // Cấu hình mạng lưới quái vật: 4 hàng x 8 cột
-    int rows = 2 + currentRound;
-    int cols = 8;
-    float startX = 60.0f;
-    float startY = 50.0f;
-    float spacingX = 70.0f;
-    float spacingY = 60.0f;
+    if (currentRound == 1) {
+        // ===== ROUND 1: Patrol - giống hệt bản gốc ban đầu =====
+        int rows = 4;
+        int cols = 8;
+        float startX = 60.0f;
+        float startY = 50.0f;
+        float spacingX = 70.0f;
+        float spacingY = 60.0f;
 
-    float baseAngularSpeed = 1.0f + (currentRound - 1) * 0.3f; // round sau quay nhanh hơn
-    float staggerDelay = 0.15f; // mỗi con cách nhau 0.15s xuất hiện
+        int index = 0;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                sf::Vector2f pos(startX + col * spacingX, startY + row * spacingY);
+                int points = (rows - row) * 10;
+                float delay = index * 0.05f;
 
-    int index = 0;
-    for (int row = 0; row < rows; row++) {
-        for (int col = 0; col < cols; col++) {
-            sf::Vector2f center(startX + col * spacingX, startY + row * spacingY);
-            
-            float radius = 20.0f + (row % 3) * 10.0f; // bán kính khác nhau theo hàng, tạo cảm giác đa dạng
-            float speed = baseAngularSpeed + (rand() % 50) / 100.0f; // mỗi con tốc độ hơi khác nhau
-            float delay = index * staggerDelay;
-            int points = (rows - row) * 10;//diem tieu diet
+                Alien* newAlien = new Alien(alienTexture, pos, 0.0f, 0.0f, delay, points, MovementType::Patrol, 1);
+                aliens.push_back(newAlien);
+                index++;
+            }
+        }
+        moveSpeed = 100.0f;
+        movingRight = true;
+    }
+    else if (currentRound == 2) {
+        // ===== ROUND 2: Orbit - nhiều hơn, quay tròn =====
+        int rows = 5;
+        int cols = 9;
+        float startX = 60.0f;
+        float startY = 50.0f;
+        float spacingX = 65.0f;
+        float spacingY = 55.0f;
 
-            
-            Alien* newAlien = new Alien(alienTexture, center, radius, speed, delay, points);
-            aliens.push_back(newAlien);
-            index++;
+        float baseAngularSpeed = 1.3f;
+        float staggerDelay = 0.1f;
+
+        int index = 0;
+        for (int row = 0; row < rows; row++) {
+            for (int col = 0; col < cols; col++) {
+                sf::Vector2f center(startX + col * spacingX, startY + row * spacingY);
+                float radius = 20.0f + (row % 3) * 10.0f;
+                float speed = baseAngularSpeed + (rand() % 50) / 100.0f;
+                float delay = index * staggerDelay;
+                int points = (rows - row) * 10;
+
+                Alien* newAlien = new Alien(alienTexture, center, radius, speed, delay, points, MovementType::Orbit, 1);
+                aliens.push_back(newAlien);
+                index++;
+            }
         }
     }
+    else {
+        // ===== ROUND 3: Boss - 1 con duy nhất, nhiều máu =====
+        sf::Vector2f bossCenter(WORLD_WIDTH_HALF, 150.0f);
+        int bossHealth = 25;
+        int bossPoints = 500;
 
-    moveSpeed = 100.0f + (currentRound - 1) * 30.0f;
-    movingRight = true;
+        Alien* boss = new Alien(alienTexture, bossCenter, 250.0f, 0.4f, 0.0f, bossPoints, MovementType::Boss, bossHealth);
+        aliens.push_back(boss);
+    }
 
-
-    std::cout << "Da khoi tao Round " << currentRound << " voi " << rows << " hang quai vat!\n";
+    std::cout << "Da khoi tao Round " << currentRound << " voi " << aliens.size() << " quai vat!\n";
 }
 void AlienManager::Update(float deltaTime) {
     if (aliens.empty()) return;
 
-    // 1. Tính toán quãng đường di chuyển trong frame hiện tại
-    float moveDistance = moveSpeed * deltaTime;
-    if (!movingRight) moveDistance = -moveDistance;
+    if (currentRound == 1) {
+        // Chỉ Round 1 (Patrol) cần logic di chuyển đồng bộ cả đàn
+        float moveDistance = moveSpeed * deltaTime;
+        if (!movingRight) moveDistance = -moveDistance;
 
-    // 2. Di chuyển toàn bộ bầy (Chưa cần quan tâm va chạm)
-    for (Alien* alien : aliens) {
-        if (alien->IsActive()) {
-            alien->MoveHorizontal(moveDistance);
-        }
-    }
-
-    // 3. Quét tọa độ thực tế của bầy SAU KHI di chuyển
-    float minX = 9999.0f;
-    float maxX = -9999.0f;
-    bool hasActiveAliens = false;
-    
-    for (Alien* alien : aliens) {
-        if (alien->IsActive()) {
-            hasActiveAliens = true;
-            sf::FloatRect bounds = alien->GetBounds();
-            if (bounds.position.x < minX) minX = bounds.position.x;
-            if (bounds.position.x + bounds.size.x > maxX) maxX = bounds.position.x + bounds.size.x;
-        }
-    }
-
-    if (!hasActiveAliens) return;
-
-    // 4. Sửa lỗi lọt viền (Overshoot Correction)
-    if (maxX > 800.0f) {
-        float overshoot = maxX - 800.0f;
         for (Alien* alien : aliens) {
-            if (alien->IsActive()) alien->MoveHorizontal(-overshoot);
+            if (alien->IsActive()) {
+                alien->MoveHorizontal(moveDistance);
+            }
         }
-        movingRight = false; // Đảo chiều cho frame sau
-    } else if (minX < 0.0f) {
-        float overshoot = 0.0f - minX;
+
+        float minX = 9999.0f;
+        float maxX = -9999.0f;
+        bool hasActiveAliens = false;
+
         for (Alien* alien : aliens) {
-            if (alien->IsActive()) alien->MoveHorizontal(overshoot);
+            if (alien->IsActive()) {
+                hasActiveAliens = true;
+                sf::FloatRect bounds = alien->GetBounds();
+                if (bounds.position.x < minX) minX = bounds.position.x;
+                if (bounds.position.x + bounds.size.x > maxX) maxX = bounds.position.x + bounds.size.x;
+            }
         }
-        movingRight = true;
+
+        if (hasActiveAliens) {
+            if (maxX > 900.0f) {
+                float overshoot = maxX - 900.0f;
+                for (Alien* alien : aliens) {
+                    if (alien->IsActive()) alien->MoveHorizontal(-overshoot);
+                }
+                movingRight = false;
+            } else if (minX < 0.0f) {
+                float overshoot = 0.0f - minX;
+                for (Alien* alien : aliens) {
+                    if (alien->IsActive()) alien->MoveHorizontal(overshoot);
+                }
+                movingRight = true;
+            }
+        }
     }
+
+    // Mọi round đều cần Update() riêng của từng Alien (spawn, cooldown, Orbit/Boss di chuyển)
     for (Alien* alien : aliens) {
         if (alien->IsActive()) {
             alien->Update(deltaTime);
         }
     }
 }
+
 void AlienManager::Render(sf::RenderWindow& window) {
     for (Alien* alien : aliens) {
         if (alien->IsActive()) {

@@ -37,7 +37,7 @@ void CollisionManager::CheckCollisions(
 
                 if (bulletBounds.findIntersection(alien->GetBounds()).has_value())
                 {
-                    alien->Destroy();
+                    alien->TakeDamage(1);
                     bullet->Destroy();
 
                     // 15% tỉ lệ rơi Buff
