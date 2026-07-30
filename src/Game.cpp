@@ -67,7 +67,6 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
 
     shieldSprite->setScale(sf::Vector2f(64.f / size.x, 64.f / size.y));
 
-    // Co giãn ảnh nền cho vừa khít cửa sổ 800x600
     // Co giãn ảnh nền phủ kín WORLD (900x900)
     sf::Vector2u textureSize = resourceManager.GetTexture("background")->getSize();
     float scaleX = WORLD_WIDTH / textureSize.x;
@@ -75,9 +74,6 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     backgroundSprite->setScale(sf::Vector2f(scaleX, scaleY));
     std::cout << "Da tao xong Background\n";
 
-    restartButton.setSize(sf::Vector2f(200.0f, 60.0f));
-    restartButton.setFillColor(sf::Color(50, 150, 50));
-    restartButton.setPosition(sf::Vector2f(300.0f, 350.0f));
     // Thiết lập nút Restart căn chính giữa màn hình WORLD
     restartButton.setSize(sf::Vector2f(200.0f, 60.0f));
     restartButton.setFillColor(sf::Color(50, 150, 50)); // màu xanh lá
@@ -126,46 +122,27 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
-        {
-            if (currentState == GameState::Playing)
-            {
-                if (keyPressed->code == sf::Keyboard::Key::Space)
-                {
+        
+        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
+            if (currentState == GameState::Playing){
+                if (keyPressed->code == sf::Keyboard::Key::Space) {
+                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                }
+            }
+            else if(currentState == GameState::GameOver || currentState == GameState::Victory){
+                if(keyPressed->code == sf::Keyboard::Key::Enter){
+                    RestartGame();
+                }
+            }
+        }
+        
+        if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>()) {
+            if (mouseClicked->button == sf::Mouse::Button::Left) {
+                if (currentState == GameState::GameOver || currentState == GameState::Victory) {
+                    sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
 
-                    // Kết hợp logic bắn súng của bạn và logic phím Enter của Vinh
-                    if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
-                    {
-                        if (currentState == GameState::Playing)
-                        {
-                            if (keyPressed->code == sf::Keyboard::Key::Space)
-                            {
-                                player->Shoot(bullets, resourceManager.GetTexture("bullet"));
-                            }
-                        }
-                        else if (currentState == GameState::GameOver || currentState == GameState::Victory)
-                        {
-                            if (keyPressed->code == sf::Keyboard::Key::Enter)
-                            {
-                                RestartGame();
-                            }
-                        }
-                    }
-
-                    if (const auto *mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
-                    {
-                        if (mouseClicked->button == sf::Mouse::Button::Left)
-                        {
-                            if (currentState == GameState::GameOver || currentState == GameState::Victory)
-                            {
-                                sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
-
-                                if (restartButton.getGlobalBounds().contains(mousePos))
-                                {
-                                    RestartGame();
-                                }
-                            }
-                        }
+                    if (restartButton.getGlobalBounds().contains(mousePos)) {
+                        RestartGame();
                     }
                 }
             }
