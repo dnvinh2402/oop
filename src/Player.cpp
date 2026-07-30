@@ -58,12 +58,7 @@ void Player::Update(float deltaTime)
     {
         position.y += speed * deltaTime;
     }
-    // // Giới hạn trong màn hình
-    // if (position.x < 0.0f)
-    //     position.x = 0.0f;
-    // if (position.x > 750.0f)
-    //     position.x = 750.0f;
-    // 3. XỬ LÝ CHẶN VIỀN (Boundary Clamping chuẩn SFML 3)
+    
     sf::FloatRect bounds = sprite.getGlobalBounds();
 
     // Giới hạn trục X (Sử dụng bounds.size.x thay vì bounds.width)
@@ -71,14 +66,17 @@ void Player::Update(float deltaTime)
     {
         position.x = 0.f;
     }
-    else if (position.x > 800.f - bounds.size.x)
+    else if (position.x > 900.f - bounds.size.x) 
     {
-        position.x = 800.f - bounds.size.x;
+        position.x = 900.f - bounds.size.x;
     }
 
-    // Giới hạn trục Y (Sử dụng bounds.size.y thay vì bounds.height)
-    float maxY = 600.f - bounds.size.y;
-    float minY = 350.f;
+    // Giới hạn trục Y (Đổi 600 thành 900)
+    float maxY = 900.f - bounds.size.y; 
+    
+    // Vì màn hình rộng hơn, bạn có thể đẩy giới hạn bay cao nhất (minY) xuống một chút (ví dụ 450) 
+    // để phi thuyền không bay lên quá sát bầy quái vật.
+    float minY = 450.f; 
 
     if (position.y < minY)
     {
@@ -88,7 +86,6 @@ void Player::Update(float deltaTime)
     {
         position.y = maxY;
     }
-
     // 4. Áp dụng tọa độ mới
     sprite.setPosition(position);
 

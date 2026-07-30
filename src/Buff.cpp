@@ -23,7 +23,7 @@ void Buff::Update(float deltaTime)
     sprite.setPosition(position);
 
     // Rơi khỏi màn hình thì xóa
-    if (position.y > 620.0f)
+    if (position.y > 920.0f)
     {
         Destroy();
     }

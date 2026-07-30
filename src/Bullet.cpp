@@ -20,7 +20,7 @@ void Bullet::Update(float deltaTime) {
     sprite.setPosition(position);
 
     // Nếu đạn bay ra khỏi màn hình (trên hoặc dưới), đánh dấu để xoá
-    if (position.y < 0.0f || position.y > 600.0f) {
+    if (position.y < 0.0f || position.y > 900.0f) {
         Destroy();
     }
 }

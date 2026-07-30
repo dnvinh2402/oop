@@ -49,7 +49,11 @@ private:
     void LoadHighScore();
     void SaveHighScore();
 
+    
     void RestartGame();
+
+    sf::View gameView;
+    void UpdateView();
 
 public:
     Game();

@@ -4,9 +4,13 @@
 #include <algorithm>
 #include <optional> // Bắt buộc phải có cho SFML 3 Event
 
-// Khởi tạo cửa sổ y hệt code cũ của bạn
-Game::Game() : window(sf::VideoMode({800, 600}), "My first game")
+const float WORLD_WIDTH = 900.0f;
+const float WORLD_HEIGHT = 900.0f;
+Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Default | sf::Style::Resize)
 {
+    gameView.setSize(sf::Vector2f(WORLD_WIDTH, WORLD_HEIGHT));
+    gameView.setCenter(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
+    window.setView(gameView);
     resourceManager.LoadTexture("player", "assets/images/player.png");
     std::cout << "Da load xong player texture\n";
 
@@ -49,7 +53,7 @@ Game::Game() : window(sf::VideoMode({800, 600}), "My first game")
     resourceManager.LoadFont("arial", "assets/font/arial.ttf");
     std::cout << "Da load xong font\n";
 
-    sf::Vector2f startPos(400.0f, 550.0f);
+    sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);
     std::cout << "Da tao xong Player\n";
 
@@ -64,19 +68,30 @@ Game::Game() : window(sf::VideoMode({800, 600}), "My first game")
     shieldSprite->setScale(sf::Vector2f(64.f / size.x, 64.f / size.y));
 
     // Co giãn ảnh nền cho vừa khít cửa sổ 800x600
+    // Co giãn ảnh nền phủ kín WORLD (900x900)
     sf::Vector2u textureSize = resourceManager.GetTexture("background")->getSize();
-    float scaleX = 800.0f / textureSize.x;
-    float scaleY = 600.0f / textureSize.y;
+    float scaleX = WORLD_WIDTH / textureSize.x;
+    float scaleY = WORLD_HEIGHT / textureSize.y;
     backgroundSprite->setScale(sf::Vector2f(scaleX, scaleY));
     std::cout << "Da tao xong Background\n";
 
     restartButton.setSize(sf::Vector2f(200.0f, 60.0f));
     restartButton.setFillColor(sf::Color(50, 150, 50));
     restartButton.setPosition(sf::Vector2f(300.0f, 350.0f));
+    // Thiết lập nút Restart căn chính giữa màn hình WORLD
+    restartButton.setSize(sf::Vector2f(200.0f, 60.0f));
+    restartButton.setFillColor(sf::Color(50, 150, 50)); // màu xanh lá
+    restartButton.setOrigin(sf::Vector2f(100.0f, 30.0f));
+    restartButton.setPosition(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
 
     restartButtonText = new sf::Text(*resourceManager.GetFont("arial"), "Choi lai", 24);
     restartButtonText->setFillColor(sf::Color::White);
-    restartButtonText->setPosition(sf::Vector2f(330.0f, 365.0f)); // canh giữa trong nút
+
+    // Căn giữa chữ inside nút
+    sf::FloatRect textBounds = restartButtonText->getLocalBounds();
+    restartButtonText->setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.0f,
+                                              textBounds.position.y + textBounds.size.y / 2.0f));
+    restartButtonText->setPosition(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
 }
 
 Game::~Game()
@@ -117,29 +132,40 @@ void Game::ProcessEvents()
             {
                 if (keyPressed->code == sf::Keyboard::Key::Space)
                 {
-                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
-                }
-            }
-            else if (currentState == GameState::GameOver || currentState == GameState::Victory)
-            {
-                if (keyPressed->code == sf::Keyboard::Key::Enter)
-                {
-                    RestartGame();
-                }
-            }
-        }
 
-        if (const auto *mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
-        {
-            if (mouseClicked->button == sf::Mouse::Button::Left)
-            {
-                if (currentState == GameState::GameOver || currentState == GameState::Victory)
-                {
-                    sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
-
-                    if (restartButton.getGlobalBounds().contains(mousePos))
+                    // Kết hợp logic bắn súng của bạn và logic phím Enter của Vinh
+                    if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
                     {
-                        RestartGame();
+                        if (currentState == GameState::Playing)
+                        {
+                            if (keyPressed->code == sf::Keyboard::Key::Space)
+                            {
+                                player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                            }
+                        }
+                        else if (currentState == GameState::GameOver || currentState == GameState::Victory)
+                        {
+                            if (keyPressed->code == sf::Keyboard::Key::Enter)
+                            {
+                                RestartGame();
+                            }
+                        }
+                    }
+
+                    if (const auto *mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
+                    {
+                        if (mouseClicked->button == sf::Mouse::Button::Left)
+                        {
+                            if (currentState == GameState::GameOver || currentState == GameState::Victory)
+                            {
+                                sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
+
+                                if (restartButton.getGlobalBounds().contains(mousePos))
+                                {
+                                    RestartGame();
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -294,7 +320,14 @@ void Game::CleanUpDeadEntities()
 void Game::Render()
 {
     // Bôi màu nền xám giống hệt file main cũ của bạn
-    window.clear(sf::Color(127, 127, 127));
+    window.setView(window.getDefaultView());
+    window.clear(sf::Color::Black);
+
+    // 2. Chuyển lại gameView (đã có viewport) để vẽ game chính
+    window.setView(gameView);
+
+    // 3. Vẽ các thành phần của game như bình thường
+    window.draw(*backgroundSprite);
 
     window.draw(*backgroundSprite);
     if (player->HasShield())
@@ -438,4 +471,29 @@ void Game::RestartGame()
     currentState = GameState::Playing;
 
     std::cout << "Da bat dau lai\n";
+}
+
+void Game::UpdateView()
+{
+    float windowRatio = (float)window.getSize().x / (float)window.getSize().y;
+    float worldRatio = WORLD_WIDTH / WORLD_HEIGHT;
+
+    float sizeX = 1.0f, sizeY = 1.0f;
+    float posX = 0.0f, posY = 0.0f;
+
+    if (windowRatio > worldRatio)
+    {
+        // Cửa sổ rộng hơn tỉ lệ gốc -> thêm viền đen 2 bên trái/phải
+        sizeX = worldRatio / windowRatio;
+        posX = (1.0f - sizeX) / 2.0f;
+    }
+    else
+    {
+        // Cửa sổ cao hơn tỉ lệ gốc -> thêm viền đen trên/dưới
+        sizeY = windowRatio / worldRatio;
+        posY = (1.0f - sizeY) / 2.0f;
+    }
+
+    gameView.setViewport(sf::FloatRect(sf::Vector2f(posX, posY), sf::Vector2f(sizeX, sizeY)));
+    window.setView(gameView);
 }
