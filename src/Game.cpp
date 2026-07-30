@@ -111,26 +111,6 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        // Xử lý khi cửa sổ bị kéo giãn (Ép giữ tỉ lệ khung hình thật của cửa sổ)
-        if (const auto *resized = event->getIf<sf::Event::Resized>())
-        {
-            // 1. Lấy chiều rộng mới mà người dùng vừa kéo
-            unsigned int newWidth = resized->size.x;
-
-            // 2. Ép chiều cao phải chạy theo đúng tỉ lệ 4:3 (vì game của bạn là 800x600)
-            unsigned int newHeight = (newWidth * 3) / 4;
-
-            // 3. Nếu người dùng kéo lệch tỉ lệ, ta ra lệnh cho cửa sổ tự động snap (co/giãn) về đúng tỉ lệ
-            if (resized->size.y != newHeight)
-            {
-                window.setSize({newWidth, newHeight});
-            }
-
-            // 4. Cập nhật lại camera ảo để hình ảnh bên trong luôn giữ gốc 800x600 sắc nét
-            sf::View view({400.0f, 300.0f}, {800.0f, 600.0f});
-            window.setView(view);
-        }
-
         if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
         {
             if (currentState == GameState::Playing)
