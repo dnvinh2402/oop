@@ -31,12 +31,14 @@ private:
     std::vector<Bullet *> bullets;
     std::vector<Missile *> missiles;
 
-    // sf::Sprite explosionSprite;
-    // bool explosionActive;
-    // float explosionTimer;
+    sf::Sprite *explosionSprite;
+    sf::Sprite *shieldSprite;
+
+    bool explosionActive;
+    float explosionTimer;
 
     sf::RectangleShape restartButton;
-    sf::Text* restartButtonText;
+    sf::Text *restartButtonText;
 
     // Các hàm nội bộ
     void DestroyNearestAliens(sf::Vector2f center);
@@ -46,7 +48,6 @@ private:
     void CleanUpDeadEntities();
     void LoadHighScore();
     void SaveHighScore();
-    
 
     void RestartGame();
 

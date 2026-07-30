@@ -5,16 +5,17 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 {
     position = startPos;
     sprite.setPosition(position);
+    shieldTexture = nullptr;
 
     speed = 300.0f;
     lives = 3;
     score = 0;
     fireCooldown = 0.3f;
     currentCooldown = 0.0f;
-    rapidFire = false;
+    doubleShot = false;
     shield = false;
 
-    rapidFireTimer = 0.0f;
+    doubleShotTimer = 0.0f;
     shieldTimer = 0.0f;
 
     bombReady = false;
@@ -62,19 +63,22 @@ void Player::Update(float deltaTime)
     //     position.x = 0.0f;
     // if (position.x > 750.0f)
     //     position.x = 750.0f;
+    // 3. XỬ LÝ CHẶN VIỀN (Boundary Clamping chuẩn SFML 3)
+    sf::FloatRect bounds = sprite.getGlobalBounds();
 
+    // Giới hạn trục X (Sử dụng bounds.size.x thay vì bounds.width)
     if (position.x < 0.f)
     {
         position.x = 0.f;
     }
-    else if (position.x > 800.f)
+    else if (position.x > 800.f - bounds.size.x)
     {
-        position.x = 800.f;
+        position.x = 800.f - bounds.size.x;
     }
 
-    // Giới hạn trục Y (Giữ phi thuyền ở nửa dưới màn hình để không bay xuyên bầy quái)
-    float maxY = 600.f; // Đáy màn hình
-    float minY = 350.f; // Giới hạn bay cao nhất (bạn có thể tinh chỉnh số 350 này)
+    // Giới hạn trục Y (Sử dụng bounds.size.y thay vì bounds.height)
+    float maxY = 600.f - bounds.size.y;
+    float minY = 350.f;
 
     if (position.y < minY)
     {
@@ -84,6 +88,8 @@ void Player::Update(float deltaTime)
     {
         position.y = maxY;
     }
+
+    // 4. Áp dụng tọa độ mới
     sprite.setPosition(position);
 
     // Đếm ngược thời gian hồi chiêu bắn đạn
@@ -94,13 +100,13 @@ void Player::Update(float deltaTime)
     // =========================
     // Rapid Fire
     // =========================
-    if (rapidFire)
+    if (doubleShot)
     {
-        rapidFireTimer -= deltaTime;
+        doubleShotTimer -= deltaTime;
 
-        if (rapidFireTimer <= 0.0f)
+        if (doubleShotTimer <= 0.0f)
         {
-            rapidFire = false;
+            doubleShot = false;
             fireCooldown = 0.3f;
         }
     }
@@ -117,17 +123,43 @@ void Player::Update(float deltaTime)
             shield = false;
         }
     }
-    if (bombReady)
+    if (bombReady && bombTimer > 0.f)
     {
         bombTimer -= deltaTime;
     }
 }
 
-void Player::Render(sf::RenderWindow &window)
+void Player::Render(sf::RenderWindow& window)
 {
     window.draw(sprite);
-}
 
+    if (shield && shieldTexture != nullptr)
+    {
+        sf::Sprite shield(*shieldTexture);
+
+        sf::FloatRect playerBounds = sprite.getGlobalBounds();
+        sf::FloatRect shieldBounds = shield.getGlobalBounds();
+
+        shield.setOrigin({
+            shieldBounds.size.x / 2.f,
+            shieldBounds.size.y / 2.f
+        });
+
+        shield.setPosition({
+            position.x + playerBounds.size.x / 2.f,
+            position.y + playerBounds.size.y / 2.f
+        });
+
+        float scale = 2.f;
+
+        shield.setScale({
+            scale,
+            scale
+        });
+
+        window.draw(shield);
+    }
+}
 void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
 {
     // TODO: hoàn thiện sau khi có class Bullet
@@ -135,18 +167,24 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
     // push_back vào bulletList, rồi reset currentCooldown = fireCooldown
     if (currentCooldown <= 0.0f)
     {
-        sf::Vector2f bulletStartPos = position;
-        bulletStartPos.y -= 20.0f; // đặt đạn xuất hiện phía trên đầu Player một chút
+        sf::FloatRect playerBounds = sprite.getGlobalBounds();
+        sf::Vector2u bulletSize = bulletTexture->getSize();
+
+        sf::Vector2f bulletStartPos;
+
+        bulletStartPos.x = position.x + playerBounds.size.x / 2.f - bulletSize.x / 2.f;
+
+        bulletStartPos.y = position.y - bulletSize.y;
 
         sf::Vector2f bulletVelocity(0.0f, -500.0f); // bay thẳng lên, tốc độ 500px/s
 
-        if (rapidFire)
+        if (doubleShot)
         {
             sf::Vector2f leftPos = bulletStartPos;
             sf::Vector2f rightPos = bulletStartPos;
 
-            leftPos.x -= 10.f;
-            rightPos.x += 10.f;
+            leftPos.x -= 12.f;
+            rightPos.x += 12.f;
 
             bulletList.push_back(
                 new Bullet(bulletTexture, leftPos, bulletVelocity, true));
@@ -176,10 +214,10 @@ void Player::TakeDamage()
         Destroy();
     }
 }
-void Player::ActivateRapidFire()
+void Player::ActivateDoubleShot()
 {
-    rapidFire = true;
-    rapidFireTimer = 10.0f;
+    doubleShot = true;
+    doubleShotTimer = 10.0f;
 
     fireCooldown = 0.15f;
 }
@@ -206,4 +244,8 @@ bool Player::IsBombReady() const
 void Player::ResetBomb()
 {
     bombReady = false;
+}
+void Player::SetShieldTexture(sf::Texture* texture)
+{
+    shieldTexture = texture;
 }

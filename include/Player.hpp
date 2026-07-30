@@ -15,10 +15,12 @@ private:
     float currentCooldown;
 
     // ===== Buff =====
-    bool rapidFire;
+    bool doubleShot;
     bool shield;
 
-    float rapidFireTimer;
+    sf::Texture* shieldTexture;
+
+    float doubleShotTimer;
     float shieldTimer;
 
     bool bombReady;
@@ -39,11 +41,14 @@ public:
     void TakeDamage();
 
     // ===== Buff =====
-    void ActivateRapidFire();
+    void ActivateDoubleShot();
     void ActivateShield();
     void ActivateBomb();
     bool IsBombReady() const;
     void ResetBomb();
+
+
+    void SetShieldTexture(sf::Texture* texture);
 
     bool HasShield() const;
     // ================

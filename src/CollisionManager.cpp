@@ -41,14 +41,15 @@ void CollisionManager::CheckCollisions(
                     bullet->Destroy();
 
                     // 15% tỉ lệ rơi Buff
-                    if (rand() % 100 < 15)
+                    // 50 de test
+                    if (rand() % 100 < 50)
                     {
                         BuffType type;
 
                         int randomType = rand() % 3;
 
                         if (randomType == 0)
-                            type = BuffType::RapidFire;
+                            type = BuffType::doubleShot;
                         else if (randomType == 1)
                             type = BuffType::Shield;
                         else
@@ -64,8 +65,8 @@ void CollisionManager::CheckCollisions(
 
                         switch (type)
                         {
-                        case BuffType::RapidFire:
-                            texture = resourceManager.GetTexture("rapid_fire");
+                        case BuffType::doubleShot:
+                            texture = resourceManager.GetTexture("doubleShot");
                             break;
 
                         case BuffType::Shield:
@@ -79,7 +80,7 @@ void CollisionManager::CheckCollisions(
 
                         buffManager->SpawnBuff(texture, pos, type);
                     }
-
+                    player->AddScore(alien->GetPoints());
                     std::cout << "BUM! Tieu diet quai vat (+ "
                               << alien->GetPoints()
                               << " diem)\n";
@@ -117,8 +118,8 @@ void CollisionManager::CheckCollisions(
         {
             switch (buff->GetType())
             {
-            case BuffType::RapidFire:
-                player->ActivateRapidFire();
+            case BuffType::doubleShot:
+                player->ActivateDoubleShot();
                 break;
 
             case BuffType::Shield:
@@ -128,9 +129,8 @@ void CollisionManager::CheckCollisions(
             case BuffType::Bomb:
                 player->ActivateBomb();
                 break;
-
-                buff->Destroy();
             }
+            buff->Destroy();
         }
     }
 }

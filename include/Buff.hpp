@@ -3,7 +3,7 @@
 #include "GameObject.hpp"
 enum class BuffType
 {
-    RapidFire,
+    doubleShot,
     Shield,
     Bomb
 };
