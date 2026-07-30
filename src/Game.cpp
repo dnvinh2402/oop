@@ -115,10 +115,10 @@ Game::~Game()
     missiles.clear();
     bullets.clear();
 }
-
 void Game::ProcessEvents()
 {
     std::optional<sf::Event> event;
+
     while (event = window.pollEvent())
     {
         if (event->is<sf::Event::Closed>())
@@ -126,53 +126,47 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
+        // ===== Keyboard =====
+        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
         {
             if (currentState == GameState::Playing)
             {
                 if (keyPressed->code == sf::Keyboard::Key::Space)
                 {
+                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                }
+            }
+            else if (currentState == GameState::GameOver ||
+                     currentState == GameState::Victory)
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Enter)
+                {
+                    RestartGame();
+                }
+            }
+        }
 
-                    // Kết hợp logic bắn súng của bạn và logic phím Enter của Vinh
-                    if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
+        // ===== Mouse =====
+        if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
+        {
+            if (mouseClicked->button == sf::Mouse::Button::Left)
+            {
+                if (currentState == GameState::GameOver ||
+                    currentState == GameState::Victory)
+                {
+                    sf::Vector2f mousePos(
+                        static_cast<float>(mouseClicked->position.x),
+                        static_cast<float>(mouseClicked->position.y));
+
+                    if (restartButton.getGlobalBounds().contains(mousePos))
                     {
-                        if (currentState == GameState::Playing)
-                        {
-                            if (keyPressed->code == sf::Keyboard::Key::Space)
-                            {
-                                player->Shoot(bullets, resourceManager.GetTexture("bullet"));
-                            }
-                        }
-                        else if (currentState == GameState::GameOver || currentState == GameState::Victory)
-                        {
-                            if (keyPressed->code == sf::Keyboard::Key::Enter)
-                            {
-                                RestartGame();
-                            }
-                        }
-                    }
-
-                    if (const auto *mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
-                    {
-                        if (mouseClicked->button == sf::Mouse::Button::Left)
-                        {
-                            if (currentState == GameState::GameOver || currentState == GameState::Victory)
-                            {
-                                sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
-
-                                if (restartButton.getGlobalBounds().contains(mousePos))
-                                {
-                                    RestartGame();
-                                }
-                            }
-                        }
+                        RestartGame();
                     }
                 }
             }
         }
     }
 }
-
 void Game::Update(float deltaTime)
 {
     if (currentState == GameState::Playing)
