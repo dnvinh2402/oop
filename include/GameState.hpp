@@ -1,8 +1,8 @@
 #pragma once
 
 enum class GameState {
-    Menu,
-    Playing,
-    GameOver,
-    Victory
+    MainMenu,   // Thêm dòng này để định nghĩa trang bìa
+    Playing,    // Đang chơi game
+    GameOver,   // Thua
+    Victory     // Thắng
 };

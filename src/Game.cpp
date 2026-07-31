@@ -1,11 +1,13 @@
 #include "Game.hpp"
+#include "MainMenu.hpp"
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <optional> // Bắt buộc phải có cho SFML 3 Event
+#include <optional>
 
 const float WORLD_WIDTH = 900.0f;
 const float WORLD_HEIGHT = 900.0f;
+
 Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Default | sf::Style::Resize)
 {
     gameView.setSize(sf::Vector2f(WORLD_WIDTH, WORLD_HEIGHT));
@@ -16,7 +18,6 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
 
     resourceManager.LoadTexture("enemy", "assets/images/enemy.png");
 
-    // Khởi tạo nhạc trưởng và sinh ra bầy quái
     alienManager = new AlienManager();
     alienManager->InitializeSwarm(resourceManager.GetTexture("enemy"));
     buffManager = new BuffManager();
@@ -57,8 +58,12 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     player = new Player(resourceManager.GetTexture("player"), startPos);
     std::cout << "Da tao xong Player\n";
 
-    currentState = GameState::Playing;
+    currentState = GameState::MainMenu;
     LoadHighScore();
+
+    gameUI = new UI(resourceManager.GetFont("arial"));
+    
+    mainMenu = new MainMenu(resourceManager.GetFont("arial"), resourceManager.GetTexture("background"), highScore);
 
     backgroundSprite = new sf::Sprite(*resourceManager.GetTexture("background"));
 
@@ -67,27 +72,11 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
 
     shieldSprite->setScale(sf::Vector2f(64.f / size.x, 64.f / size.y));
 
-    // Co giãn ảnh nền phủ kín WORLD (900x900)
     sf::Vector2u textureSize = resourceManager.GetTexture("background")->getSize();
     float scaleX = WORLD_WIDTH / textureSize.x;
     float scaleY = WORLD_HEIGHT / textureSize.y;
     backgroundSprite->setScale(sf::Vector2f(scaleX, scaleY));
     std::cout << "Da tao xong Background\n";
-
-    // Thiết lập nút Restart căn chính giữa màn hình WORLD
-    restartButton.setSize(sf::Vector2f(200.0f, 60.0f));
-    restartButton.setFillColor(sf::Color(50, 150, 50)); // màu xanh lá
-    restartButton.setOrigin(sf::Vector2f(100.0f, 30.0f));
-    restartButton.setPosition(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
-
-    restartButtonText = new sf::Text(*resourceManager.GetFont("arial"), "Choi lai", 24);
-    restartButtonText->setFillColor(sf::Color::White);
-
-    // Căn giữa chữ inside nút
-    sf::FloatRect textBounds = restartButtonText->getLocalBounds();
-    restartButtonText->setOrigin(sf::Vector2f(textBounds.position.x + textBounds.size.x / 2.0f,
-                                              textBounds.position.y + textBounds.size.y / 2.0f));
-    restartButtonText->setPosition(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
 }
 
 Game::~Game()
@@ -96,9 +85,10 @@ Game::~Game()
     delete backgroundSprite;
     delete alienManager;
     delete buffManager;
-    delete restartButtonText;
     delete explosionSprite;
     delete shieldSprite;
+    delete gameUI;
+    delete mainMenu;
 
     for (Bullet *bullet : bullets)
     {
@@ -122,30 +112,53 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        
+        // Bắt sự kiện di chuyển chuột ở MainMenu
+        if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
+            if (currentState == GameState::MainMenu) {
+                mainMenu->Update(sf::Vector2f(mouseMoved->position.x, mouseMoved->position.y));
+            }
+        }
+
+        // Bắt sự kiện từ bàn phím
         if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
             if (currentState == GameState::Playing){
                 if (keyPressed->code == sf::Keyboard::Key::Space) {
                     player->Shoot(bullets, resourceManager.GetTexture("bullet"));
                 }
             }
+            else if (currentState == GameState::MainMenu) {
+                if(keyPressed->code == sf::Keyboard::Key::Enter){
+                    currentState = GameState::Playing; 
+                }
+            }
+            // CHỈ CHO PHÉP NHẤN ENTER ĐỂ CHƠI LẠI KHI THUA HOẶC THẮNG
             else if(currentState == GameState::GameOver || currentState == GameState::Victory){
                 if(keyPressed->code == sf::Keyboard::Key::Enter){
                     RestartGame();
                 }
             }
         }
-        
-        if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>()) {
-            if (mouseClicked->button == sf::Mouse::Button::Left) {
-                if (currentState == GameState::GameOver || currentState == GameState::Victory) {
-                    sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
 
-                    if (restartButton.getGlobalBounds().contains(mousePos)) {
-                        RestartGame();
+        // Bắt sự kiện từ chuột (Đã loại bỏ hoàn toàn việc click chuột để restart ở màn hình kết thúc)
+        if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>()) {
+            if (currentState == GameState::Playing) {
+                if (mouseClicked->button == sf::Mouse::Button::Right || mouseClicked->button == sf::Mouse::Button::Left) {
+                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                }
+            }
+            else if (currentState == GameState::MainMenu) {
+                if (mouseClicked->button == sf::Mouse::Button::Left) {
+                    sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
+                    int action = mainMenu->HandleClick(mousePos);
+                    if (action == 1) {
+                        currentState = GameState::Playing; 
+                    }
+                    else if (action == 2) {
+                        std::cout << "--> Xem diem cao: " << highScore << "\n";
                     }
                 }
             }
+            // Ở trạng thái GameOver hoặc Victory, click chuột không làm gì cả
         }
     }
 }
@@ -163,9 +176,7 @@ void Game::Update(float deltaTime)
                 resourceManager.GetTexture("missile")->getSize();
 
             sf::Vector2f pos;
-
             pos.x = playerBounds.position.x + playerBounds.size.x / 2.f - missileSize.x / 2.f;
-
             pos.y = playerBounds.position.y - missileSize.y;
 
             missiles.push_back(
@@ -198,13 +209,9 @@ void Game::Update(float deltaTime)
 
                 if (missile->GetBounds().findIntersection(alien->GetBounds()).has_value())
                 {
-                    // Missile trúng Alien
                     missile->Destroy();
-
-                    // Tiêu diệt 5 Alien gần nhất
                     DestroyNearestAliens(missile->GetPosition());
 
-                    // Hiện hiệu ứng nổ
                     explosionSprite->setPosition(missile->GetPosition());
                     explosionActive = true;
                     explosionTimer = 0.3f;
@@ -235,7 +242,6 @@ void Game::Update(float deltaTime)
 
         CleanUpDeadEntities();
 
-        // Kiểm tra Player còn sống không
         if (!player->IsActive())
         {
             currentState = GameState::GameOver;
@@ -250,12 +256,10 @@ void Game::Update(float deltaTime)
                 std::cout << "Game Over. Diem: " << player->GetScore() << " | Ky luc: " << highScore << "\n";
             }
         }
-        // Kiểm tra đợt quái hiện tại đã bị tiêu diệt hết chưa
         else if (alienManager->IsRoundCleared())
         {
             if (alienManager->IsFinalRound())
             {
-                // Đã dẹp sạch đợt cuối cùng -> Thắng game
                 currentState = GameState::Victory;
                 if (player->GetScore() > highScore)
                 {
@@ -266,12 +270,13 @@ void Game::Update(float deltaTime)
             }
             else
             {
-                // Còn round tiếp theo -> chuyển sang đợt mới mạnh hơn
                 alienManager->StartNextRound(resourceManager.GetTexture("enemy"));
                 std::cout << "Chuyen sang Round " << alienManager->GetCurrentRound() << "!\n";
             }
         }
     }
+
+    gameUI->Update(player, currentState, highScore);
 }
 
 void Game::CleanUpDeadEntities()
@@ -296,54 +301,47 @@ void Game::CleanUpDeadEntities()
 
 void Game::Render()
 {
-    // Bôi màu nền xám giống hệt file main cũ của bạn
     window.setView(window.getDefaultView());
     window.clear(sf::Color::Black);
 
-    // 2. Chuyển lại gameView (đã có viewport) để vẽ game chính
     window.setView(gameView);
 
-    // 3. Vẽ các thành phần của game như bình thường
-    window.draw(*backgroundSprite);
-
-    window.draw(*backgroundSprite);
-    if (player->HasShield())
-    {
-        sf::FloatRect bounds = player->GetBounds();
-
-        shieldSprite->setPosition(sf::Vector2f(
-            bounds.position.x + bounds.size.x / 2.f - shieldSprite->getGlobalBounds().size.x / 2.f,
-
-            bounds.position.y + bounds.size.y / 2.f - shieldSprite->getGlobalBounds().size.y / 2.f));
-
-        window.draw(*shieldSprite);
+    if (currentState == GameState::MainMenu) {
+        mainMenu->Render(window);
     }
-    player->Render(window);
-    alienManager->Render(window);
-    buffManager->Render(window);
+    else {
+        window.draw(*backgroundSprite);
 
-    for (Missile *missile : missiles)
-    {
-        missile->Render(window);
-    }
-    if (explosionActive)
-    {
-        window.draw(*explosionSprite);
-    }
+        if (player->HasShield())
+        {
+            sf::FloatRect bounds = player->GetBounds();
+            shieldSprite->setPosition(sf::Vector2f(
+                bounds.position.x + bounds.size.x / 2.f - shieldSprite->getGlobalBounds().size.x / 2.f,
+                bounds.position.y + bounds.size.y / 2.f - shieldSprite->getGlobalBounds().size.y / 2.f));
 
-    for (Bullet *bullet : bullets)
-    {
-        bullet->Render(window);
-    }
+            window.draw(*shieldSprite);
+        }
+        
+        player->Render(window);
+        alienManager->Render(window);
+        buffManager->Render(window);
 
-    if (currentState == GameState::GameOver || currentState == GameState::Victory)
-    {
-        window.draw(restartButton);
-        window.draw(*restartButtonText);
-    }
-    if (explosionActive)
-    {
-        window.draw(*explosionSprite);
+        for (Missile *missile : missiles)
+        {
+            missile->Render(window);
+        }
+        
+        for (Bullet *bullet : bullets)
+        {
+            bullet->Render(window);
+        }
+
+        if (explosionActive)
+        {
+            window.draw(*explosionSprite);
+        }
+
+        gameUI->Render(window);
     }
 
     window.display();
@@ -375,6 +373,7 @@ void Game::LoadHighScore()
         highScore = 0;
     }
 }
+
 void Game::SaveHighScore()
 {
     std::ofstream file("highscore.txt");
@@ -385,7 +384,6 @@ void Game::SaveHighScore()
     }
 }
 
-// Giữ lại hàm tạo nổ lan của Bạn
 void Game::DestroyNearestAliens(sf::Vector2f center)
 {
     struct Target
@@ -411,7 +409,7 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
 
         Target t;
         t.alien = alien;
-        t.distance = dx * dx + dy * dy; // không cần sqrt
+        t.distance = dx * dx + dy * dy;
 
         targets.push_back(t);
     }
@@ -430,7 +428,6 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
     }
 }
 
-// Giữ lại hàm Khởi động lại game của Vinh
 void Game::RestartGame()
 {
     delete player;
@@ -460,13 +457,11 @@ void Game::UpdateView()
 
     if (windowRatio > worldRatio)
     {
-        // Cửa sổ rộng hơn tỉ lệ gốc -> thêm viền đen 2 bên trái/phải
         sizeX = worldRatio / windowRatio;
         posX = (1.0f - sizeX) / 2.0f;
     }
     else
     {
-        // Cửa sổ cao hơn tỉ lệ gốc -> thêm viền đen trên/dưới
         sizeY = windowRatio / worldRatio;
         posY = (1.0f - sizeY) / 2.0f;
     }
