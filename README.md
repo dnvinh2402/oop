@@ -1,201 +1,292 @@
-# Space Invaders Project Structure
+# 🚀 Space Defender
 
-```text
-space invaders/
-├── src/                # Chứa toàn bộ file .cpp
-├── include/            # Chứa toàn bộ file .hpp / .h
-├── assets/             # Chứa hình ảnh, âm thanh, font chữ
-├── docs/               # Chứa báo cáo PDF, hình ảnh UML
-├── build/              # Thư mục chứa file thực thi .exe
-├── CMakeLists.txt      # File cấu hình CMake (nếu sử dụng)
-└── README.md           # Hướng dẫn cách build và chạy code
+A 2D Space Shooter game developed in **C++** using the **SFML 3.0** graphics library.
+
+The project was built for an Object-Oriented Programming (OOP) course and applies object-oriented design principles together with resource management, collision detection, game states, and buff mechanics.
+
+---
+
+# Features
+
+## Gameplay
+- Player movement (WASD / Arrow Keys)
+- Shoot enemies
+- 3 rounds with increasing difficulty
+- Boss battle in the final round
+- Score system
+- High score saving
+- Match history
+- Pause / Resume
+- Main Menu
+- Victory / Game Over screens
+
+---
+
+## Buff System
+
+Enemies have a chance to drop buffs after being destroyed.
+
+Current buffs:
+
+- 🟢 Double Shot
+  - Fires two bullets simultaneously
+  - Duration: 10 seconds
+
+- 🔵 Shield
+  - Protects the player from enemy bullets
+  - Limited duration
+
+- 🔴 Bomb
+  - Launches a missile after a short delay
+  - Destroys nearby enemies on impact
+
+---
+
+## Audio System
+
+Implemented using SFML Audio.
+
+Includes:
+
+- Shoot sound
+- Explosion sound
+- Enemy eliminated sound
+- Shield hit sound
+- Player hit sound
+- Item pickup sound
+- Background music
+
+Supports:
+
+- Volume adjustment
+- Mute / Unmute
+- Global audio settings shared across menus
+
+---
+
+# Project Structure
+
 ```
----
-# Các Module Chính Của Game
-
-## 1. Quản lý cửa sổ & Vòng lặp game (Game Loop)
-
-Chịu trách nhiệm:
-
-- Khởi tạo và quản lý cửa sổ game.
-- Xử lý vòng lặp chính của trò chơi.
-- Cập nhật trạng thái game theo từng frame.
-- Xử lý sự kiện từ bàn phím, chuột (nếu có).
-- Render toàn bộ đối tượng lên màn hình.
-
----
-
-## 2. Quản lý trạng thái Game (Game State Management)
-
-Quản lý việc chuyển đổi giữa các trạng thái khác nhau của game:
-
-- Menu chính (Main Menu).
-- Tạm dừng game (Pause).
-- Tiếp tục trò chơi (Resume).
-- Thoát game (Exit).
-- Tăng/giảm âm lượng (Volume Up / Volume Down) nếu có hệ thống âm thanh.
-- Hiển thị thông tin:
-  - Điểm số (**Score**).
-  - Số mạng còn lại (**Lives**).
-
----
-
-# 3. Module Thực thể (Entities)
-
-Quản lý các đối tượng xuất hiện trong game.
-
-## Player (Tàu vũ trụ người chơi)
-
-Chức năng:
-
-- Điều khiển tàu của người chơi.
-- Di chuyển trái/phải.
-- Bắn đạn.
-- Quản lý trạng thái sống/chết.
-
----
-
-## Alien Swarm (Đoàn tàu địch)
-
-Chức năng:
-
-- Quản lý nhóm kẻ địch.
-- Di chuyển theo đội hình.
-- Đổi hướng khi chạm biên màn hình.
-- Tăng tốc độ di chuyển sau mỗi lần đổi hướng.
-- Sinh ra đạn từ kẻ địch.
-
----
-
-## Bullet (Đạn)
-
-Bao gồm:
-
-- Đạn của người chơi.
-- Đạn của kẻ địch.
-
-Chức năng:
-
-- Quản lý vị trí và hướng bay.
-- Kiểm tra va chạm với các thực thể khác.
-- Xóa đạn khi:
-  - Ra khỏi màn hình.
-  - Va chạm thành công.
-
-> Việc quản lý danh sách đạn bay trên màn hình yêu cầu sử dụng cấu trúc dữ liệu phù hợp để tối ưu bộ nhớ và vòng lặp kiểm tra va chạm.
-# Space Invaders - OOP Project Structure
-
-```text
-oop/
+OOP/
+│
+├── assets/
+│   ├── audio/
+│   ├── font/
+│   └── images/
+│
+├── build/
+│   ├── main.exe
+│   └── SFML DLLs
+│
+├── docs/
 │
 ├── include/
-│   ├── Game.hpp
-│   ├── GameObject.hpp
-│   ├── Player.hpp
 │   ├── Alien.hpp
-│   ├── Bullet.hpp
 │   ├── AlienManager.hpp
+│   ├── Buff.hpp
+│   ├── BuffManager.hpp
+│   ├── Bullet.hpp
 │   ├── CollisionManager.hpp
+│   ├── Game.hpp
+│   ├── GameOverMenu.hpp
+│   ├── GlobalAudio.hpp
+│   ├── MainMenu.hpp
+│   ├── Missile.hpp
+│   ├── PauseMenu.hpp
+│   ├── Player.hpp
 │   ├── ResourceManager.hpp
-│   ├── AudioManager.hpp
-│   ├── UI.hpp
-│   └── GameState.hpp
+│   ├── ScoreHistoryMenu.hpp
+│   ├── SoundManager.hpp
+│   └── UI.hpp
 │
 ├── src/
-│   ├── main.cpp
-│   ├── Game.cpp
-│   ├── GameObject.cpp
-│   ├── Player.cpp
 │   ├── Alien.cpp
-│   ├── Bullet.cpp
 │   ├── AlienManager.cpp
+│   ├── Buff.cpp
+│   ├── BuffManager.cpp
+│   ├── Bullet.cpp
 │   ├── CollisionManager.cpp
+│   ├── Game.cpp
+│   ├── GameOverMenu.cpp
+│   ├── GlobalAudio.cpp
+│   ├── MainMenu.cpp
+│   ├── Missile.cpp
+│   ├── PauseMenu.cpp
+│   ├── Player.cpp
 │   ├── ResourceManager.cpp
-│   ├── AudioManager.cpp
-│   └── UI.cpp
+│   ├── ScoreHistoryMenu.cpp
+│   ├── SoundManager.cpp
+│   ├── UI.cpp
+│   └── main.cpp
+│
+└── .gitignore
 ```
 
 ---
 
-# Mô tả các file trong dự án
+# Main Components
 
-## Thư mục `include/`
+## Game
+Controls the main game loop.
 
-Chứa toàn bộ file header (`.hpp`) khai báo class, thuộc tính và phương thức.
+Responsibilities:
 
-| File | Chức năng |
-|---|---|
-| `Game.hpp` | Quản lý toàn bộ vòng đời game, cửa sổ, vòng lặp chính và trạng thái game. |
-| `GameObject.hpp` | Lớp cơ sở (base class) cho các đối tượng trong game. |
-| `Player.hpp` | Khai báo lớp tàu người chơi, xử lý di chuyển và bắn đạn. |
-| `Alien.hpp` | Khai báo lớp kẻ địch, quản lý vị trí và trạng thái Alien. |
-| `Bullet.hpp` | Khai báo lớp đạn, quản lý hướng bay và va chạm. |
-| `AlienManager.hpp` | Quản lý nhóm Alien, đội hình và tốc độ di chuyển. |
-| `CollisionManager.hpp` | Xử lý kiểm tra va chạm giữa các đối tượng. |
-| `ResourceManager.hpp` | Quản lý tài nguyên như texture, font, hình ảnh. |
-| `AudioManager.hpp` | Quản lý âm thanh, hiệu ứng và nhạc nền. |
-| `UI.hpp` | Quản lý giao diện người dùng như Score, Lives, Menu. |
-| `GameState.hpp` | Quản lý các trạng thái của game (Menu, Playing, Pause, Game Over). |
+- Update()
+- Render()
+- ProcessEvents()
+- RestartGame()
+- Manage game states
 
 ---
 
-# Thư mục `src/`
+## Player
 
-Chứa toàn bộ file triển khai (`.cpp`) của các class.
+Responsible for:
 
-| File | Chức năng |
-|---|---|
-| `main.cpp` | Điểm bắt đầu chương trình, khởi tạo game. |
-| `Game.cpp` | Cài đặt vòng lặp game, xử lý sự kiện, cập nhật và render. |
-| `GameObject.cpp` | Cài đặt các thuộc tính chung của mọi đối tượng game. |
-| `Player.cpp` | Xử lý logic điều khiển tàu người chơi. |
-| `Alien.cpp` | Xử lý hành vi và chuyển động của Alien. |
-| `Bullet.cpp` | Xử lý chuyển động, trạng thái và vòng đời của đạn. |
-| `AlienManager.cpp` | Điều khiển toàn bộ đội hình Alien. |
-| `CollisionManager.cpp` | Thực hiện kiểm tra và xử lý va chạm. |
-| `ResourceManager.cpp` | Nạp và quản lý tài nguyên game. |
-| `AudioManager.cpp` | Xử lý âm thanh trong game. |
-| `UI.cpp` | Hiển thị giao diện, điểm số và trạng thái người chơi. |
+- Movement
+- Shooting
+- Health
+- Buff effects
+- Score
 
 ---
 
-# Kiến trúc OOP tổng quan
+## AlienManager
 
-```text
-                    Game
-                     |
-        ----------------------------
-        |            |             |
-   GameState        UI       ResourceManager
-                     |
-              GameObject (Base Class)
-                     |
-        ----------------------------
-        |            |             |
-     Player       Alien        Bullet
-                     |
-              AlienManager
+Responsible for:
 
-CollisionManager
-        |
-  Kiểm tra tương tác
-  giữa Player, Alien, Bullet
-```
+- Enemy spawning
+- Round management
+- Boss spawning
+- Enemy shooting
 
 ---
 
-# Luồng hoạt động chính
+## CollisionManager
 
-1. `main.cpp` khởi tạo đối tượng `Game`.
-2. `Game` tạo cửa sổ và bắt đầu vòng lặp game.
-3. Trong mỗi frame:
-   - Nhận input từ người chơi.
-   - Cập nhật Player.
-   - Cập nhật Alien.
-   - Cập nhật Bullet.
-   - Kiểm tra va chạm.
-   - Cập nhật UI.
-   - Render toàn bộ đối tượng.
-4. Khi kết thúc:
-   - Giải phóng tài nguyên.
-   - Đóng cửa sổ game.
+Handles all collision detection:
+
+- Bullet ↔ Alien
+- Bullet ↔ Player
+- Player ↔ Buff
+- Missile ↔ Alien
+
+---
+
+## ResourceManager
+
+Loads and manages:
+
+- Textures
+- Fonts
+
+Avoids loading the same resource multiple times.
+
+---
+
+## SoundManager
+
+Handles:
+
+- Sound effects
+- Background music
+- Volume control
+- Mute state
+
+Uses `GlobalAudio` to synchronize audio settings across the game.
+
+---
+
+## UI
+
+Displays:
+
+- Score
+- Lives
+- Buff information
+- Current round
+- High score
+
+---
+
+## Menus
+
+### MainMenu
+
+- Start Game
+- Match History
+- Volume
+- Mute
+
+### PauseMenu
+
+- Resume
+- Return to Main Menu
+- Volume
+- Mute
+
+### GameOverMenu
+
+- Restart
+- Return to Main Menu
+
+### ScoreHistoryMenu
+
+Displays scores from previous matches.
+
+---
+
+# Controls
+
+| Key | Action |
+|------|--------|
+| A / Left Arrow | Move Left |
+| D / Right Arrow | Move Right |
+| W / Up Arrow | Move Up |
+| S / Down Arrow | Move Down |
+| Space | Shoot |
+| Left Mouse | Shoot / Menu Interaction |
+
+---
+
+# Technologies
+
+- C++
+- SFML 3.0
+- Object-Oriented Programming
+- Visual Studio Code
+- MSYS2 UCRT64
+- Git
+- GitHub
+
+---
+
+# Design Principles
+
+The project follows Object-Oriented Programming concepts including:
+
+- Encapsulation
+- Inheritance
+- Polymorphism
+- Resource Management
+- Modular Design
+
+---
+
+# Future Improvements
+
+- Additional enemy types
+- More buff varieties
+- Sound settings menu
+- Particle effects
+- Animation system
+- Save & Load progress
+- Multiple difficulty levels
+
+---
+
+# Authors
+
+OOP Project - Space Defender
+
+Developed as part of the Object-Oriented Programming course.
