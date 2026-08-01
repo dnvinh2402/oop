@@ -40,50 +40,70 @@ void CollisionManager::CheckCollisions(
                     alien->TakeDamage(1);
                     bullet->Destroy();
 
-                    // 15% tỉ lệ rơi Buff
-                    // 50 de test
-                    if (rand() % 100 < 50)
+                    // PHÂN LOẠI TÍNH ĐIỂM: BOSS VS LÍNH THƯỜNG
+                    if (alien->GetMaxHealth() > 1) 
                     {
-                        BuffType type;
+                        // 1. XỬ LÝ CHO BOSS: Mỗi lần bắn trúng được cộng điểm (200đ -> thấp nhất 30đ)
+                        int hitScore = alien->CalculateBossHitScore();
+                        player->AddScore(hitScore);
+                        std::cout << "BAN TRUNG BOSS! (+ " << hitScore << " diem)\n";
 
-                        int randomType = rand() % 3;
-
-                        if (randomType == 0)
-                            type = BuffType::doubleShot;
-                        else if (randomType == 1)
-                            type = BuffType::Shield;
-                        else
-                            type = BuffType::Bomb;
-
-                        sf::FloatRect bounds = alien->GetBounds();
-
-                        sf::Vector2f pos;
-                        pos.x = bounds.position.x + bounds.size.x / 2.f - 12.f;
-                        pos.y = bounds.position.y + bounds.size.y / 2.f - 12.f;
-
-                        sf::Texture *texture = nullptr;
-
-                        switch (type)
+                        // Nếu Boss chết hẳn -> Cộng thêm 1000 điểm thưởng tiêu diệt
+                        if (!alien->IsActive())
                         {
-                        case BuffType::doubleShot:
-                            texture = resourceManager.GetTexture("doubleShot");
-                            break;
-
-                        case BuffType::Shield:
-                            texture = resourceManager.GetTexture("shield");
-                            break;
-
-                        case BuffType::Bomb:
-                            texture = resourceManager.GetTexture("bomb");
-                            break;
+                            int killScore = alien->CalculateBossKillScore();
+                            player->AddScore(killScore);
+                            std::cout << "HA GUC BOSS MAN 3! (+ " << killScore << " diem)\n";
                         }
-
-                        buffManager->SpawnBuff(texture, pos, type);
                     }
-                    player->AddScore(alien->GetPoints());
-                    std::cout << "BUM! Tieu diet quai vat (+ "
-                              << alien->GetPoints()
-                              << " diem)\n";
+                    else 
+                    {
+                        // 2. XỬ LÝ CHO LÍNH THƯỜNG: Chỉ cộng điểm khi tiêu diệt hoàn toàn
+                        if (!alien->IsActive())
+                        {
+                            int normalScore = alien->CalculateNormalScore();
+                            player->AddScore(normalScore);
+                            std::cout << "TIEU DIET LINH THUONG! (+ " << normalScore << " diem)\n";
+                        }
+                    }
+
+                    // Xử lý tỉ lệ rơi Buff (50% cho test) khi quái/Boss bất kỳ bị tiêu diệt
+                    if (!alien->IsActive())
+                    {
+                        if (rand() % 100 < 50)
+                        {
+                            BuffType type;
+                            int randomType = rand() % 3;
+
+                            if (randomType == 0)
+                                type = BuffType::doubleShot;
+                            else if (randomType == 1)
+                                type = BuffType::Shield;
+                            else
+                                type = BuffType::Bomb;
+
+                            sf::FloatRect bounds = alien->GetBounds();
+                            sf::Vector2f pos;
+                            pos.x = bounds.position.x + bounds.size.x / 2.f - 12.f;
+                            pos.y = bounds.position.y + bounds.size.y / 2.f - 12.f;
+
+                            sf::Texture *texture = nullptr;
+                            switch (type)
+                            {
+                            case BuffType::doubleShot:
+                                texture = resourceManager.GetTexture("doubleShot");
+                                break;
+                            case BuffType::Shield:
+                                texture = resourceManager.GetTexture("shield");
+                                break;
+                            case BuffType::Bomb:
+                                texture = resourceManager.GetTexture("bomb");
+                                break;
+                            }
+
+                            buffManager->SpawnBuff(texture, pos, type);
+                        }
+                    }
 
                     break;
                 }

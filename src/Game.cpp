@@ -1,5 +1,7 @@
 #include "Game.hpp"
 #include "MainMenu.hpp"
+#include "GameOverMenu.hpp"
+#include "ScoreHistoryMenu.hpp" // Thêm header ScoreHistoryMenu
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -8,7 +10,7 @@
 const float WORLD_WIDTH = 900.0f;
 const float WORLD_HEIGHT = 900.0f;
 
-Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Default | sf::Style::Resize)
+Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Default | sf::Style::Resize), isPaused(false)
 {
     gameView.setSize(sf::Vector2f(WORLD_WIDTH, WORLD_HEIGHT));
     gameView.setCenter(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
@@ -60,10 +62,15 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
 
     currentState = GameState::MainMenu;
     LoadHighScore();
+    LoadHistory(); // Load lịch sử trận đấu
 
     gameUI = new UI(resourceManager.GetFont("arial"));
     
     mainMenu = new MainMenu(resourceManager.GetFont("arial"), resourceManager.GetTexture("background"), highScore);
+    gameOverMenu = nullptr;
+    pauseMenu = new PauseMenu(resourceManager.GetFont("arial"));
+    scoreHistoryMenu = nullptr;
+    viewingHistory = false;
 
     backgroundSprite = new sf::Sprite(*resourceManager.GetTexture("background"));
 
@@ -89,6 +96,9 @@ Game::~Game()
     delete shieldSprite;
     delete gameUI;
     delete mainMenu;
+    delete gameOverMenu;
+    delete pauseMenu;
+    delete scoreHistoryMenu;
 
     for (Bullet *bullet : bullets)
     {
@@ -112,26 +122,37 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        // Bắt sự kiện di chuyển chuột ở MainMenu
+        // Bắt sự kiện di chuyển chuột
         if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
+            sf::Vector2f mousePos(mouseMoved->position.x, mouseMoved->position.y);
             if (currentState == GameState::MainMenu) {
-                mainMenu->Update(sf::Vector2f(mouseMoved->position.x, mouseMoved->position.y));
+                if (viewingHistory && scoreHistoryMenu) {
+                    scoreHistoryMenu->Update(mousePos);
+                } else {
+                    mainMenu->Update(mousePos);
+                }
+            }
+            else if ((currentState == GameState::GameOver || currentState == GameState::Victory) && gameOverMenu) {
+                gameOverMenu->Update(mousePos);
+            }
+            else if (currentState == GameState::Playing && isPaused) {
+                pauseMenu->Update(mousePos);
             }
         }
 
         // Bắt sự kiện từ bàn phím
         if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-            if (currentState == GameState::Playing){
+            if (currentState == GameState::Playing && !isPaused){
                 if (keyPressed->code == sf::Keyboard::Key::Space) {
                     player->Shoot(bullets, resourceManager.GetTexture("bullet"));
                 }
             }
-            else if (currentState == GameState::MainMenu) {
+            else if (currentState == GameState::MainMenu && !viewingHistory) {
                 if(keyPressed->code == sf::Keyboard::Key::Enter){
+                    RestartGame(); 
                     currentState = GameState::Playing; 
                 }
             }
-            // CHỈ CHO PHÉP NHẤN ENTER ĐỂ CHƠI LẠI KHI THUA HOẶC THẮNG
             else if(currentState == GameState::GameOver || currentState == GameState::Victory){
                 if(keyPressed->code == sf::Keyboard::Key::Enter){
                     RestartGame();
@@ -139,83 +160,114 @@ void Game::ProcessEvents()
             }
         }
 
-        // Bắt sự kiện từ chuột (Đã loại bỏ hoàn toàn việc click chuột để restart ở màn hình kết thúc)
+        // Bắt sự kiện từ chuột
         if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>()) {
-            if (currentState == GameState::Playing) {
-                if (mouseClicked->button == sf::Mouse::Button::Right || mouseClicked->button == sf::Mouse::Button::Left) {
-                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+            if (mouseClicked->button == sf::Mouse::Button::Left) {
+                sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
+
+                if (currentState == GameState::Playing) {
+                    if (pauseMenu->IsPauseButtonClicked(mousePos)) {
+                        isPaused = !isPaused; 
+                        if (isPaused) {
+                            pauseMenu->SetVolume((float)mainMenu->GetVolume(), mainMenu->IsMuted());
+                        }
+                    }
+                    else if (isPaused) {
+                        int action = pauseMenu->HandleClick(mousePos);
+                        if (action == 1) {
+                            isPaused = false; 
+                        }
+                        else if (action == 2) {
+                            isPaused = false;
+                            mainMenu->SetVolume((int)pauseMenu->GetVolume(), pauseMenu->IsMuted());
+                            RestartGame();
+                            currentState = GameState::MainMenu; 
+                        }
+                    }
+                    else if (!isPaused) {
+                        player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                    }
+                }
+                else if (currentState == GameState::MainMenu) {
+                    if (viewingHistory) {
+                        if (scoreHistoryMenu && scoreHistoryMenu->IsBackButtonClicked(mousePos)) {
+                            delete scoreHistoryMenu;
+                            scoreHistoryMenu = nullptr;
+                            viewingHistory = false; // Đóng bảng lịch sử để về Main Menu chính
+                        }
+                    } else {
+                        int action = mainMenu->HandleClick(mousePos);
+                        if (action == 1) {
+                            RestartGame(); 
+                            currentState = GameState::Playing; 
+                        }
+                        else if (action == 2) { // Bấm nút xem lịch sử điểm
+                            viewingHistory = true;
+                            delete scoreHistoryMenu;
+                            scoreHistoryMenu = new ScoreHistoryMenu(resourceManager.GetFont("arial"), matchHistory);
+                        }
+                        else if (action == 3) {
+                            std::cout << "--> Trang thai Mute: " << (mainMenu->IsMuted() ? "ON" : "OFF") << "\n";
+                        }
+                        else if (action == 4 || action == 5) {
+                            std::cout << "--> Am luong hien tai: " << mainMenu->GetVolume() << "%\n";
+                        }
+                    }
+                }
+                else if (currentState == GameState::GameOver || currentState == GameState::Victory) {
+                    if (gameOverMenu) {
+                        int choice = gameOverMenu->HandleClick(mousePos);
+                        if (choice == 1) {
+                            RestartGame(); 
+                        }
+                        else if (choice == 2) {
+                            RestartGame(); 
+                            currentState = GameState::MainMenu; 
+                        }
+                    }
                 }
             }
-            else if (currentState == GameState::MainMenu) {
-                if (mouseClicked->button == sf::Mouse::Button::Left) {
-                    sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
-                    int action = mainMenu->HandleClick(mousePos);
-                    if (action == 1) {
-                        currentState = GameState::Playing; 
-                    }
-                    else if (action == 2) {
-                        std::cout << "--> Xem diem cao: " << highScore << "\n";
-                    }
-                }
-            }
-            // Ở trạng thái GameOver hoặc Victory, click chuột không làm gì cả
         }
     }
 }
 
 void Game::Update(float deltaTime)
 {
+    if (isPaused) return;
+
     if (currentState == GameState::Playing)
     {
         player->Update(deltaTime);
         if (player->IsBombReady())
         {
             sf::FloatRect playerBounds = player->GetBounds();
-
-            sf::Vector2u missileSize =
-                resourceManager.GetTexture("missile")->getSize();
-
+            sf::Vector2u missileSize = resourceManager.GetTexture("missile")->getSize();
             sf::Vector2f pos;
             pos.x = playerBounds.position.x + playerBounds.size.x / 2.f - missileSize.x / 2.f;
             pos.y = playerBounds.position.y - missileSize.y;
 
-            missiles.push_back(
-                new Missile(
-                    resourceManager.GetTexture("missile"),
-                    pos));
-
+            missiles.push_back(new Missile(resourceManager.GetTexture("missile"), pos));
             player->ResetBomb();
         }
         alienManager->Update(deltaTime);
         buffManager->Update(deltaTime);
 
-        for (Bullet *bullet : bullets)
-        {
-            bullet->Update(deltaTime);
-        }
-        for (Missile *missile : missiles)
-        {
-            missile->Update(deltaTime);
-        }
-        for (Missile *missile : missiles)
-        {
-            if (!missile->IsActive())
-                continue;
+        for (Bullet *bullet : bullets) bullet->Update(deltaTime);
+        for (Missile *missile : missiles) missile->Update(deltaTime);
 
+        for (Missile *missile : missiles)
+        {
+            if (!missile->IsActive()) continue;
             for (Alien *alien : alienManager->GetAliens())
             {
-                if (!alien->IsActive())
-                    continue;
-
+                if (!alien->IsActive()) continue;
                 if (missile->GetBounds().findIntersection(alien->GetBounds()).has_value())
                 {
                     missile->Destroy();
                     DestroyNearestAliens(missile->GetPosition());
-
                     explosionSprite->setPosition(missile->GetPosition());
                     explosionActive = true;
                     explosionTimer = 0.3f;
-
                     break;
                 }
             }
@@ -223,37 +275,29 @@ void Game::Update(float deltaTime)
         if (explosionActive)
         {
             explosionTimer -= deltaTime;
-
-            if (explosionTimer <= 0.f)
-            {
-                explosionActive = false;
-            }
+            if (explosionTimer <= 0.f) explosionActive = false;
         }
 
         alienManager->AlienShoot(bullets, resourceManager.GetTexture("alien_bullet"));
 
         collisionManager.CheckCollisions(
-            player,
-            alienManager->GetAliens(),
-            bullets,
-            buffManager->GetBuffs(),
-            buffManager,
-            resourceManager);
+            player, alienManager->GetAliens(), bullets,
+            buffManager->GetBuffs(), buffManager, resourceManager);
 
         CleanUpDeadEntities();
 
         if (!player->IsActive())
         {
             currentState = GameState::GameOver;
+            AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thua
+
+            delete gameOverMenu;
+            gameOverMenu = new GameOverMenu(resourceManager.GetFont("arial"), player->GetScore(), false);
+
             if (player->GetScore() > highScore)
             {
                 highScore = player->GetScore();
                 SaveHighScore();
-                std::cout << "KY LUC MOI! Diem: " << highScore << "\n";
-            }
-            else
-            {
-                std::cout << "Game Over. Diem: " << player->GetScore() << " | Ky luc: " << highScore << "\n";
             }
         }
         else if (alienManager->IsRoundCleared())
@@ -261,17 +305,20 @@ void Game::Update(float deltaTime)
             if (alienManager->IsFinalRound())
             {
                 currentState = GameState::Victory;
+                AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thắng
+
+                delete gameOverMenu;
+                gameOverMenu = new GameOverMenu(resourceManager.GetFont("arial"), player->GetScore(), true);
+
                 if (player->GetScore() > highScore)
                 {
                     highScore = player->GetScore();
                     SaveHighScore();
                 }
-                std::cout << "CHIEN THANG! Diem cuoi cung: " << player->GetScore() << "\n";
             }
             else
             {
                 alienManager->StartNextRound(resourceManager.GetTexture("enemy"));
-                std::cout << "Chuyen sang Round " << alienManager->GetCurrentRound() << "!\n";
             }
         }
     }
@@ -303,11 +350,19 @@ void Game::Render()
 {
     window.setView(window.getDefaultView());
     window.clear(sf::Color::Black);
-
     window.setView(gameView);
 
     if (currentState == GameState::MainMenu) {
         mainMenu->Render(window);
+        if (viewingHistory && scoreHistoryMenu) {
+            scoreHistoryMenu->Render(window); // Vẽ trang lịch sử điểm đè lên Main Menu
+        }
+    }
+    else if (currentState == GameState::GameOver || currentState == GameState::Victory) {
+        window.draw(*backgroundSprite);
+        player->Render(window);
+        alienManager->Render(window);
+        if (gameOverMenu) gameOverMenu->Render(window);
     }
     else {
         window.draw(*backgroundSprite);
@@ -318,7 +373,6 @@ void Game::Render()
             shieldSprite->setPosition(sf::Vector2f(
                 bounds.position.x + bounds.size.x / 2.f - shieldSprite->getGlobalBounds().size.x / 2.f,
                 bounds.position.y + bounds.size.y / 2.f - shieldSprite->getGlobalBounds().size.y / 2.f));
-
             window.draw(*shieldSprite);
         }
         
@@ -326,22 +380,13 @@ void Game::Render()
         alienManager->Render(window);
         buffManager->Render(window);
 
-        for (Missile *missile : missiles)
-        {
-            missile->Render(window);
-        }
-        
-        for (Bullet *bullet : bullets)
-        {
-            bullet->Render(window);
-        }
+        for (Missile *missile : missiles) missile->Render(window);
+        for (Bullet *bullet : bullets) bullet->Render(window);
 
-        if (explosionActive)
-        {
-            window.draw(*explosionSprite);
-        }
+        if (explosionActive) window.draw(*explosionSprite);
 
         gameUI->Render(window);
+        pauseMenu->Render(window, isPaused);
     }
 
     window.display();
@@ -353,7 +398,6 @@ void Game::Run()
     while (window.isOpen())
     {
         float deltaTime = clock.restart().asSeconds();
-
         ProcessEvents();
         Update(deltaTime);
         Render();
@@ -368,10 +412,7 @@ void Game::LoadHighScore()
         file >> highScore;
         file.close();
     }
-    else
-    {
-        highScore = 0;
-    }
+    else { highScore = 0; }
 }
 
 void Game::SaveHighScore()
@@ -384,44 +425,69 @@ void Game::SaveHighScore()
     }
 }
 
+void Game::LoadHistory()
+{
+    matchHistory.clear();
+    std::ifstream file("history.txt");
+    if (file.is_open())
+    {
+        int score;
+        while (file >> score)
+        {
+            matchHistory.push_back(score);
+        }
+        file.close();
+    }
+}
+
+void Game::SaveHistory()
+{
+    std::ofstream file("history.txt");
+    if (file.is_open())
+    {
+        for (int score : matchHistory)
+        {
+            file << score << "\n";
+        }
+        file.close();
+    }
+}
+
+void Game::AddScoreToHistory(int score)
+{
+    matchHistory.insert(matchHistory.begin(), score); // Đưa trận mới nhất lên đầu danh sách
+    if (matchHistory.size() > 5)
+    {
+        matchHistory.pop_back(); // Giới hạn đúng 5 trận gần nhất
+    }
+    SaveHistory();
+}
+
 void Game::DestroyNearestAliens(sf::Vector2f center)
 {
-    struct Target
-    {
-        Alien *alien;
-        float distance;
-    };
-
+    struct Target { Alien *alien; float distance; };
     std::vector<Target> targets;
 
     for (Alien *alien : alienManager->GetAliens())
     {
-        if (!alien->IsActive())
-            continue;
-
+        if (!alien->IsActive()) continue;
         sf::FloatRect rect = alien->GetBounds();
-
         float x = rect.position.x + rect.size.x / 2.f;
         float y = rect.position.y + rect.size.y / 2.f;
-
         float dx = x - center.x;
         float dy = y - center.y;
 
         Target t;
         t.alien = alien;
         t.distance = dx * dx + dy * dy;
-
         targets.push_back(t);
     }
 
-    std::sort(targets.begin(), targets.end(),
-              [](const Target &a, const Target &b)
-              {
-                  return a.distance < b.distance;
-              });
+    std::sort(targets.begin(), targets.end(), [](const Target &a, const Target &b) {
+        return a.distance < b.distance;
+    });
 
     int count = std::min(5, (int)targets.size());
-
     for (int i = 0; i < count; i++)
     {
         targets[i].alien->Destroy();
@@ -430,21 +496,22 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
 
 void Game::RestartGame()
 {
+    isPaused = false;
     delete player;
-    sf::Vector2f startPos(400.0f, 550.0f);
+    sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);
 
-    for (Bullet *bullet : bullets)
-    {
-        delete bullet;
-    }
+    for (Bullet *bullet : bullets) delete bullet;
     bullets.clear();
 
+    for (Missile *missile : missiles) delete missile;
+    missiles.clear();
+
+    for (Buff *buff : buffManager->GetBuffs()) delete buff;
+    buffManager->GetBuffs().clear();
+
     alienManager->Reset(resourceManager.GetTexture("enemy"));
-
     currentState = GameState::Playing;
-
-    std::cout << "Da bat dau lai\n";
 }
 
 void Game::UpdateView()

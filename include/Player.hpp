@@ -22,11 +22,11 @@ private:
 
     float doubleShotTimer;
     float shieldTimer;
+    int shieldHitsRemaining; // Thêm biến đếm số lần chịu đạn (tối đa 2 lần)
 
     bool bombReady;
     float bombTimer;
     // ================
-
 
 public:
     Player(sf::Texture *texture, sf::Vector2f startPos);
@@ -47,10 +47,14 @@ public:
     bool IsBombReady() const;
     void ResetBomb();
 
-
     void SetShieldTexture(sf::Texture* texture);
 
     bool HasShield() const;
+    void TakeShieldHit(); // Hàm xử lý khi khiên hứng đạn
+    
+    // Thêm 2 hàm này để lấy thông tin hiển thị lên UI
+    float GetShieldTimer() const { return shieldTimer; }
+    int GetShieldHitsRemaining() const { return shieldHitsRemaining; }
     // ================
 
     int GetLives() { return lives; }

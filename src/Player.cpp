@@ -17,6 +17,7 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 
     doubleShotTimer = 0.0f;
     shieldTimer = 0.0f;
+    shieldHitsRemaining = 2; // Khởi tạo mặc định chịu được 2 lần trúng đạn
 
     bombReady = false;
     bombTimer = 0.f;
@@ -31,7 +32,7 @@ void Player::HandleInput()
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
     {
-        position.x -= speed * 0.016f; // tạm ước lượng, sẽ thay bằng deltaTime thật ở Update
+        position.x -= speed * 0.016f;
     }
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
     {
@@ -41,7 +42,6 @@ void Player::HandleInput()
 
 void Player::Update(float deltaTime)
 {
-    // Di chuyển trái/phải
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
     {
         position.x -= speed * deltaTime;
@@ -61,7 +61,6 @@ void Player::Update(float deltaTime)
     
     sf::FloatRect bounds = sprite.getGlobalBounds();
 
-    // Giới hạn trục X (Sử dụng bounds.size.x thay vì bounds.width)
     if (position.x < 0.f)
     {
         position.x = 0.f;
@@ -71,11 +70,7 @@ void Player::Update(float deltaTime)
         position.x = 900.f - bounds.size.x;
     }
 
-    // Giới hạn trục Y (Đổi 600 thành 900)
     float maxY = 900.f - bounds.size.y; 
-    
-    // Vì màn hình rộng hơn, bạn có thể đẩy giới hạn bay cao nhất (minY) xuống một chút (ví dụ 450) 
-    // để phi thuyền không bay lên quá sát bầy quái vật.
     float minY = 450.f; 
 
     if (position.y < minY)
@@ -86,17 +81,14 @@ void Player::Update(float deltaTime)
     {
         position.y = maxY;
     }
-    // 4. Áp dụng tọa độ mới
+    
     sprite.setPosition(position);
 
-    // Đếm ngược thời gian hồi chiêu bắn đạn
     if (currentCooldown > 0.0f)
     {
         currentCooldown -= deltaTime;
     }
-    // =========================
-    // Rapid Fire
-    // =========================
+
     if (doubleShot)
     {
         doubleShotTimer -= deltaTime;
@@ -108,9 +100,7 @@ void Player::Update(float deltaTime)
         }
     }
 
-    // =========================
-    // Shield
-    // =========================
+    // Cập nhật khiên bảo vệ theo thời gian (10 giây)
     if (shield)
     {
         shieldTimer -= deltaTime;
@@ -120,6 +110,7 @@ void Player::Update(float deltaTime)
             shield = false;
         }
     }
+
     if (bombReady && bombTimer > 0.f)
     {
         bombTimer -= deltaTime;
@@ -132,36 +123,34 @@ void Player::Render(sf::RenderWindow& window)
 
     if (shield && shieldTexture != nullptr)
     {
-        sf::Sprite shield(*shieldTexture);
+        sf::Sprite shieldSpriteInstance(*shieldTexture);
 
         sf::FloatRect playerBounds = sprite.getGlobalBounds();
-        sf::FloatRect shieldBounds = shield.getGlobalBounds();
+        sf::FloatRect shieldBounds = shieldSpriteInstance.getGlobalBounds();
 
-        shield.setOrigin({
+        shieldSpriteInstance.setOrigin({
             shieldBounds.size.x / 2.f,
             shieldBounds.size.y / 2.f
         });
 
-        shield.setPosition({
+        shieldSpriteInstance.setPosition({
             position.x + playerBounds.size.x / 2.f,
             position.y + playerBounds.size.y / 2.f
         });
 
         float scale = 2.f;
 
-        shield.setScale({
+        shieldSpriteInstance.setScale({
             scale,
             scale
         });
 
-        window.draw(shield);
+        window.draw(shieldSpriteInstance);
     }
 }
+
 void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
 {
-    // TODO: hoàn thiện sau khi có class Bullet
-    // Ý tưởng: nếu currentCooldown <= 0, tạo Bullet mới tại vị trí Player,
-    // push_back vào bulletList, rồi reset currentCooldown = fireCooldown
     if (currentCooldown <= 0.0f)
     {
         sf::FloatRect playerBounds = sprite.getGlobalBounds();
@@ -170,10 +159,9 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
         sf::Vector2f bulletStartPos;
 
         bulletStartPos.x = position.x + playerBounds.size.x / 2.f - bulletSize.x / 2.f;
-
         bulletStartPos.y = position.y - bulletSize.y;
 
-        sf::Vector2f bulletVelocity(0.0f, -500.0f); // bay thẳng lên, tốc độ 500px/s
+        sf::Vector2f bulletVelocity(0.0f, -500.0f);
 
         if (doubleShot)
         {
@@ -195,14 +183,18 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
                 new Bullet(bulletTexture, bulletStartPos, bulletVelocity, true));
         }
 
-        currentCooldown = fireCooldown; // reset thời gian hồi chiêu
+        currentCooldown = fireCooldown;
     }
 }
 
 void Player::TakeDamage()
 {
+    // Nếu đang có khiên, gọi hàm TakeShieldHit thay vì trừ trực tiếp mạng
     if (shield)
+    {
+        TakeShieldHit();
         return;
+    }
 
     lives--;
 
@@ -211,37 +203,55 @@ void Player::TakeDamage()
         Destroy();
     }
 }
+
+// Xử lý khi bị đạn địch trúng lúc đang bật khiên (tối đa 2 viên)
+void Player::TakeShieldHit()
+{
+    if (shield)
+    {
+        shieldHitsRemaining--;
+        if (shieldHitsRemaining <= 0)
+        {
+            shield = false; // Mất khiên sau khi trúng đủ 2 viên đạn
+        }
+    }
+}
+
 void Player::ActivateDoubleShot()
 {
     doubleShot = true;
     doubleShotTimer = 10.0f;
-
     fireCooldown = 0.15f;
 }
 
 void Player::ActivateShield()
 {
     shield = true;
-    shieldTimer = 10.0f;
+    shieldTimer = 10.0f;         // Tồn tại tối đa 10 giây nếu không bị bắn
+    shieldHitsRemaining = 2;   // Cho phép chịu tối đa 2 viên đạn địch
 }
 
 bool Player::HasShield() const
 {
     return shield;
 }
+
 void Player::ActivateBomb()
 {
     bombReady = true;
     bombTimer = 1.f;
 }
+
 bool Player::IsBombReady() const
 {
     return bombReady && bombTimer <= 0.f;
 }
+
 void Player::ResetBomb()
 {
     bombReady = false;
 }
+
 void Player::SetShieldTexture(sf::Texture* texture)
 {
     shieldTexture = texture;
