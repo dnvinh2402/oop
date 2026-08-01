@@ -1,6 +1,5 @@
 #include "Player.hpp"
 #include <cmath>
-
 Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture)
 {
     position = startPos;
