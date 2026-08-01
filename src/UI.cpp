@@ -1,7 +1,7 @@
 #include "UI.hpp"
 #include <cstdio>
 
-UI::UI(sf::Font* f) : font(f), scoreText(*font), livesText(*font), titleText(*font), subText(*font), scoreResultText(*font) {
+UI::UI(sf::Font* f) : font(f), scoreText(*font), livesText(*font), shieldText(*font), titleText(*font), subText(*font), scoreResultText(*font), showShieldInfo(false), currentShieldTime(0.f), currentShieldHits(0) {
     
     scoreText.setCharacterSize(25);
     scoreText.setFillColor(sf::Color::White);
@@ -10,6 +10,10 @@ UI::UI(sf::Font* f) : font(f), scoreText(*font), livesText(*font), titleText(*fo
     livesText.setCharacterSize(25);
     livesText.setFillColor(sf::Color::Red);
     livesText.setPosition(sf::Vector2f(10.0f, 40.0f));
+
+    shieldText.setCharacterSize(20);
+    shieldText.setFillColor(sf::Color::Cyan);
+    shieldText.setPosition(sf::Vector2f(10.0f, 75.0f));
 
     titleText.setCharacterSize(50);
     subText.setCharacterSize(26);
@@ -32,12 +36,24 @@ void UI::Update(Player* player, GameState currentState, int highScore) {
     snprintf(buffer, sizeof(buffer), "Lives: %d", player->GetLives());
     livesText.setString(buffer);
 
+    // Lưu lại trạng thái khiên để dùng trong Render
+    if (player->HasShield()) {
+        showShieldInfo = true;
+        currentShieldTime = player->GetShieldTimer();
+        currentShieldHits = player->GetShieldHitsRemaining();
+
+        snprintf(buffer, sizeof(buffer), "Shield: %.1fs (Hits: %d)", currentShieldTime, currentShieldHits);
+        shieldText.setString(buffer);
+    } else {
+        showShieldInfo = false;
+    }
+
     if (state == GameState::GameOver) {
         titleText.setFillColor(sf::Color::Red);
         titleText.setString("GAME OVER");
         
         subText.setFillColor(sf::Color(220, 220, 220));
-        subText.setString("Press Enter to restart"); // Đã đổi sang tiếng Anh chuẩn
+        subText.setString("Press Enter to restart");
 
         scoreResultText.setFillColor(sf::Color::Cyan);
         scoreResultText.setString(scoreText.getString());
@@ -47,7 +63,7 @@ void UI::Update(Player* player, GameState currentState, int highScore) {
         titleText.setString("VICTORY!");
         
         subText.setFillColor(sf::Color(220, 220, 220));
-        subText.setString("Press Enter to restart"); // Đã đổi sang tiếng Anh chuẩn
+        subText.setString("Press Enter to restart");
 
         scoreResultText.setFillColor(sf::Color::Cyan);
         scoreResultText.setString(scoreText.getString());
@@ -72,6 +88,11 @@ void UI::Render(sf::RenderWindow& window) {
     if (state == GameState::Playing) {
         window.draw(scoreText);
         window.draw(livesText);
+        
+        // Vẽ dòng khiên nếu đang bật
+        if (showShieldInfo) {
+            window.draw(shieldText);
+        }
     }
     else if (state == GameState::GameOver || state == GameState::Victory) {
         window.draw(overlay);       
@@ -79,4 +100,4 @@ void UI::Render(sf::RenderWindow& window) {
         window.draw(subText);       
         window.draw(scoreResultText); 
     }
-} 
+}

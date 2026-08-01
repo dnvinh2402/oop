@@ -17,34 +17,27 @@ Alien::Alien(sf::Texture* texture, sf::Vector2f orbitCenterPos, float radius, fl
     spawnTimer = 0.0f;
     hasSpawned = false;
     aliveTimer = 0.0f;
+    survivalTime = 0.0f; // Khởi tạo thời gian sống ban đầu bằng 0
     movementType = type;
     
-    //hp mac dinh = 1 voi quai thuong
     maxHealth = hp;
     currentHealth = hp;
 
-    // Alien bắt đầu từ phía trên, ngoài màn hình
     entryStartPos = sf::Vector2f(orbitCenter.x, -60.0f);
     position = entryStartPos;
     sprite.setPosition(position);
 
-    //Thoi gian dan
-    shootCooldown = 2.0f + (rand() % 300) / 100.0f; // mỗi con có thời gian hồi chiêu riêng, 2-5s
-    shootTimer = (rand() % 200) / 100.0f; // lệch pha ban đầu, tránh cả đàn bắn cùng lúc
-
-    // size boss
-    entryStartPos = sf::Vector2f(orbitCenter.x, -60.0f);
-    position = entryStartPos;
+    shootCooldown = 2.0f + (rand() % 300) / 100.0f;
+    shootTimer = (rand() % 200) / 100.0f;
 
     if (movementType == MovementType::Boss) {
-        sprite.setScale(sf::Vector2f(2.5f, 2.5f)); // phóng to gấp 2.5 lần để dễ ăn đạn hơn
+        sprite.setScale(sf::Vector2f(2.5f, 2.5f));
     }
 
     sprite.setPosition(position);
 }
 
 Alien::~Alien() {
-    // Chưa cần dọn gì đặc biệt
 }
 
 void Alien::Update(float deltaTime) {
@@ -56,36 +49,31 @@ void Alien::Update(float deltaTime) {
         hasSpawned = true;
         aliveTimer = 0.0f;
     }
-    else{
+    else {
         aliveTimer += deltaTime;
+        survivalTime += deltaTime; // Tăng dần thời gian tồn tại sau khi xuất hiện để tính điểm tốc độ
         if (shootTimer > 0.0f) shootTimer -= deltaTime;
     }
 
-    // ===== PATROL: đứng yên tại vị trí ban đầu, việc di chuyển ngang do AlienManager điều khiển =====
     if (movementType == MovementType::Patrol) {
-        // Giai đoạn bay vào từ trên xuống đúng hàng của mình
         static const float ENTRY_DURATION = 1.0f;
         if (aliveTimer < ENTRY_DURATION) {
             float t = aliveTimer / ENTRY_DURATION;
-            // position.x = orbitCenter.x;
             position.y = entryStartPos.y + (orbitCenter.y - entryStartPos.y) * t;
         } else {
-            position.y = orbitCenter.y; // giữ nguyên hàng, x sẽ được AlienManager chỉnh qua MoveHorizontal()
+            position.y = orbitCenter.y;
         }
         sprite.setPosition(position);
-        return; // Không chạy logic Orbit/Boss phía dưới
+        return;
     }
 
-    // ===== BOSS: di chuyển chậm rãi qua lại, không quay tròn nhanh =====
     if (movementType == MovementType::Boss) {
         static const float ENTRY_DURATION = 1.5f;
         angle += angularSpeed * deltaTime;
 
-        float halfRange = orbitRadius;
-        float targetX = orbitCenter.x + std::sin(angle) * orbitRadius; // lắc qua lại thay vì quay tròn đầy đủ
+        float targetX = orbitCenter.x + std::sin(angle) * orbitRadius;
         float targetY = orbitCenter.y;
 
-        // Đảm bảo Boss không bao giờ lọt ra ngoài màn hình (900x900), chừa lề an toàn
         float margin = 80.0f;
         if (targetX < margin) targetX = margin;
         if (targetX > WORLD_W - margin) targetX = WORLD_W - margin;
@@ -101,19 +89,16 @@ void Alien::Update(float deltaTime) {
         sprite.setPosition(position);
         return;
     }
-    //Orbit
-    // Sau khi được kích hoạt: bay theo quỹ đạo tròn quanh orbitCenter
+
     angle += angularSpeed * deltaTime;
 
     float targetX = orbitCenter.x + std::cos(angle) * orbitRadius;
     float targetY = orbitCenter.y + std::sin(angle) * orbitRadius;
 
-    // Giai đoạn "bay vào": nội suy mượt từ entryStartPos tới vị trí quỹ đạo đầu tiên
-    // (đơn giản hóa: cho phép nó tự "rơi" dần vào quỹ đạo trong 1 giây đầu)
     static const float ENTRY_DURATION = 1.0f;
 
     if (aliveTimer < ENTRY_DURATION) {
-        float t = aliveTimer / ENTRY_DURATION; // 0 -> 1
+        float t = aliveTimer / ENTRY_DURATION;
         position.x = entryStartPos.x + (targetX - entryStartPos.x) * t;
         position.y = entryStartPos.y + (targetY - entryStartPos.y) * t;
     } else {
@@ -121,7 +106,6 @@ void Alien::Update(float deltaTime) {
         position.y = targetY;
     }
 
-    // Screen wrap: nếu ra ngoài biên, dịch sang phía đối diện thay vì biến mất
     if (position.x < -40.0f) position.x = WORLD_W + 40.0f;
     if (position.x > WORLD_W + 40.0f) position.x = -40.0f;
     if (position.y < -40.0f) position.y = WORLD_H + 40.0f;
@@ -131,7 +115,7 @@ void Alien::Update(float deltaTime) {
 }
 
 void Alien::Render(sf::RenderWindow& window) {
-    if (!hasSpawned && spawnTimer < spawnDelay) return; // chưa xuất hiện -> không vẽ
+    if (!hasSpawned && spawnTimer < spawnDelay) return;
     window.draw(sprite);
 }
 

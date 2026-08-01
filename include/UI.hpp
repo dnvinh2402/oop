@@ -8,8 +8,13 @@ private:
     sf::Font* font;
     sf::Text scoreText;
     sf::Text livesText;
+    sf::Text shieldText; 
     
-    // Chỉ giữ lại các text dùng cho màn hình GameOver và Victory
+    // Các biến lưu trạng thái khiên để vẽ trong Render
+    bool showShieldInfo;
+    float currentShieldTime;
+    int currentShieldHits;
+
     sf::Text titleText;
     sf::Text subText;
     sf::Text scoreResultText;
@@ -23,4 +28,4 @@ public:
 
     void Update(Player* player, GameState currentState, int highScore);
     void Render(sf::RenderWindow& window);
-}; 
+};
