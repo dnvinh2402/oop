@@ -26,7 +26,8 @@
                 "C:/msys64/ucrt64/lib",
                 "-lsfml-graphics",
                 "-lsfml-window",
-                "-lsfml-system"
+                "-lsfml-system",
+                "-lsfml-audio",
             ],
             "group": {
                 "kind": "build",

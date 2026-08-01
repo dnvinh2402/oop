@@ -6,6 +6,7 @@
 #include "BuffManager.hpp"
 #include "ResourceManager.hpp"
 #include "Buff.hpp"
+#include "SoundManager.hpp"
 
 class CollisionManager {
 public:
@@ -19,5 +20,6 @@ void CheckCollisions(
     std::vector<Bullet*>& bullets,
     std::vector<Buff*>& buffs,
     BuffManager* buffManager,
-    ResourceManager& resourceManager);
+    ResourceManager& resourceManager,
+    SoundManager &soundManager);
 };

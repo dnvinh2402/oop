@@ -14,6 +14,7 @@
 #include "GameOverMenu.hpp"
 #include "PauseMenu.hpp"
 #include "ScoreHistoryMenu.hpp" // Thêm header lịch sử điểm
+#include "SoundManager.hpp"
 
 class Game
 {
@@ -28,6 +29,7 @@ private:
     BuffManager *buffManager;
     CollisionManager collisionManager;
     UI *gameUI;
+    SoundManager soundManager;
 
     sf::Sprite *backgroundSprite;
     sf::Sprite *explosionSprite;
@@ -46,6 +48,7 @@ private:
     bool isPaused;
     bool viewingHistory;                 // Trạng thái đang xem màn hình lịch sử điểm
     std::vector<int> matchHistory;       // Lưu tối đa 5 điểm trận đấu gần nhất
+
 
     void LoadHighScore();
     void SaveHighScore();

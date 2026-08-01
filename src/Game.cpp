@@ -6,6 +6,7 @@
 #include <fstream>
 #include <algorithm>
 #include <optional>
+#include "GlobalAudio.hpp"
 
 const float WORLD_WIDTH = 900.0f;
 const float WORLD_HEIGHT = 900.0f;
@@ -56,6 +57,22 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     resourceManager.LoadFont("arial", "assets/font/arial.ttf");
     std::cout << "Da load xong font\n";
 
+    soundManager.LoadSound("shoot", "assets/audio/shoot.wav");
+    std::cout << "Da load xong am thanh dan\n";
+    soundManager.LoadSound("pickup", "assets/audio/pickup.wav");
+    std::cout << "Da load xong am thanh nhat\n";
+    soundManager.LoadSound("explosion", "assets/audio/explosion.wav");
+    std::cout << "Da load xong am thanh vu no\n";
+    soundManager.LoadSound("hit", "assets/audio/hit.wav");
+    std::cout << "Da load xong am thanh bị trung dan\n";
+    soundManager.LoadSound("enemyDead", "assets/audio/enemy_eliminated.wav");
+    std::cout << "Da load xong am thanh tieu diet quai\n";
+    soundManager.LoadSound("shield", "assets/audio/shield.wav");
+    std::cout << "Da load xong am thanh dan bi chan\n";
+
+    soundManager.LoadMusic("assets/audio/background.ogg");
+    soundManager.PlayMusic();
+
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);
     std::cout << "Da tao xong Player\n";
@@ -65,10 +82,13 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     LoadHistory(); // Load lịch sử trận đấu
 
     gameUI = new UI(resourceManager.GetFont("arial"));
-    
+
     mainMenu = new MainMenu(resourceManager.GetFont("arial"), resourceManager.GetTexture("background"), highScore);
     gameOverMenu = nullptr;
     pauseMenu = new PauseMenu(resourceManager.GetFont("arial"));
+    pauseMenu->SetVolume(
+        GlobalAudio::volume,
+        GlobalAudio::isMuted);
     scoreHistoryMenu = nullptr;
     viewingHistory = false;
 
@@ -123,106 +143,150 @@ void Game::ProcessEvents()
         }
 
         // Bắt sự kiện di chuyển chuột
-        if (const auto* mouseMoved = event->getIf<sf::Event::MouseMoved>()) {
+        if (const auto *mouseMoved = event->getIf<sf::Event::MouseMoved>())
+        {
             sf::Vector2f mousePos(mouseMoved->position.x, mouseMoved->position.y);
-            if (currentState == GameState::MainMenu) {
-                if (viewingHistory && scoreHistoryMenu) {
+            if (currentState == GameState::MainMenu)
+            {
+                if (viewingHistory && scoreHistoryMenu)
+                {
                     scoreHistoryMenu->Update(mousePos);
-                } else {
+                }
+                else
+                {
                     mainMenu->Update(mousePos);
                 }
             }
-            else if ((currentState == GameState::GameOver || currentState == GameState::Victory) && gameOverMenu) {
+            else if ((currentState == GameState::GameOver || currentState == GameState::Victory) && gameOverMenu)
+            {
                 gameOverMenu->Update(mousePos);
             }
-            else if (currentState == GameState::Playing && isPaused) {
+            else if (currentState == GameState::Playing && isPaused)
+            {
                 pauseMenu->Update(mousePos);
             }
         }
 
         // Bắt sự kiện từ bàn phím
-        if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>()) {
-            if (currentState == GameState::Playing && !isPaused){
-                if (keyPressed->code == sf::Keyboard::Key::Space) {
+        if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
+        {
+            if (currentState == GameState::Playing && !isPaused)
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Space)
+                {
                     player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                    soundManager.Play("shoot");
                 }
             }
-            else if (currentState == GameState::MainMenu && !viewingHistory) {
-                if(keyPressed->code == sf::Keyboard::Key::Enter){
-                    RestartGame(); 
-                    currentState = GameState::Playing; 
+            else if (currentState == GameState::MainMenu && !viewingHistory)
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Enter)
+                {
+                    RestartGame();
+                    currentState = GameState::Playing;
                 }
             }
-            else if(currentState == GameState::GameOver || currentState == GameState::Victory){
-                if(keyPressed->code == sf::Keyboard::Key::Enter){
+            else if (currentState == GameState::GameOver || currentState == GameState::Victory)
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Enter)
+                {
                     RestartGame();
                 }
             }
         }
 
         // Bắt sự kiện từ chuột
-        if (const auto* mouseClicked = event->getIf<sf::Event::MouseButtonPressed>()) {
-            if (mouseClicked->button == sf::Mouse::Button::Left) {
+        if (const auto *mouseClicked = event->getIf<sf::Event::MouseButtonPressed>())
+        {
+            if (mouseClicked->button == sf::Mouse::Button::Left)
+            {
                 sf::Vector2f mousePos(mouseClicked->position.x, mouseClicked->position.y);
 
-                if (currentState == GameState::Playing) {
-                    if (pauseMenu->IsPauseButtonClicked(mousePos)) {
-                        isPaused = !isPaused; 
-                        if (isPaused) {
-                            pauseMenu->SetVolume((float)mainMenu->GetVolume(), mainMenu->IsMuted());
+                if (currentState == GameState::Playing)
+                {
+                    if (pauseMenu->IsPauseButtonClicked(mousePos))
+                    {
+                        isPaused = !isPaused;
+                        if (isPaused)
+                        {
+                            pauseMenu->SetVolume(GlobalAudio::volume, GlobalAudio::isMuted);
                         }
                     }
-                    else if (isPaused) {
+                    else if (isPaused)
+                    {
                         int action = pauseMenu->HandleClick(mousePos);
-                        if (action == 1) {
-                            isPaused = false; 
-                        }
-                        else if (action == 2) {
+                        if (action == 1)
+                        {
                             isPaused = false;
-                            mainMenu->SetVolume((int)pauseMenu->GetVolume(), pauseMenu->IsMuted());
+                        }
+                        else if (action == 2)
+                        {
+                            isPaused = false;
+                            mainMenu->SetVolume((int)GlobalAudio::volume, GlobalAudio::isMuted);
                             RestartGame();
-                            currentState = GameState::MainMenu; 
+                            currentState = GameState::MainMenu;
+                        }
+                        if (action >= 3)
+                        {
+                            soundManager.UpdateVolume();
                         }
                     }
-                    else if (!isPaused) {
+                    else if (!isPaused)
+                    {
                         player->Shoot(bullets, resourceManager.GetTexture("bullet"));
+                        soundManager.Play("shoot");
                     }
                 }
-                else if (currentState == GameState::MainMenu) {
-                    if (viewingHistory) {
-                        if (scoreHistoryMenu && scoreHistoryMenu->IsBackButtonClicked(mousePos)) {
+                else if (currentState == GameState::MainMenu)
+                {
+                    if (viewingHistory)
+                    {
+                        if (scoreHistoryMenu && scoreHistoryMenu->IsBackButtonClicked(mousePos))
+                        {
                             delete scoreHistoryMenu;
                             scoreHistoryMenu = nullptr;
                             viewingHistory = false; // Đóng bảng lịch sử để về Main Menu chính
                         }
-                    } else {
+                    }
+                    else
+                    {
                         int action = mainMenu->HandleClick(mousePos);
-                        if (action == 1) {
-                            RestartGame(); 
-                            currentState = GameState::Playing; 
+                        if (action == 1)
+                        {
+                            RestartGame();
+                            currentState = GameState::Playing;
                         }
-                        else if (action == 2) { // Bấm nút xem lịch sử điểm
+                        else if (action == 2)
+                        { // Bấm nút xem lịch sử điểm
                             viewingHistory = true;
                             delete scoreHistoryMenu;
                             scoreHistoryMenu = new ScoreHistoryMenu(resourceManager.GetFont("arial"), matchHistory);
                         }
-                        else if (action == 3) {
+                        else if (action == 3)
+                        {
+                            soundManager.UpdateVolume();
                             std::cout << "--> Trang thai Mute: " << (mainMenu->IsMuted() ? "ON" : "OFF") << "\n";
                         }
-                        else if (action == 4 || action == 5) {
+                        else if (action == 4 || action == 5)
+                        {
+                            soundManager.UpdateVolume();
                             std::cout << "--> Am luong hien tai: " << mainMenu->GetVolume() << "%\n";
                         }
                     }
                 }
-                else if (currentState == GameState::GameOver || currentState == GameState::Victory) {
-                    if (gameOverMenu) {
+                else if (currentState == GameState::GameOver || currentState == GameState::Victory)
+                {
+                    if (gameOverMenu)
+                    {
                         int choice = gameOverMenu->HandleClick(mousePos);
-                        if (choice == 1) {
-                            RestartGame(); 
+                        if (choice == 1)
+                        {
+                            RestartGame();
                         }
-                        else if (choice == 2) {
-                            RestartGame(); 
-                            currentState = GameState::MainMenu; 
+                        else if (choice == 2)
+                        {
+                            RestartGame();
+                            currentState = GameState::MainMenu;
                         }
                     }
                 }
@@ -232,7 +296,9 @@ void Game::ProcessEvents()
 }
 void Game::Update(float deltaTime)
 {
-    if (isPaused) return;
+    soundManager.UpdateVolume();
+    if (isPaused)
+        return;
 
     if (currentState == GameState::Playing)
     {
@@ -251,18 +317,23 @@ void Game::Update(float deltaTime)
         alienManager->Update(deltaTime);
         buffManager->Update(deltaTime);
 
-        for (Bullet *bullet : bullets) bullet->Update(deltaTime);
-        for (Missile *missile : missiles) missile->Update(deltaTime);
+        for (Bullet *bullet : bullets)
+            bullet->Update(deltaTime);
+        for (Missile *missile : missiles)
+            missile->Update(deltaTime);
 
         for (Missile *missile : missiles)
         {
-            if (!missile->IsActive()) continue;
+            if (!missile->IsActive())
+                continue;
             for (Alien *alien : alienManager->GetAliens())
             {
-                if (!alien->IsActive()) continue;
+                if (!alien->IsActive())
+                    continue;
                 if (missile->GetBounds().findIntersection(alien->GetBounds()).has_value())
                 {
                     missile->Destroy();
+                    soundManager.Play("explosion");
                     DestroyNearestAliens(missile->GetPosition());
                     explosionSprite->setPosition(missile->GetPosition());
                     explosionActive = true;
@@ -274,14 +345,15 @@ void Game::Update(float deltaTime)
         if (explosionActive)
         {
             explosionTimer -= deltaTime;
-            if (explosionTimer <= 0.f) explosionActive = false;
+            if (explosionTimer <= 0.f)
+                explosionActive = false;
         }
 
         alienManager->AlienShoot(bullets, resourceManager.GetTexture("alien_bullet"));
 
         collisionManager.CheckCollisions(
             player, alienManager->GetAliens(), bullets,
-            buffManager->GetBuffs(), buffManager, resourceManager);
+            buffManager->GetBuffs(), buffManager, resourceManager, soundManager);
 
         CleanUpDeadEntities();
 
@@ -351,19 +423,24 @@ void Game::Render()
     window.clear(sf::Color::Black);
     window.setView(gameView);
 
-    if (currentState == GameState::MainMenu) {
+    if (currentState == GameState::MainMenu)
+    {
         mainMenu->Render(window);
-        if (viewingHistory && scoreHistoryMenu) {
+        if (viewingHistory && scoreHistoryMenu)
+        {
             scoreHistoryMenu->Render(window); // Vẽ trang lịch sử điểm đè lên Main Menu
         }
     }
-    else if (currentState == GameState::GameOver || currentState == GameState::Victory) {
+    else if (currentState == GameState::GameOver || currentState == GameState::Victory)
+    {
         window.draw(*backgroundSprite);
         player->Render(window);
         alienManager->Render(window);
-        if (gameOverMenu) gameOverMenu->Render(window);
+        if (gameOverMenu)
+            gameOverMenu->Render(window);
     }
-    else {
+    else
+    {
         window.draw(*backgroundSprite);
 
         if (player->HasShield())
@@ -374,15 +451,18 @@ void Game::Render()
                 bounds.position.y + bounds.size.y / 2.f - shieldSprite->getGlobalBounds().size.y / 2.f));
             window.draw(*shieldSprite);
         }
-        
+
         player->Render(window);
         alienManager->Render(window);
         buffManager->Render(window);
 
-        for (Missile *missile : missiles) missile->Render(window);
-        for (Bullet *bullet : bullets) bullet->Render(window);
+        for (Missile *missile : missiles)
+            missile->Render(window);
+        for (Bullet *bullet : bullets)
+            bullet->Render(window);
 
-        if (explosionActive) window.draw(*explosionSprite);
+        if (explosionActive)
+            window.draw(*explosionSprite);
 
         gameUI->Render(window);
         pauseMenu->Render(window, isPaused);
@@ -411,7 +491,10 @@ void Game::LoadHighScore()
         file >> highScore;
         file.close();
     }
-    else { highScore = 0; }
+    else
+    {
+        highScore = 0;
+    }
 }
 
 void Game::SaveHighScore()
@@ -464,12 +547,17 @@ void Game::AddScoreToHistory(int score)
 
 void Game::DestroyNearestAliens(sf::Vector2f center)
 {
-    struct Target { Alien *alien; float distance; };
+    struct Target
+    {
+        Alien *alien;
+        float distance;
+    };
     std::vector<Target> targets;
 
     for (Alien *alien : alienManager->GetAliens())
     {
-        if (!alien->IsActive()) continue;
+        if (!alien->IsActive())
+            continue;
         sf::FloatRect rect = alien->GetBounds();
         float x = rect.position.x + rect.size.x / 2.f;
         float y = rect.position.y + rect.size.y / 2.f;
@@ -482,9 +570,8 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
         targets.push_back(t);
     }
 
-    std::sort(targets.begin(), targets.end(), [](const Target &a, const Target &b) {
-        return a.distance < b.distance;
-    });
+    std::sort(targets.begin(), targets.end(), [](const Target &a, const Target &b)
+              { return a.distance < b.distance; });
 
     int count = std::min(5, (int)targets.size());
     for (int i = 0; i < count; i++)
@@ -500,13 +587,16 @@ void Game::RestartGame()
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);
 
-    for (Bullet *bullet : bullets) delete bullet;
+    for (Bullet *bullet : bullets)
+        delete bullet;
     bullets.clear();
 
-    for (Missile *missile : missiles) delete missile;
+    for (Missile *missile : missiles)
+        delete missile;
     missiles.clear();
 
-    for (Buff *buff : buffManager->GetBuffs()) delete buff;
+    for (Buff *buff : buffManager->GetBuffs())
+        delete buff;
     buffManager->GetBuffs().clear();
 
     alienManager->Reset(resourceManager.GetTexture("enemy"));

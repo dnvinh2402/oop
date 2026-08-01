@@ -1,18 +1,19 @@
 #include "PauseMenu.hpp"
+#include "GlobalAudio.hpp"
 #include <cstdio>
 
-PauseMenu::PauseMenu(sf::Font* f) 
-    : font(f), 
-      volume(100.0f), 
+PauseMenu::PauseMenu(sf::Font *f)
+    : font(f),
+      volume(100.0f),
       isMuted(false),
-      titleText(*font, "PAUSE MENU", 30), 
-      resumeButton(*font, "Resume Game", 22), 
-      mainMenuButton(*font, "Main Menu", 22), 
-      volumeText(*font, "", 18), 
+      titleText(*font, "PAUSE MENU", 30),
+      resumeButton(*font, "Resume Game", 22),
+      mainMenuButton(*font, "Main Menu", 22),
+      volumeText(*font, "", 18),
       muteButtonText(*font, "", 16),
       decreaseText(*font, "-", 20),
       increaseText(*font, "+", 20),
-      pauseButtonText(*font, "||", 18) 
+      pauseButtonText(*font, "||", 18)
 {
     pauseButtonRect.setSize(sf::Vector2f(50.0f, 35.0f));
     pauseButtonRect.setFillColor(sf::Color(50, 50, 50, 200));
@@ -66,11 +67,13 @@ PauseMenu::PauseMenu(sf::Font* f)
 
 PauseMenu::~PauseMenu() {}
 
-bool PauseMenu::IsPauseButtonClicked(sf::Vector2f mousePos) const {
+bool PauseMenu::IsPauseButtonClicked(sf::Vector2f mousePos) const
+{
     return pauseButtonRect.getGlobalBounds().contains(mousePos);
 }
 
-void PauseMenu::Update(sf::Vector2f mousePos) {
+void PauseMenu::Update(sf::Vector2f mousePos)
+{
     if (resumeButton.getGlobalBounds().contains(mousePos))
         resumeButton.setFillColor(sf::Color::Yellow);
     else
@@ -82,44 +85,62 @@ void PauseMenu::Update(sf::Vector2f mousePos) {
         mainMenuButton.setFillColor(sf::Color::White);
 }
 
-int PauseMenu::HandleClick(sf::Vector2f mousePos) {
-    if (IsPauseButtonClicked(mousePos)) {
-        return 3; 
+int PauseMenu::HandleClick(sf::Vector2f mousePos)
+{
+    if (IsPauseButtonClicked(mousePos))
+    {
+        return 3;
     }
-    if (resumeButton.getGlobalBounds().contains(mousePos)) {
-        return 1; 
+    if (resumeButton.getGlobalBounds().contains(mousePos))
+    {
+        return 1;
     }
-    if (mainMenuButton.getGlobalBounds().contains(mousePos)) {
-        return 2; 
+    if (mainMenuButton.getGlobalBounds().contains(mousePos))
+    {
+        return 2;
     }
-    
-    if (muteButton.getGlobalBounds().contains(mousePos)) {
+
+    if (muteButton.getGlobalBounds().contains(mousePos))
+    {
         isMuted = !isMuted;
-        if (isMuted) {
+        GlobalAudio::isMuted = isMuted;
+        GlobalAudio::volume = volume;
+        if (isMuted)
+        {
             muteButton.setFillColor(sf::Color::Red);
             muteButtonText.setString("Mute: ON");
-        } else {
+        }
+        else
+        {
             muteButton.setFillColor(sf::Color(70, 70, 70));
             muteButtonText.setString("Mute: OFF");
         }
     }
-    else if (decreaseVolButton.getGlobalBounds().contains(mousePos) && !isMuted) {
+    else if (decreaseVolButton.getGlobalBounds().contains(mousePos) && !isMuted)
+    {
         volume -= 10.0f;
-        if (volume < 0.0f) volume = 0.0f;
+        if (volume < 0.0f)
+            volume = 0.0f;
+        GlobalAudio::volume = volume;
     }
-    else if (increaseVolButton.getGlobalBounds().contains(mousePos) && !isMuted) {
+    else if (increaseVolButton.getGlobalBounds().contains(mousePos) && !isMuted)
+    {
         volume += 10.0f;
-        if (volume > 100.0f) volume = 100.0f;
+        if (volume > 100.0f)
+            volume = 100.0f;
+        GlobalAudio::volume = volume;
     }
 
     return 0;
 }
 
-void PauseMenu::Render(sf::RenderWindow& window, bool isPaused) {
+void PauseMenu::Render(sf::RenderWindow &window, bool isPaused)
+{
     window.draw(pauseButtonRect);
     window.draw(pauseButtonText);
 
-    if (isPaused) {
+    if (isPaused)
+    {
         window.draw(backgroundOverlay);
         window.draw(menuBox);
         window.draw(titleText);
@@ -127,9 +148,12 @@ void PauseMenu::Render(sf::RenderWindow& window, bool isPaused) {
         window.draw(mainMenuButton);
 
         char buf[32];
-        if (isMuted) {
+        if (isMuted)
+        {
             std::snprintf(buf, sizeof(buf), "Volume: MUTED");
-        } else {
+        }
+        else
+        {
             std::snprintf(buf, sizeof(buf), "Volume: %.0f%%", volume);
         }
         volumeText.setString(buf);
@@ -144,23 +168,29 @@ void PauseMenu::Render(sf::RenderWindow& window, bool isPaused) {
     }
 }
 
-void PauseMenu::SetVolume(float vol, bool mute) {
+void PauseMenu::SetVolume(float vol, bool mute)
+{
     volume = vol;
     isMuted = mute;
 
-    if (isMuted) {
+    if (isMuted)
+    {
         muteButton.setFillColor(sf::Color::Red);
         muteButtonText.setString("Mute: ON");
-    } else {
+    }
+    else
+    {
         muteButton.setFillColor(sf::Color(70, 70, 70));
         muteButtonText.setString("Mute: OFF");
     }
 }
 
-float PauseMenu::GetVolume() const {
+float PauseMenu::GetVolume() const
+{
     return volume;
 }
 
-bool PauseMenu::IsMuted() const {
+bool PauseMenu::IsMuted() const
+{
     return isMuted;
 }

@@ -16,7 +16,8 @@ void CollisionManager::CheckCollisions(
     std::vector<Bullet *> &bullets,
     std::vector<Buff *> &buffs,
     BuffManager *buffManager,
-    ResourceManager &resourceManager)
+    ResourceManager &resourceManager,
+    SoundManager &soundManager)
 {
     for (Bullet *bullet : bullets)
     {
@@ -41,7 +42,7 @@ void CollisionManager::CheckCollisions(
                     bullet->Destroy();
 
                     // PHÂN LOẠI TÍNH ĐIỂM: BOSS VS LÍNH THƯỜNG
-                    if (alien->GetMaxHealth() > 1) 
+                    if (alien->GetMaxHealth() > 1)
                     {
                         // 1. XỬ LÝ CHO BOSS: Mỗi lần bắn trúng được cộng điểm (200đ -> thấp nhất 30đ)
                         int hitScore = alien->CalculateBossHitScore();
@@ -51,16 +52,18 @@ void CollisionManager::CheckCollisions(
                         // Nếu Boss chết hẳn -> Cộng thêm 1000 điểm thưởng tiêu diệt
                         if (!alien->IsActive())
                         {
+                            soundManager.Play("enemyDead");
                             int killScore = alien->CalculateBossKillScore();
                             player->AddScore(killScore);
                             std::cout << "HA GUC BOSS MAN 3! (+ " << killScore << " diem)\n";
                         }
                     }
-                    else 
+                    else
                     {
                         // 2. XỬ LÝ CHO LÍNH THƯỜNG: Chỉ cộng điểm khi tiêu diệt hoàn toàn
                         if (!alien->IsActive())
                         {
+                            soundManager.Play("enemyDead");
                             int normalScore = alien->CalculateNormalScore();
                             player->AddScore(normalScore);
                             std::cout << "TIEU DIET LINH THUONG! (+ " << normalScore << " diem)\n";
@@ -118,10 +121,20 @@ void CollisionManager::CheckCollisions(
             {
                 if (bulletBounds.findIntersection(player->GetBounds()).has_value())
                 {
-                    player->TakeDamage();
-                    bullet->Destroy();
+                    if (player->HasShield())
+                    {
+                        soundManager.Play("shield");
+                        std::cout << "Shield chan dan!\n";
+                    }
+                    else
+                    {
+                        player->TakeDamage();
 
-                    std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+                        soundManager.Play("hit");
+                        std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+                    }
+
+                    bullet->Destroy();
                 }
             }
         }
@@ -140,14 +153,17 @@ void CollisionManager::CheckCollisions(
             {
             case BuffType::doubleShot:
                 player->ActivateDoubleShot();
+                soundManager.Play("pickup");
                 break;
 
             case BuffType::Shield:
                 player->ActivateShield();
+                soundManager.Play("pickup");
                 break;
 
             case BuffType::Bomb:
                 player->ActivateBomb();
+                soundManager.Play("pickup");
                 break;
             }
             buff->Destroy();
