@@ -125,6 +125,7 @@ void CollisionManager::CheckCollisions(
                     {
                         soundManager.Play("shield");
                         std::cout << "Shield chan dan!\n";
+                        player->TakeDamage();
                     }
                     else
                     {
