@@ -35,7 +35,7 @@ public:
     void Update(float deltaTime) override;
     void Render(sf::RenderWindow &window) override;
 
-    void HandleInput();
+    void HandleInput(float deltaTime);
 
     void Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture);
     void TakeDamage();

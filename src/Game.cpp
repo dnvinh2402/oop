@@ -237,6 +237,7 @@ void Game::Update(float deltaTime)
 
     if (currentState == GameState::Playing)
     {
+        player->HandleInput(deltaTime);
         player->Update(deltaTime);
         if (player->IsBombReady())
         {
