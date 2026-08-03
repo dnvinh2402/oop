@@ -56,6 +56,8 @@ private:
     void RestartGame();
     void UpdateView();
 
+    sf::Texture* GetAlienTextureForRound(int round);
+    
 public:
     Game();
     ~Game();
