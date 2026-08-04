@@ -576,6 +576,7 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
     int count = std::min(5, (int)targets.size());
     for (int i = 0; i < count; i++)
     {
+        collisionManager.AwardScore(player, targets[i].alien);
         targets[i].alien->Destroy();
     }
 }

@@ -18,7 +18,7 @@ private:
     bool doubleShot;
     bool shield;
 
-    sf::Texture* shieldTexture;
+    sf::Texture *shieldTexture;
 
     float doubleShotTimer;
     float shieldTimer;
@@ -46,16 +46,21 @@ public:
     void ActivateBomb();
     bool IsBombReady() const;
     void ResetBomb();
+    int bombCount;
 
-    void SetShieldTexture(sf::Texture* texture);
+    void SetShieldTexture(sf::Texture *texture);
 
     bool HasShield() const;
     void TakeShieldHit(); // Hàm xử lý khi khiên hứng đạn
-    
+
     // Thêm 2 hàm này để lấy thông tin hiển thị lên UI
     float GetShieldTimer() const { return shieldTimer; }
     int GetShieldHitsRemaining() const { return shieldHitsRemaining; }
     // ================
+
+    float GetDoubleShotTimer() const { return doubleShotTimer; }
+
+    bool HasDoubleShot() const { return doubleShot; }
 
     int GetLives() { return lives; }
     int GetScore() { return score; }

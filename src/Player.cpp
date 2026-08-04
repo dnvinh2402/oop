@@ -20,6 +20,7 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 
     bombReady = false;
     bombTimer = 0.f;
+    bombCount = 0;
 }
 
 Player::~Player()
@@ -237,8 +238,13 @@ bool Player::HasShield() const
 
 void Player::ActivateBomb()
 {
-    bombReady = true;
-    bombTimer = 1.f;
+    bombCount++;
+
+    if (!bombReady)
+    {
+        bombReady = true;
+        bombTimer = 1.f;
+    }
 }
 
 bool Player::IsBombReady() const
@@ -248,7 +254,17 @@ bool Player::IsBombReady() const
 
 void Player::ResetBomb()
 {
-    bombReady = false;
+    bombCount--;
+
+    if (bombCount > 0)
+    {
+        bombTimer = 1.f;
+    }
+    else
+    {
+        bombReady = false;
+        bombTimer = 0.f;
+    }
 }
 
 void Player::SetShieldTexture(sf::Texture* texture)

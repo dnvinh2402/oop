@@ -22,4 +22,5 @@ void CheckCollisions(
     BuffManager* buffManager,
     ResourceManager& resourceManager,
     SoundManager &soundManager);
+void AwardScore(Player* player, Alien* alien);
 };

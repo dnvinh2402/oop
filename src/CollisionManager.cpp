@@ -9,7 +9,25 @@ CollisionManager::CollisionManager()
 CollisionManager::~CollisionManager()
 {
 }
+void CollisionManager::AwardScore(Player* player, Alien* alien)
+{
+    if (alien->GetMaxHealth() > 1)
+    {
+        int killScore = alien->CalculateBossKillScore();
+        player->AddScore(killScore);
 
+        std::cout << "HA GUC BOSS ! (+ "
+                  << killScore << " diem)\n";
+    }
+    else
+    {
+        int normalScore = alien->CalculateNormalScore();
+        player->AddScore(normalScore);
+
+        std::cout << "TIEU DIET LINH THUONG! (+ "
+                  << normalScore << " diem)\n";
+    }
+}
 void CollisionManager::CheckCollisions(
     Player *player,
     std::vector<Alien *> &aliens,
@@ -54,8 +72,7 @@ void CollisionManager::CheckCollisions(
                         {
                             soundManager.Play("enemyDead");
                             int killScore = alien->CalculateBossKillScore();
-                            player->AddScore(killScore);
-                            std::cout << "HA GUC BOSS MAN 3! (+ " << killScore << " diem)\n";
+                            AwardScore(player, alien);
                         }
                     }
                     else
@@ -64,9 +81,7 @@ void CollisionManager::CheckCollisions(
                         if (!alien->IsActive())
                         {
                             soundManager.Play("enemyDead");
-                            int normalScore = alien->CalculateNormalScore();
-                            player->AddScore(normalScore);
-                            std::cout << "TIEU DIET LINH THUONG! (+ " << normalScore << " diem)\n";
+                            AwardScore(player, alien);
                         }
                     }
 
