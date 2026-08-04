@@ -19,10 +19,12 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     resourceManager.LoadTexture("player", "assets/images/player.png");
     std::cout << "Da load xong player texture\n";
 
-    resourceManager.LoadTexture("enemy", "assets/images/enemy.png");
+    resourceManager.LoadTexture("alien_1", "assets/images/alien_1.png");
+    resourceManager.LoadTexture("alien_2", "assets/images/alien_2.png");
+    resourceManager.LoadTexture("boss", "assets/images/boss.png");
 
     alienManager = new AlienManager();
-    alienManager->InitializeSwarm(resourceManager.GetTexture("enemy"));
+    alienManager->InitializeSwarm(GetAlienTextureForRound(1));
     buffManager = new BuffManager();
 
     resourceManager.LoadTexture("bullet", "assets/images/bullet.png");
@@ -302,6 +304,7 @@ void Game::Update(float deltaTime)
 
     if (currentState == GameState::Playing)
     {
+        player->HandleInput(deltaTime);
         player->Update(deltaTime);
         if (player->IsBombReady())
         {
@@ -389,7 +392,9 @@ void Game::Update(float deltaTime)
             }
             else
             {
-                alienManager->StartNextRound(resourceManager.GetTexture("enemy"));
+                int nextRound = alienManager->GetCurrentRound() + 1;
+                alienManager->StartNextRound(GetAlienTextureForRound(nextRound));
+                std::cout << "Chuyen sang Round " << alienManager->GetCurrentRound() << "!\n";
             }
         }
     }
@@ -600,7 +605,7 @@ void Game::RestartGame()
         delete buff;
     buffManager->GetBuffs().clear();
 
-    alienManager->Reset(resourceManager.GetTexture("enemy"));
+    alienManager->Reset(GetAlienTextureForRound(1));
     currentState = GameState::Playing;
 }
 
@@ -625,4 +630,10 @@ void Game::UpdateView()
 
     gameView.setViewport(sf::FloatRect(sf::Vector2f(posX, posY), sf::Vector2f(sizeX, sizeY)));
     window.setView(gameView);
+}
+
+sf::Texture* Game::GetAlienTextureForRound(int round) {
+    if (round == 1) return resourceManager.GetTexture("alien_1");
+    if (round == 2) return resourceManager.GetTexture("alien_2");
+    return resourceManager.GetTexture("boss");
 }

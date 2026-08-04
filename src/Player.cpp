@@ -28,19 +28,7 @@ Player::~Player()
     // Chưa cần dọn gì đặc biệt
 }
 
-void Player::HandleInput()
-{
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-    {
-        position.x -= speed * 0.016f;
-    }
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-    {
-        position.x += speed * 0.016f;
-    }
-}
-
-void Player::Update(float deltaTime)
+void Player::HandleInput(float deltaTime)
 {
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A))
     {
@@ -58,7 +46,35 @@ void Player::Update(float deltaTime)
     {
         position.y += speed * deltaTime;
     }
-    
+
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+
+    if (position.x < 0.f)
+    {
+        position.x = 0.f;
+    }
+    else if (position.x > 900.f - bounds.size.x)
+    {
+        position.x = 900.f - bounds.size.x;
+    }
+
+    float maxY = 900.f - bounds.size.y;
+    float minY = 450.f;
+
+    if (position.y < minY)
+    {
+        position.y = minY;
+    }
+    else if (position.y > maxY)
+    {
+        position.y = maxY;
+    }
+
+    sprite.setPosition(position);
+}
+
+void Player::Update(float deltaTime)
+{
     sf::FloatRect bounds = sprite.getGlobalBounds();
 
     if (position.x < 0.f)
