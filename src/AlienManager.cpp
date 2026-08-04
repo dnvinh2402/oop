@@ -1,6 +1,8 @@
 #include "AlienManager.hpp"
 #include <cstdlib> // Thư viện hỗ trợ hàm rand() để random tỉ lệ nhả đạn
 #include <iostream>
+#include <cmath>
+
 const float WORLD_WIDTH_HALF = 450.0f;
 AlienManager::AlienManager() {
     moveSpeed = 100.0f; // Tốc độ di chuyển ngang (100 pixel/giây)
@@ -16,42 +18,6 @@ AlienManager::~AlienManager() {
     }
     aliens.clear();
 }
-
-// void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
-//     // Cấu hình mạng lưới quái vật: 4 hàng x 8 cột
-//     int rows = 2 + currentRound;
-//     int cols = 8;
-//     float startX = 60.0f;
-//     float startY = 50.0f;
-//     float spacingX = 70.0f;
-//     float spacingY = 60.0f;
-
-//     float baseAngularSpeed = 1.0f + (currentRound - 1) * 0.3f; // round sau quay nhanh hơn
-//     float staggerDelay = 0.15f; // mỗi con cách nhau 0.15s xuất hiện
-
-//     int index = 0;
-//     for (int row = 0; row < rows; row++) {
-//         for (int col = 0; col < cols; col++) {
-//             sf::Vector2f center(startX + col * spacingX, startY + row * spacingY);
-            
-//             float radius = 20.0f + (row % 3) * 10.0f; // bán kính khác nhau theo hàng, tạo cảm giác đa dạng
-//             float speed = baseAngularSpeed + (rand() % 50) / 100.0f; // mỗi con tốc độ hơi khác nhau
-//             float delay = index * staggerDelay;
-//             int points = (rows - row) * 10;//diem tieu diet
-
-            
-//             Alien* newAlien = new Alien(alienTexture, center, radius, speed, delay, points);
-//             aliens.push_back(newAlien);
-//             index++;
-//         }
-//     }
-
-//     moveSpeed = 100.0f + (currentRound - 1) * 30.0f;
-//     movingRight = true;
-
-
-//     std::cout << "Da khoi tao Round " << currentRound << " voi " << rows << " hang quai vat!\n";
-// }
 
 void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
     if (currentRound == 1) {
@@ -108,8 +74,8 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
     else {
         // ===== ROUND 3: Boss - 1 con duy nhất, nhiều máu =====
         sf::Vector2f bossCenter(WORLD_WIDTH_HALF, 150.0f);
-        int bossHealth = 25;
-        int bossPoints = 500;
+        int bossHealth = 80;
+        int bossPoints = 200;
 
         Alien* boss = new Alien(alienTexture, bossCenter, 250.0f, 0.4f, 0.0f, bossPoints, MovementType::Boss, bossHealth);
         aliens.push_back(boss);
@@ -194,7 +160,7 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
     }
 
     // Giới hạn cấp độ khó: Tối đa 6 viên đạn quái xuất hiện cùng lúc
-    int maxBulletsAllowed = 4 + currentRound; 
+    int maxBulletsAllowed = (currentRound == 3) ? 20 : (4 + currentRound);
     if (currentAlienBullets >= maxBulletsAllowed) return;
     
     // Duyệt qua từng con quái còn sống, con nào SẴN SÀNG (hết cooldown riêng) mới được bắn
@@ -203,18 +169,39 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
 
         if (shooter->CanShoot()) {
             sf::FloatRect bounds = shooter->GetBounds();
-            sf::Vector2f bulletPos;
-            bulletPos.x = bounds.position.x + bounds.size.x / 2.0f - 5.0f;
-            bulletPos.y = bounds.position.y + bounds.size.y;
+            sf::Vector2f basePos;
+            basePos.x = bounds.position.x + bounds.size.x / 2.0f - 5.0f;
+            basePos.y = bounds.position.y + bounds.size.y;
 
             float bulletSpeed = 150.0f + (currentRound - 1) * 75.0f;
-            sf::Vector2f bulletVel(0.0f, bulletSpeed);
 
-            Bullet* newBullet = new Bullet(bulletTexture, bulletPos, bulletVel, false);
-            bulletList.push_back(newBullet);
+            if (shooter->GetMovementType() == MovementType::Boss){
+                int bulletCount = 5;
+                float spreadAngleDeg = 70.0f; // tổng góc toả ra
+                for (int i = 0; i < bulletCount; i++){
+                    float t = (bulletCount == 1) ? 0.5f : (float)i /(bulletCount - 1);
+                    float angleDeg = -spreadAngleDeg / 2.0f + spreadAngleDeg * t;
+                    float angleRad = angleDeg * 3.14159265f / 180.0f;
 
+
+                    sf::Vector2f vel(std::sin(angleRad) * bulletSpeed, std::cos(angleRad) * bulletSpeed);
+
+                    Bullet* newBullet = new Bullet(bulletTexture, basePos, vel, false);
+                    bulletList.push_back(newBullet);
+                    currentAlienBullets++;
+                }
+            }
+
+            else{
+                float bulletSpeed = 150.0f + (currentRound - 1) * 75.0f;
+                sf::Vector2f bulletVel(0.0f, bulletSpeed);
+
+                Bullet* newBullet = new Bullet(bulletTexture, basePos, bulletVel, false);
+                bulletList.push_back(newBullet);
+
+                currentAlienBullets++;
+            }
             shooter->ResetShootCooldown();
-            currentAlienBullets++;
         }
     }
 }

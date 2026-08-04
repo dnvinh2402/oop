@@ -30,9 +30,6 @@ Alien::Alien(sf::Texture* texture, sf::Vector2f orbitCenterPos, float radius, fl
     shootCooldown = 2.0f + (rand() % 300) / 100.0f;
     shootTimer = (rand() % 200) / 100.0f;
 
-    if (movementType == MovementType::Boss) {
-        sprite.setScale(sf::Vector2f(2.5f, 2.5f));
-    }
 
     sprite.setPosition(position);
 }

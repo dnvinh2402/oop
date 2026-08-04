@@ -73,4 +73,6 @@ public:
         }
         return baseScore + (int)bonus;
     }
+
+    MovementType GetMovementType() { return movementType; }
 };
