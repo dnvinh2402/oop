@@ -74,7 +74,7 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
     else {
         // ===== ROUND 3: Boss - 1 con duy nhất, nhiều máu =====
         sf::Vector2f bossCenter(WORLD_WIDTH_HALF, 150.0f);
-        int bossHealth = 80;
+        int bossHealth = 40;
         int bossPoints = 200;
 
         Alien* boss = new Alien(alienTexture, bossCenter, 250.0f, 0.4f, 0.0f, bossPoints, MovementType::Boss, bossHealth);

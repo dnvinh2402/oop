@@ -4,38 +4,49 @@
 class PauseMenu {
 private:
     sf::Font* font;
-
-    // Các biến hình khối (giao diện gốc của bạn)
-    sf::RectangleShape pauseButtonRect;
+    
+    // Phông nền làm mờ
     sf::RectangleShape backgroundOverlay;
-    sf::RectangleShape menuBox;
-    sf::RectangleShape decreaseVolButton;
-    sf::RectangleShape muteButton;
-    sf::RectangleShape increaseVolButton;
+    
+    // Biến ảnh khung nền
+    sf::Texture* menuBgTexture;
+    sf::Sprite* menuBgSprite;
 
-    // Các biến văn bản (giao diện gốc của bạn)
-    sf::Text pauseButtonText;
-    sf::Text titleText;
-    sf::Text resumeButton;
-    sf::Text mainMenuButton;
+    // Các biến hình ảnh icon
+    sf::Texture* pauseTexture;
+    sf::Sprite* pauseSprite;
+
+    sf::Texture* resumeTexture;
+    sf::Sprite* resumeSprite;
+
+    sf::Texture* homeTexture;
+    sf::Sprite* homeSprite;
+
+    sf::Texture* unmuteTexture;
+    sf::Texture* muteTexture;
+    sf::Sprite* muteSprite;
+
+    sf::Texture* minusTexture;
+    sf::Sprite* minusSprite;
+
+    sf::Texture* plusTexture;
+    sf::Sprite* plusSprite;
+
+    // Chỉ còn văn bản hiện % âm lượng
     sf::Text volumeText;
-    sf::Text muteButtonText;
-    sf::Text decreaseText;
-    sf::Text increaseText;
 
     float volume;
     bool isMuted;
 
 public:
     PauseMenu(sf::Font* f);
-    ~PauseMenu(); // Đã xóa = default để khớp với file .cpp của bạn
+    ~PauseMenu(); 
 
     bool IsPauseButtonClicked(sf::Vector2f mousePos) const;
     void Update(sf::Vector2f mousePos);
     int HandleClick(sf::Vector2f mousePos);
     void Render(sf::RenderWindow& window, bool isPausedState);
 
-    // Chỉ để lại khai báo, bỏ phần ngoặc nhọn {} đi
     bool IsMuted() const;
     float GetVolume() const;
     void SetVolume(float vol, bool muted);

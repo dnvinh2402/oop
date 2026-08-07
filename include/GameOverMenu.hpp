@@ -4,16 +4,24 @@
 class GameOverMenu {
 private:
     sf::Font* font;
-    sf::Text titleText;
+    
+    sf::Texture* titleTexture;
+    sf::Sprite* titleSprite;
+
     sf::Text finalScoreText;
-    sf::Text restartButton;
-    sf::Text menuButton;
+
+    // Thay thế nút chữ bằng Texture và Sprite
+    sf::Texture* restartTexture;
+    sf::Sprite* restartSprite;
+
+    sf::Texture* menuTexture;
+    sf::Sprite* menuSprite;
 
 public:
     GameOverMenu(sf::Font* f, int score, bool isVictory);
     ~GameOverMenu();
 
     void Update(sf::Vector2f mousePos);
-    int HandleClick(sf::Vector2f mousePos); // Trả về 1: Chơi lại, 2: Về Main Menu
+    int HandleClick(sf::Vector2f mousePos);
     void Render(sf::RenderWindow& window);
 };

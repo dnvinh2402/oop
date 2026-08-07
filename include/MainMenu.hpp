@@ -6,11 +6,18 @@ private:
     sf::Font* font;
     sf::Sprite* bgSprite;
     
-    sf::Text titleText;
-    sf::Text introText;
-    sf::Text playButton;
-    sf::Text historyButton; // Dùng biến này thay cho highScoreText
+    // --- BIẾN ẢNH CHO LOGO (Thay thế cho titleText và introText) ---
+    sf::Texture* logoTexture;
+    sf::Sprite* logoSprite;
 
+    // --- BIẾN ẢNH CHO NÚT BẤM (Thay cho chữ) ---
+    sf::Texture* playTexture;
+    sf::Sprite* playSprite;
+
+    sf::Texture* historyTexture;
+    sf::Sprite* historySprite;
+
+    // Các biến âm thanh giữ nguyên
     sf::Texture* muteTexture;
     sf::Texture* unmuteTexture;
     sf::Texture* plusTexture;
@@ -31,7 +38,6 @@ public:
     int HandleClick(sf::Vector2f mousePos);
     void Render(sf::RenderWindow& window);
 
-    // Chỉ để lại khai báo, bỏ phần ngoặc nhọn {} đi
     bool IsMuted() const;
     int GetVolume() const;
     void SetVolume(int vol, bool muted);

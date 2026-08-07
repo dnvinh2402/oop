@@ -16,7 +16,7 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 
     doubleShotTimer = 0.0f;
     shieldTimer = 0.0f;
-    shieldHitsRemaining = 2; // Khởi tạo mặc định chịu được 2 lần trúng đạn
+    shieldHitsRemaining = 2;
 
     bombReady = false;
     bombTimer = 0.f;
@@ -25,7 +25,6 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 
 Player::~Player()
 {
-    // Chưa cần dọn gì đặc biệt
 }
 
 void Player::HandleInput(float deltaTime)
@@ -116,7 +115,7 @@ void Player::Update(float deltaTime)
         }
     }
 
-    // Cập nhật khiên bảo vệ theo thời gian (10 giây)
+    // Cập nhật khiên bảo vệ theo thời gian
     if (shield)
     {
         shieldTimer -= deltaTime;
@@ -205,26 +204,23 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
 
 void Player::TakeDamage()
 {
-    // Nếu đang có khiên, gọi hàm TakeShieldHit thay vì trừ trực tiếp mạng
+    // Nếu đang có khiên thì khiên chịu đòn trước, không thì trừ mạng trực tiếp
     if (shield)
     {
         TakeShieldHit();
         return;
     }
 
+    // ĐÃ XÓA HOÀN TOÀN LỆNH TỰ ĐỘNG BẬT KHIÊN (ActivateShield) KHI MẤT MẠNG
     lives--;
 
-    if (lives > 0)
-    {
-        ActivateShield();
-    }
-    else
+    if (lives <= 0)
     {
         Destroy();
     }
 }
 
-// Xử lý khi bị đạn địch trúng lúc đang bật khiên (tối đa 2 viên)
+// Xử lý khi bị đạn địch trúng lúc đang bật khiên (chịu tối đa 2 viên)
 void Player::TakeShieldHit()
 {
     if (shield)
@@ -232,7 +228,7 @@ void Player::TakeShieldHit()
         shieldHitsRemaining--;
         if (shieldHitsRemaining <= 0)
         {
-            shield = false; // Mất khiên sau khi trúng đủ 2 viên đạn
+            shield = false; 
         }
     }
 }
@@ -247,8 +243,8 @@ void Player::ActivateDoubleShot()
 void Player::ActivateShield()
 {
     shield = true;
-    shieldTimer = 5.0f;         // Tồn tại tối đa 5 giây nếu không bị bắn
-    shieldHitsRemaining = 2;   // Cho phép chịu tối đa 2 viên đạn địch
+    shieldTimer = 10.0f;        
+    shieldHitsRemaining = 2;   
 }
 
 bool Player::HasShield() const

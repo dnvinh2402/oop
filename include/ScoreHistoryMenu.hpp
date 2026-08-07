@@ -6,9 +6,16 @@ class ScoreHistoryMenu {
 private:
     sf::Font* font;
     sf::RectangleShape backgroundOverlay;
-    sf::RectangleShape menuBox;
+    
+    sf::Texture* menuBgTexture;
+    sf::Sprite* menuBgSprite;
+
     sf::Text titleText;
-    sf::Text backButton;
+    
+    // Biến ảnh cho nút Back
+    sf::Texture* backTexture;
+    sf::Sprite* backSprite;
+
     std::vector<sf::Text> scoreTexts;
 
 public:

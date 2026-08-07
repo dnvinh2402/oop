@@ -8,15 +8,20 @@ class UI
 private:
     sf::Font *font;
     sf::Text scoreText;
-    sf::Text livesText;
-    sf::Text shieldText;
+    sf::Texture heartTexture;
+    int currentLives;
 
-    // Các biến lưu trạng thái khiên để vẽ trong Render
+    sf::Text shieldText;
+    sf::Texture shieldTexture;
+    bool hasShield;
+
     float currentShieldTime;
     int currentShieldHits;
 
     float currentDoubleShotTime;
     sf::Text doubleShotText;
+    sf::Texture doubleShotTexture;
+    bool hasDoubleShot;
 
     sf::Text titleText;
     sf::Text subText;

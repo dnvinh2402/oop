@@ -91,7 +91,7 @@ void CollisionManager::CheckCollisions(
                         if (rand() % 100 < 50)
                         {
                             BuffType type;
-                            int randomType = rand() % 3;
+                            int randomType = rand() % 3; // 3 loại: doubleShot, Shield, Bomb
 
                             if (randomType == 0)
                                 type = BuffType::doubleShot;
@@ -136,19 +136,9 @@ void CollisionManager::CheckCollisions(
             {
                 if (bulletBounds.findIntersection(player->GetBounds()).has_value())
                 {
-                    if (player->HasShield())
-                    {
-                        soundManager.Play("shield");
-                        std::cout << "Shield chan dan!\n";
-                        player->TakeDamage();
-                    }
-                    else
-                    {
-                        player->TakeDamage();
-
-                        soundManager.Play("hit");
-                        std::cout << "CANH BAO! Phi thuyen trung dan!\n";
-                    }
+                    player->TakeDamage();
+                    soundManager.Play("hit");
+                    std::cout << "CANH BAO! Phi thuyen trung dan!\n";
 
                     bullet->Destroy();
                 }
@@ -173,7 +163,7 @@ void CollisionManager::CheckCollisions(
                 break;
 
             case BuffType::Shield:
-                player->ActivateShield();
+                player->ActivateShield(); // Nhặt item khiên để bật khiên bảo vệ
                 soundManager.Play("pickup");
                 break;
 
