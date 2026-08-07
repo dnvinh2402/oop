@@ -214,7 +214,11 @@ void Player::TakeDamage()
 
     lives--;
 
-    if (lives <= 0)
+    if (lives > 0)
+    {
+        ActivateShield();
+    }
+    else
     {
         Destroy();
     }
@@ -243,7 +247,7 @@ void Player::ActivateDoubleShot()
 void Player::ActivateShield()
 {
     shield = true;
-    shieldTimer = 10.0f;         // Tồn tại tối đa 10 giây nếu không bị bắn
+    shieldTimer = 5.0f;         // Tồn tại tối đa 5 giây nếu không bị bắn
     shieldHitsRemaining = 2;   // Cho phép chịu tối đa 2 viên đạn địch
 }
 

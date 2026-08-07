@@ -11,7 +11,7 @@ ScoreHistoryMenu::ScoreHistoryMenu(sf::Font* f, const std::vector<int>& recentSc
     menuBox.setSize(sf::Vector2f(450.0f, 400.0f));
     menuBox.setFillColor(sf::Color(20, 20, 35, 240));
     menuBox.setOutlineColor(sf::Color::Cyan);
-    menuBox.setOutlineThickness(2.0f);
+    menuBox.setOutlineThickness(2.5f);
     menuBox.setPosition(sf::Vector2f(225.0f, 250.0f));
 
     titleText.setFillColor(sf::Color::Yellow);

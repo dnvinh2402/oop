@@ -4,7 +4,7 @@
 #include <iostream>
 
 MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
-    : font(f), titleText(*font, "SPACE DEFENDER", 52), introText(*font, "", 22), playButton(*font, "BAT DAU CHOI", 34), historyButton(*font, "LICH SU DAU", 28)
+    : font(f), titleText(*font, "SPACE INVADERS", 52), introText(*font, "", 22), playButton(*font, "START GAME", 34), historyButton(*font, "HIGHSCORES", 28)
 {
 
     bgSprite = new sf::Sprite(*bgTexture);
@@ -21,7 +21,7 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
 
     // Giới thiệu (Đã kéo xuống theo tiêu đề)
     introText.setFillColor(sf::Color(210, 210, 210));
-    introText.setString("Tua game chien dau khong gian - Tieu diet quai vat bao ve trai dat!");
+    introText.setString("DEFEAT THE ALIEN INVADERS & SAVE EARTH!");
     bounds = introText.getLocalBounds();
     introText.setOrigin(sf::Vector2f(bounds.position.x + bounds.size.x / 2.0f, bounds.position.y + bounds.size.y / 2.0f));
     introText.setPosition(sf::Vector2f(450.0f, 450.0f)); // Sửa tọa độ Y từ 260 thành 450
@@ -81,9 +81,9 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     scaleSprite(volumeDownSprite, minusTexture, 35.0f);
     scaleSprite(volumeUpSprite, plusTexture, 35.0f);
 
-    volumeDownSprite->setPosition(sf::Vector2f(380.0f, 800.0f));
-    muteButtonSprite->setPosition(sf::Vector2f(440.0f, 795.0f));
-    volumeUpSprite->setPosition(sf::Vector2f(500.0f, 800.0f));
+    volumeDownSprite->setPosition(sf::Vector2f(380.0f, 730.0f));
+    muteButtonSprite->setPosition(sf::Vector2f(440.0f, 725.0f));
+    volumeUpSprite->setPosition(sf::Vector2f(500.0f, 730.0f));
 }
 
 MainMenu::~MainMenu()

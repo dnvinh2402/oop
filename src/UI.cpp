@@ -49,14 +49,14 @@ void UI::Update(Player *player, GameState currentState, int highScore)
         currentShieldHits = player->GetShieldHitsRemaining();
 
         snprintf(buffer, sizeof(buffer),
-                 "Shield      : %.1fs (%d Hits)",
+                 "Shield : %.1fs (%d Hits)",
                  currentShieldTime,
                  currentShieldHits);
     }
     else
     {
         snprintf(buffer, sizeof(buffer),
-                 "Shield      : OFF");
+                 "Shield : OFF");
     }
 
     shieldText.setString(buffer);

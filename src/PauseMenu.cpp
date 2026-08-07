@@ -18,7 +18,7 @@ PauseMenu::PauseMenu(sf::Font *f)
     pauseButtonRect.setSize(sf::Vector2f(50.0f, 35.0f));
     pauseButtonRect.setFillColor(sf::Color(50, 50, 50, 200));
     pauseButtonRect.setOutlineColor(sf::Color::White);
-    pauseButtonRect.setOutlineThickness(1.5f);
+    pauseButtonRect.setOutlineThickness(2.0f);
     pauseButtonRect.setPosition(sf::Vector2f(840.0f, 10.0f));
 
     pauseButtonText.setFillColor(sf::Color::White);
@@ -30,7 +30,7 @@ PauseMenu::PauseMenu(sf::Font *f)
     menuBox.setSize(sf::Vector2f(420.0f, 380.0f));
     menuBox.setFillColor(sf::Color(20, 20, 35, 240));
     menuBox.setOutlineColor(sf::Color::Cyan);
-    menuBox.setOutlineThickness(2.0f);
+    menuBox.setOutlineThickness(2.5f);
     menuBox.setPosition(sf::Vector2f(240.0f, 260.0f));
 
     titleText.setFillColor(sf::Color::Yellow);
