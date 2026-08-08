@@ -2,18 +2,18 @@
 #include <cstdio>
 #include <iostream>
 
-UI::UI(sf::Font *f) 
-    : font(f), 
-      scoreText(*font), 
-      shieldText(*font), 
-      doubleShotText(*font), 
-      titleText(*font), 
-      subText(*font), 
-      scoreResultText(*font), 
-      currentShieldTime(0.f), 
-      currentShieldHits(0), 
+UI::UI(sf::Font *f)
+    : font(f),
+      scoreText(*font),
+      shieldText(*font),
+      doubleShotText(*font),
+      titleText(*font),
+      subText(*font),
+      scoreResultText(*font),
+      currentShieldTime(0.f),
+      currentShieldHits(0),
       hasShield(false),
-      currentDoubleShotTime(0.f), 
+      currentDoubleShotTime(0.f),
       hasDoubleShot(false),
       currentLives(3)
 {
@@ -21,13 +21,16 @@ UI::UI(sf::Font *f)
     scoreText.setFillColor(sf::Color::White);
     scoreText.setPosition(sf::Vector2f(10.0f, 10.0f));
 
-    if (!heartTexture.loadFromFile("assets/images/heart.png")) {
+    if (!heartTexture.loadFromFile("assets/images/heart.png"))
+    {
         std::cout << "Loi load heart.png trong UI\n";
     }
-    if (!doubleShotTexture.loadFromFile("assets/images/doubleShot.png")) {
+    if (!doubleShotTexture.loadFromFile("assets/images/doubleShot.png"))
+    {
         std::cout << "Loi load doubleShot.png trong UI\n";
     }
-    if (!shieldTexture.loadFromFile("assets/images/shield.png")) {
+    if (!shieldTexture.loadFromFile("assets/images/shield.png"))
+    {
         std::cout << "Loi load shield.png trong UI\n";
     }
 
@@ -67,9 +70,9 @@ void UI::Update(Player *player, GameState currentState, int highScore)
         currentShieldHits = player->GetShieldHitsRemaining();
 
         snprintf(buffer, sizeof(buffer),
-                 ": %.1fs (%d Hits)",
-                 currentShieldTime,
-                 currentShieldHits);
+                 "Shield : %.1fs",
+                 currentShieldTime);
+
         shieldText.setString(buffer);
     }
 
@@ -132,12 +135,13 @@ void UI::Render(sf::RenderWindow &window)
         for (int i = 0; i < currentLives; ++i)
         {
             sf::Sprite heartSprite(heartTexture);
-            
+
             sf::Vector2u size = heartTexture.getSize();
-            if (size.x > 0 && size.y > 0) {
+            if (size.x > 0 && size.y > 0)
+            {
                 heartSprite.setScale(sf::Vector2f(25.0f / size.x, 25.0f / size.y));
             }
-            
+
             heartSprite.setPosition(sf::Vector2f(10.0f + (i * 30.0f), 40.0f));
             window.draw(heartSprite);
         }
@@ -147,7 +151,8 @@ void UI::Render(sf::RenderWindow &window)
         {
             sf::Sprite shieldSprite(shieldTexture);
             sf::Vector2u size = shieldTexture.getSize();
-            if (size.x > 0 && size.y > 0) {
+            if (size.x > 0 && size.y > 0)
+            {
                 shieldSprite.setScale(sf::Vector2f(25.0f / size.x, 25.0f / size.y));
             }
             shieldSprite.setPosition(sf::Vector2f(10.0f, 110.0f));
@@ -161,7 +166,8 @@ void UI::Render(sf::RenderWindow &window)
         {
             sf::Sprite doubleShotSprite(doubleShotTexture);
             sf::Vector2u size = doubleShotTexture.getSize();
-            if (size.x > 0 && size.y > 0) {
+            if (size.x > 0 && size.y > 0)
+            {
                 doubleShotSprite.setScale(sf::Vector2f(25.0f / size.x, 25.0f / size.y));
             }
             doubleShotSprite.setPosition(sf::Vector2f(10.0f, 75.0f));

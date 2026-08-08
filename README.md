@@ -1,5 +1,5 @@
-# BÁO CÁO BÀI TẬP LỚN
-## MÔN LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG (OOP)
+# BÁO CÁO ĐỒ ÁN OOP
+## MÔN LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG 
 
 # ĐỀ TÀI: SPACE INVADERS
 
@@ -10,7 +10,7 @@
 
 # LỜI MỞ ĐẦU
 
-Trong bài tập lớn môn **Lập trình Hướng đối tượng (OOP)**, nhóm thực hiện xây dựng trò chơi **Space Invaders** bằng ngôn ngữ **C++**, kết hợp thư viện **SFML 3** để xử lý đồ họa và âm thanh.
+Trong bài tập lớn môn **Lập trình Hướng đối tượng**, nhóm thực hiện xây dựng trò chơi **Space Invaders** bằng ngôn ngữ **C++**, kết hợp thư viện **SFML 3** để xử lý đồ họa và âm thanh.
 
 Dự án được xây dựng với mục tiêu vận dụng các kiến thức lập trình hướng đối tượng vào một sản phẩm phần mềm có cấu trúc tương đối hoàn chỉnh. Thông qua việc tổ chức các thực thể trong game thành các class riêng biệt, dự án tập trung thể hiện bốn đặc trưng quan trọng của OOP gồm **Kế thừa (Inheritance)**, **Đa hình (Polymorphism)**, **Đóng gói (Encapsulation)** và **Trừu tượng (Abstraction)**.
 
@@ -27,7 +27,7 @@ Bên cạnh phần xử lý gameplay, chương trình cũng được phân chia 
 | **Tên dự án** | Space Invaders |
 | **Ngôn ngữ lập trình** | C++ |
 | **Thư viện đồ họa & âm thanh** | SFML 3 |
-| **Môn học** | Lập trình Hướng đối tượng (OOP) |
+| **Môn học** | Lập trình Hướng đối tượng |
 
 ## 1.2. Ý tưởng trò chơi
 
@@ -37,7 +37,7 @@ Người chơi đóng vai trò là **tuyến phòng thủ cuối cùng**, điề
 
 Mục tiêu chính của trò chơi là:
 
-- Điều khiển nhân vật người chơi.
+- Điều khiển phi thuyền người chơi.
 - Bắn hạ từng kẻ địch.
 - Sống sót trong quá trình chiến đấu.
 - Tiêu diệt toàn bộ **Alien**.
@@ -48,14 +48,13 @@ Mục tiêu chính của trò chơi là:
 
 ## 2.1. Vai trò của người chơi
 
-Người chơi điều khiển thực thể **Player**, đại diện cho khẩu pháo laser của tuyến phòng thủ cuối cùng.
+Người chơi điều khiển thực thể **Player**, đại diện cho phi thuyền của tuyến phòng thủ cuối cùng.
 
 Trong quá trình chơi, người chơi phải:
 
 - Điều khiển **Player**.
-- Sử dụng đạn để tiêu diệt **Alien**.
+- Sử dụng **Bullt** để tiêu diệt **Alien**.
 - Tận dụng các hiệu ứng **Buff** khi nhặt được item.
-- Sử dụng cơ chế **Bullet đôi/Missile** trong quá trình chiến đấu.
 - Cố gắng sống sót và hoàn thành mục tiêu tiêu diệt toàn bộ Alien.
 
 ## 2.2. Luồng tổng quát của trò chơi

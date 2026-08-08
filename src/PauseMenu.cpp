@@ -61,12 +61,12 @@ PauseMenu::PauseMenu(sf::Font *f)
     };
 
     // Nút Pause ở góc phải
-    setupSprite(pauseSprite, pauseTexture, 40.0f, sf::Vector2f(850.0f, 40.0f));
+    setupSprite(pauseSprite, pauseTexture, 80.0f, sf::Vector2f(850.0f, 40.0f));
     
     // 4. SẮP XẾP BỐ CỤC (ĐÃ KÉO XUỐNG 10 PIXEL CHO TẤT CẢ)
     
     // Nút Resume (Kéo xuống Y = 330)
-    setupSprite(resumeSprite, resumeTexture, 70.0f, sf::Vector2f(450.0f, 330.0f));
+    setupSprite(resumeSprite, resumeTexture, 100.0f, sf::Vector2f(450.0f, 330.0f));
     
     // Nút Home (Kéo xuống Y = 420)
     setupSprite(homeSprite, homeTexture, 70.0f, sf::Vector2f(450.0f, 420.0f));

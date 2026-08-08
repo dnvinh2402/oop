@@ -58,6 +58,9 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     std::cout << "Da load xong background texture\n";
     resourceManager.LoadFont("arial", "assets/font/arial.ttf");
     std::cout << "Da load xong font\n";
+    resourceManager.LoadFont("PressStart2P-Regular", "assets/font/PressStart2P-Regular.ttf");
+    std::cout << "Da load xong font\n";
+    
 
     soundManager.LoadSound("shoot", "assets/audio/shoot.wav");
     std::cout << "Da load xong am thanh dan\n";
@@ -66,7 +69,7 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     soundManager.LoadSound("explosion", "assets/audio/explosion.wav");
     std::cout << "Da load xong am thanh vu no\n";
     soundManager.LoadSound("hit", "assets/audio/hit.wav");
-    std::cout << "Da load xong am thanh bị trung dan\n";
+    std::cout << "Da load xong am thanh bi trung dan\n";
     soundManager.LoadSound("enemyDead", "assets/audio/enemy_eliminated.wav");
     std::cout << "Da load xong am thanh tieu diet quai\n";
     soundManager.LoadSound("shield", "assets/audio/shield.wav");
@@ -83,11 +86,11 @@ Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Def
     LoadHighScore();
     LoadHistory(); // Load lịch sử trận đấu
 
-    gameUI = new UI(resourceManager.GetFont("arial"));
+    gameUI = new UI(resourceManager.GetFont("PressStart2P-Regular"));
 
-    mainMenu = new MainMenu(resourceManager.GetFont("arial"), resourceManager.GetTexture("background"), highScore);
+    mainMenu = new MainMenu(resourceManager.GetFont("PressStart2P-Regular"), resourceManager.GetTexture("background"), highScore);
     gameOverMenu = nullptr;
-    pauseMenu = new PauseMenu(resourceManager.GetFont("arial"));
+    pauseMenu = new PauseMenu(resourceManager.GetFont("PressStart2P-Regular"));
     pauseMenu->SetVolume(
         GlobalAudio::volume,
         GlobalAudio::isMuted);
@@ -262,7 +265,7 @@ void Game::ProcessEvents()
                         { // Bấm nút xem lịch sử điểm
                             viewingHistory = true;
                             delete scoreHistoryMenu;
-                            scoreHistoryMenu = new ScoreHistoryMenu(resourceManager.GetFont("arial"), matchHistory);
+                            scoreHistoryMenu = new ScoreHistoryMenu(resourceManager.GetFont("PressStart2P-Regular"), matchHistory);
                         }
                         else if (action == 3)
                         {
@@ -366,7 +369,7 @@ void Game::Update(float deltaTime)
             AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thua
 
             delete gameOverMenu;
-            gameOverMenu = new GameOverMenu(resourceManager.GetFont("arial"), player->GetScore(), false);
+            gameOverMenu = new GameOverMenu(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), false);
 
             if (player->GetScore() > highScore)
             {
@@ -382,7 +385,7 @@ void Game::Update(float deltaTime)
                 AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thắng
 
                 delete gameOverMenu;
-                gameOverMenu = new GameOverMenu(resourceManager.GetFont("arial"), player->GetScore(), true);
+                gameOverMenu = new GameOverMenu(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), true);
 
                 if (player->GetScore() > highScore)
                 {
