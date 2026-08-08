@@ -24,8 +24,8 @@ void CollisionManager::AwardScore(Player* player, Alien* alien)
         int normalScore = alien->CalculateNormalScore();
         player->AddScore(normalScore);
 
-        std::cout << "TIEU DIET LINH THUONG! (+ "
-                  << normalScore << " diem)\n";
+        // std::cout << "TIEU DIET LINH THUONG! (+ "
+        //           << normalScore << " diem)\n";
     }
 }
 void CollisionManager::CheckCollisions(
@@ -65,7 +65,7 @@ void CollisionManager::CheckCollisions(
                         // 1. XỬ LÝ CHO BOSS: Mỗi lần bắn trúng được cộng điểm (200đ -> thấp nhất 30đ)
                         int hitScore = alien->CalculateBossHitScore();
                         player->AddScore(hitScore);
-                        std::cout << "BAN TRUNG BOSS! (+ " << hitScore << " diem)\n";
+                        // std::cout << "BAN TRUNG BOSS! (+ " << hitScore << " diem)\n";
 
                         // Nếu Boss chết hẳn -> Cộng thêm 1000 điểm thưởng tiêu diệt
                         if (!alien->IsActive())
