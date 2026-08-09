@@ -22,7 +22,7 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
     // Thu nhỏ logo
     sf::Vector2u texSize = titleTexture->getSize();
     if (texSize.x > 0 && texSize.y > 0) {
-        float targetWidth = 220.0f; 
+        float targetWidth = 350.0f; 
         float scale = targetWidth / texSize.x;
         titleSprite->setScale(sf::Vector2f(scale, scale));
     }
@@ -63,9 +63,8 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
         sprite->setPosition(pos);
     };
 
-    // Cả hai nút cùng kích thước (75.0f) và xịt xuống vị trí Y = 650.0f
     setupButtonSprite(restartSprite, restartTexture, 75.0f, sf::Vector2f(380.0f, 650.0f));
-    setupButtonSprite(menuSprite, menuTexture, 75.0f, sf::Vector2f(520.0f, 650.0f));
+    setupButtonSprite(menuSprite, menuTexture, 70.0f, sf::Vector2f(520.0f, 650.0f));
 }
 
 GameOverMenu::~GameOverMenu() {

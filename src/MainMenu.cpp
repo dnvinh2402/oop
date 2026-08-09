@@ -15,20 +15,27 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     // 2. TẢI VÀ TỰ ĐỘNG XÓA NỀN TRẮNG + SỌC CARO CHO LOGO
     logoTexture = new sf::Texture();
     sf::Image logoImage;
-    if (logoImage.loadFromFile("assets/images/logo.png")) {
+    if (logoImage.loadFromFile("assets/images/logo.png"))
+    {
         sf::Vector2u size = logoImage.getSize();
-        for (unsigned int y = 0; y < size.y; ++y) {
-            for (unsigned int x = 0; x < size.x; ++x) {
+        for (unsigned int y = 0; y < size.y; ++y)
+        {
+            for (unsigned int x = 0; x < size.x; ++x)
+            {
                 sf::Color col = logoImage.getPixel(sf::Vector2u(x, y));
-                if (col.r > 210 && col.g > 210 && col.b > 205) {
+                if (col.r > 210 && col.g > 210 && col.b > 205)
+                {
                     logoImage.setPixel(sf::Vector2u(x, y), sf::Color(255, 255, 255, 0));
                 }
             }
         }
-        if (!logoTexture->loadFromImage(logoImage)) {
+        if (!logoTexture->loadFromImage(logoImage))
+        {
             std::cout << "Loi load texture tu logoImage\n";
         }
-    } else {
+    }
+    else
+    {
         std::cout << "Loi load logo.png\n";
     }
 
@@ -39,12 +46,18 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     plusTexture = new sf::Texture();
     minusTexture = new sf::Texture();
 
-    if (!playTexture->loadFromFile("assets/images/play.png")) std::cout << "Loi load play.png\n";
-    if (!historyTexture->loadFromFile("assets/images/highscores.png")) std::cout << "Loi load highscores.png\n";
-    if (!unmuteTexture->loadFromFile("assets/images/volume_on.png")) std::cout << "Loi load volume_on.png\n";
-    if (!muteTexture->loadFromFile("assets/images/volume_mute.png")) std::cout << "Loi load volume_mute.png\n";
-    if (!plusTexture->loadFromFile("assets/images/plus.png")) std::cout << "Loi load plus.png\n";
-    if (!minusTexture->loadFromFile("assets/images/minus.png")) std::cout << "Loi load minus.png\n";
+    if (!playTexture->loadFromFile("assets/images/play.png"))
+        std::cout << "Loi load play.png\n";
+    if (!historyTexture->loadFromFile("assets/images/highscores.png"))
+        std::cout << "Loi load highscores.png\n";
+    if (!unmuteTexture->loadFromFile("assets/images/volume_on.png"))
+        std::cout << "Loi load volume_on.png\n";
+    if (!muteTexture->loadFromFile("assets/images/volume_mute.png"))
+        std::cout << "Loi load volume_mute.png\n";
+    if (!plusTexture->loadFromFile("assets/images/plus.png"))
+        std::cout << "Loi load plus.png\n";
+    if (!minusTexture->loadFromFile("assets/images/minus.png"))
+        std::cout << "Loi load minus.png\n";
 
     logoSprite = new sf::Sprite(*logoTexture);
     playSprite = new sf::Sprite(*playTexture);
@@ -54,9 +67,11 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     volumeUpSprite = new sf::Sprite(*plusTexture);
 
     // 3. HÀM HELPER: CHỈNH KÍCH THƯỚC VÀ CĂN GIỮA TỰ ĐỘNG
-    auto setupSprite = [](sf::Sprite *sprite, sf::Texture *tex, float targetSize, sf::Vector2f pos) {
+    auto setupSprite = [](sf::Sprite *sprite, sf::Texture *tex, float targetSize, sf::Vector2f pos)
+    {
         sf::Vector2u size = tex->getSize();
-        if (size.x > 0 && size.y > 0) {
+        if (size.x > 0 && size.y > 0)
+        {
             sprite->setScale(sf::Vector2f(targetSize / size.x, targetSize / size.y));
         }
         sf::FloatRect b = sprite->getLocalBounds();
@@ -66,8 +81,9 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
 
     // Kích thước logo
     sf::Vector2u logoSize = logoTexture->getSize();
-    if (logoSize.x > 0) {
-        float logoTargetWidth = 400.0f; 
+    if (logoSize.x > 0)
+    {
+        float logoTargetWidth = 400.0f;
         float scale = logoTargetWidth / logoSize.x;
         logoSprite->setScale(sf::Vector2f(scale, scale));
     }
@@ -76,11 +92,16 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     logoSprite->setPosition(sf::Vector2f(450.0f, 250.0f));
 
     // Đặt vị trí các nút chính
-    setupSprite(playSprite, playTexture, 100.0f, sf::Vector2f(450.0f, 440.0f));      
-    setupSprite(historySprite, historyTexture, 70.0f, sf::Vector2f(450.0f, 540.0f)); 
+    setupSprite(playSprite, playTexture, 150.0f, sf::Vector2f(450.0f, 440.0f));
+    float scaleX = 200.0f / playTexture->getSize().x;
+    float scaleY = 200.0f / playTexture->getSize().y;
+    float scale = std::min(scaleX, scaleY);
+
+    playSprite->setScale(sf::Vector2f(scale, scale));
+    setupSprite(historySprite, historyTexture, 70.0f, sf::Vector2f(450.0f, 540.0f));
 
     // Đặt vị trí hàng nút âm thanh (Đã đẩy xuống 15 pixel: Y = 645.0f)
-    setupSprite(volumeDownSprite, minusTexture, 45.0f, sf::Vector2f(360.0f, 645.0f)); 
+    setupSprite(volumeDownSprite, minusTexture, 45.0f, sf::Vector2f(360.0f, 645.0f));
     setupSprite(muteButtonSprite, unmuteTexture, 45.0f, sf::Vector2f(450.0f, 645.0f));
     setupSprite(volumeUpSprite, plusTexture, 45.0f, sf::Vector2f(540.0f, 645.0f));
 
@@ -92,21 +113,32 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
 MainMenu::~MainMenu()
 {
     delete bgSprite;
-    delete logoSprite;      delete logoTexture;
-    delete playSprite;      delete playTexture;
-    delete historySprite;   delete historyTexture;
-    delete muteButtonSprite; delete unmuteTexture; delete muteTexture;
-    delete volumeDownSprite; delete minusTexture;
-    delete volumeUpSprite;   delete plusTexture;
+    delete logoSprite;
+    delete logoTexture;
+    delete playSprite;
+    delete playTexture;
+    delete historySprite;
+    delete historyTexture;
+    delete muteButtonSprite;
+    delete unmuteTexture;
+    delete muteTexture;
+    delete volumeDownSprite;
+    delete minusTexture;
+    delete volumeUpSprite;
+    delete plusTexture;
 }
 
 void MainMenu::Update(sf::Vector2f mousePos)
 {
-    auto hoverEffect = [&](sf::Sprite* spr) {
-        if (spr->getGlobalBounds().contains(mousePos)) {
-            spr->setColor(sf::Color(255, 255, 255, 120)); 
-        } else {
-            spr->setColor(sf::Color(255, 255, 255, 255)); 
+    auto hoverEffect = [&](sf::Sprite *spr)
+    {
+        if (spr->getGlobalBounds().contains(mousePos))
+        {
+            spr->setColor(sf::Color(255, 255, 255, 120));
+        }
+        else
+        {
+            spr->setColor(sf::Color(255, 255, 255, 255));
         }
     };
 
@@ -114,10 +146,13 @@ void MainMenu::Update(sf::Vector2f mousePos)
     hoverEffect(historySprite);
     hoverEffect(muteButtonSprite);
 
-    if (isMuted) {
+    if (isMuted)
+    {
         volumeDownSprite->setColor(sf::Color(255, 255, 255, 40));
         volumeUpSprite->setColor(sf::Color(255, 255, 255, 40));
-    } else {
+    }
+    else
+    {
         hoverEffect(volumeDownSprite);
         hoverEffect(volumeUpSprite);
     }
@@ -125,8 +160,10 @@ void MainMenu::Update(sf::Vector2f mousePos)
 
 int MainMenu::HandleClick(sf::Vector2f mousePos)
 {
-    if (playSprite->getGlobalBounds().contains(mousePos)) return 1;
-    if (historySprite->getGlobalBounds().contains(mousePos)) return 2;
+    if (playSprite->getGlobalBounds().contains(mousePos))
+        return 1;
+    if (historySprite->getGlobalBounds().contains(mousePos))
+        return 2;
 
     if (muteButtonSprite->getGlobalBounds().contains(mousePos))
     {
@@ -140,14 +177,16 @@ int MainMenu::HandleClick(sf::Vector2f mousePos)
     {
         if (volumeDownSprite->getGlobalBounds().contains(mousePos))
         {
-            if (currentVolume > 0) currentVolume -= 10;
+            if (currentVolume > 0)
+                currentVolume -= 10;
             GlobalAudio::volume = currentVolume;
             return 4;
         }
 
         if (volumeUpSprite->getGlobalBounds().contains(mousePos))
         {
-            if (currentVolume < 100) currentVolume += 10;
+            if (currentVolume < 100)
+                currentVolume += 10;
             GlobalAudio::volume = currentVolume;
             return 5;
         }

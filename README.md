@@ -1,402 +1,1461 @@
-# BÁO CÁO ĐỒ ÁN OOP
-## MÔN LẬP TRÌNH HƯỚNG ĐỐI TƯỢNG 
+# Project Overview
 
-# ĐỀ TÀI: SPACE INVADERS
+- **Tên game:** My first game
+- **Thể loại:** Shooter 2D / Arcade
+- **Mục tiêu:** Điều khiển tàu vũ trụ, tiêu diệt quái, thu buff và tồn tại qua các màn.
+- **Công nghệ:** C++ với SFML
+- **Ngôn ngữ:** C++
+- **Thư viện:** SFML (Graphics, Audio, Window)
+- **Mục đích đồ án:** Xây dựng game 2D với game loop, state management, collision, UI và audio.
 
-**Ngôn ngữ lập trình:** C++  
-**Thư viện đồ họa & âm thanh:** SFML 3
+### Các tính năng chính
 
----
-
-# LỜI MỞ ĐẦU
-
-Trong bài tập lớn môn **Lập trình Hướng đối tượng**, nhóm thực hiện xây dựng trò chơi **Space Invaders** bằng ngôn ngữ **C++**, kết hợp thư viện **SFML 3** để xử lý đồ họa và âm thanh.
-
-Dự án được xây dựng với mục tiêu vận dụng các kiến thức lập trình hướng đối tượng vào một sản phẩm phần mềm có cấu trúc tương đối hoàn chỉnh. Thông qua việc tổ chức các thực thể trong game thành các class riêng biệt, dự án tập trung thể hiện bốn đặc trưng quan trọng của OOP gồm **Kế thừa (Inheritance)**, **Đa hình (Polymorphism)**, **Đóng gói (Encapsulation)** và **Trừu tượng (Abstraction)**.
-
-Bên cạnh phần xử lý gameplay, chương trình cũng được phân chia thành các module quản lý thực thể, va chạm, tài nguyên, âm thanh và giao diện. Cách tổ chức này giúp mã nguồn có cấu trúc rõ ràng, thuận tiện cho việc phát triển, kiểm thử và mở rộng trong tương lai.
-
----
-
-# 1. GIỚI THIỆU ĐỀ TÀI
-
-## 1.1. Thông tin chung
-
-| Nội dung | Thông tin |
-|---|---|
-| **Tên dự án** | Space Invaders |
-| **Ngôn ngữ lập trình** | C++ |
-| **Thư viện đồ họa & âm thanh** | SFML 3 |
-| **Môn học** | Lập trình Hướng đối tượng |
-
-## 1.2. Ý tưởng trò chơi
-
-Người chơi bước vào một cuộc chiến sinh tử giữa nhân loại và những kẻ xâm lược ngoài hành tinh. Không có lời cảnh báo, không có đàm phán – chỉ có một làn sóng quái vật không gian đang ồ ạt tiến xuống Trái Đất.
-
-Người chơi đóng vai trò là **tuyến phòng thủ cuối cùng**, điều khiển một khẩu pháo laser đơn độc để chống lại lực lượng Alien.
-
-Mục tiêu chính của trò chơi là:
-
-- Điều khiển phi thuyền người chơi.
-- Bắn hạ từng kẻ địch.
-- Sống sót trong quá trình chiến đấu.
-- Tiêu diệt toàn bộ **Alien**.
+- Player movement với `WASD`/arrow keys.
+- Shooting bằng `Space` hoặc click trái chuột.
+- Hệ thống enemy gồm 3 round khác nhau.
+- Collision detection giữa bullets, aliens, player và buff.
+- Score và lives system.
+- Buff system với `doubleShot`, `Shield`, `Bomb`.
+- Pause menu, main menu, game over, victory và score history.
+- Resource management cho texture/font.
+- Sound effects và background music.
 
 ---
 
-# 2. LUẬT CHƠI VÀ LUỒNG HOẠT ĐỘNG
+# 1. Project Overview
 
-## 2.1. Vai trò của người chơi
-
-Người chơi điều khiển thực thể **Player**, đại diện cho phi thuyền của tuyến phòng thủ cuối cùng.
-
-Trong quá trình chơi, người chơi phải:
-
-- Điều khiển **Player**.
-- Sử dụng **Bullt** để tiêu diệt **Alien**.
-- Tận dụng các hiệu ứng **Buff** khi nhặt được item.
-- Cố gắng sống sót và hoàn thành mục tiêu tiêu diệt toàn bộ Alien.
-
-## 2.2. Luồng tổng quát của trò chơi
-
-Luồng giao diện chính của chương trình được tổ chức theo trình tự:
-
-**Main Menu → Vào Game → PauseMenu → Game Over → ScoreHistoryMenu**
-
-Trong đó:
-
-- **MainMenu:** giao diện menu chính.
-- **Game:** khu vực diễn ra gameplay.
-- **PauseMenu:** giao diện tạm dừng trò chơi.
-- **GameOverMenu:** giao diện khi trò chơi kết thúc.
-- **ScoreHistoryMenu:** giao diện xem lịch sử điểm.
+Game là một shooter 2D đơn giản được viết bằng C++ và SFML. Người chơi điều khiển một con tàu vũ trụ ở nửa dưới màn hình, bắn quái và thu buff để tăng sức mạnh. Trò chơi có nhiều màn, menu, pause, game over và lưu điểm.
 
 ---
 
-# 3. THIẾT KẾ HỆ THỐNG
+# 2. Features
 
-## 3.1. Kiến trúc tổng quan
-
-Hệ thống được tổ chức thành nhiều class và module với các trách nhiệm tương đối rõ ràng. Các thực thể trong game được xây dựng dựa trên class nền tảng **GameObject**, trong khi những hệ thống quản lý chuyên biệt đảm nhiệm việc điều phối và xử lý các chức năng tương ứng.
-
-Một số thành phần chính gồm:
-
-- **Game**
-- **GameState**
-- **GameObject**
-- **Player**
-- **Alien**
-- **Bullet**
-- **Missile**
-- **Buff**
-- **AlienManager**
-- **BuffManager**
-- **CollisionManager**
-- **SoundManager**
-- **ResourceManager**
-- **MainMenu**
-- **PauseMenu**
-- **GameOverMenu**
-- **ScoreHistoryMenu**
-- **GlobalAudio**
-
-Cách phân chia này giúp giảm việc tập trung toàn bộ logic vào một class duy nhất và tạo điều kiện để các thành phần có thể được phát triển độc lập hơn.
+- **Player movement:** `Player` di chuyển bằng `Left/Right/Up/Down` hoặc `A/D/W/S`.
+- **Shooting:** Nhấn `Space` hoặc click trái để bắn.
+- **Enemy system:** `AlienManager` tạo quái theo round: Patrol, Orbit, Boss.
+- **Collision detection:** `CollisionManager` kiểm tra va chạm bằng bounding box.
+- **Score system:** Tính điểm khi quái chết, boss điểm lớn hơn.
+- **Lives system:** Player có 3 mạng.
+- **Buff system:** Quái có 50% rơi buff gồm `doubleShot`, `Shield`, `Bomb`.
+- **Audio effects:** Âm thanh bắn, nhặt, trúng đạn, enemy dead và nhạc nền.
+- **Pause:** Pause menu với resume/home/volume.
+- **Game states:** `MainMenu`, `Playing`, `GameOver`, `Victory`.
+- **Resource management:** `ResourceManager` load texture/font.
+- **History:** Lưu high score và lịch sử 5 trận gần nhất.
 
 ---
 
-# 4. VẬN DỤNG 4 TÍNH CHẤT CỦA OOP
+# 3. Technologies & Libraries
 
-Một trong những mục tiêu quan trọng của dự án là áp dụng các nguyên lý cốt lõi của **Lập trình Hướng đối tượng** vào việc xây dựng game.
+- **C++**: ngôn ngữ chính.
+- **C++17**: sử dụng tính năng `std::optional`, lambda và container chuẩn.
+- **SFML**: dùng cho graphics, window, input, audio.
+- **Compiler:** g++ (theo task trong VS Code).
+- **Windows:** môi trường được sử dụng trong workspace.
 
-## 4.1. Tính Kế thừa (Inheritance)
+---
 
-**Kế thừa** cho phép một class mới sử dụng lại các thuộc tính và phương thức của một class cơ sở.
+# 4. Project Structure
 
-Trong dự án, **GameObject** được sử dụng làm class nền tảng cho các thực thể trong game.
-
-Các class:
-
-- **Player**
-- **Alien**
-- **Bullet**
-- **Missile**
-- **Buff**
-
-đều kế thừa từ **GameObject**.
-
-Mô hình có thể được khái quát như sau:
-
-```text
-                         ┌───────────────┐
-                         │  GameObject   │
-                         └───────┬───────┘
-                                 │
-       ┌─────────────┬───────────┼───────────┬─────────────┐
-       │             │           │           │             │
-       ▼             ▼           ▼           ▼             ▼
- ┌──────────┐  ┌──────────┐  ┌─────────┐  ┌─────────┐  ┌──────────┐
- │  Player  │  │  Alien   │  │  Bullet │  │   Buff  │  │  Missile │
- └──────────┘  └──────────┘  └─────────┘  └─────────┘  └──────────┘
-                           
 ```
-
-> Sơ đồ trên nhằm minh họa quan hệ kế thừa giữa các thực thể; cấu trúc thực tế cần được đối chiếu với source code của dự án.
-
-Việc sử dụng **GameObject** làm nền tảng mang lại lợi ích:
-
-- Tái sử dụng phần code chung cho các đối tượng.
-- Hạn chế việc viết lại những thành phần giống nhau.
-- Tạo một cấu trúc thống nhất cho các thực thể trong game.
-- Giúp mở rộng thêm các loại đối tượng mới thuận tiện hơn.
-
-Hệ thống giao diện cũng được chia thành các class riêng biệt như **MainMenu**, **PauseMenu**, **GameOverMenu** và **ScoreHistoryMenu**, qua đó tổ chức các thành phần UI theo từng chức năng cụ thể.
-
----
-
-## 4.2. Tính Đa hình (Polymorphism)
-
-**Đa hình** cho phép các đối tượng thuộc những class khác nhau nhưng có cùng interface hoặc cùng nguồn gốc kế thừa có thể thực hiện hành vi theo cách riêng của chúng.
-
-Trong dự án, các class kế thừa từ **GameObject** có những hành vi chung như:
-
-- `update()`
-- `draw()`
-
-Các phương thức này được **override** để phù hợp với từng loại đối tượng.
-
-Ví dụ:
-
-- **Player** có logic điều khiển và di chuyển của người chơi.
-- **Alien** có logic di chuyển của kẻ địch.
-- **Bullet** có hành vi bay theo cơ chế của đạn.
-- **Missile** có hành vi bay và xử lý riêng so với Bullet.
-
-Nhờ **đa hình**, cùng một nhóm thao tác có thể được áp dụng cho nhiều loại đối tượng, trong khi mỗi đối tượng vẫn duy trì cách xử lý riêng.
-
-Điều này đặc biệt hữu ích trong game vì nhiều thực thể cần được cập nhật và hiển thị liên tục trong vòng lặp game nhưng hành vi của chúng không giống nhau.
-
----
-
-## 4.3. Tính Đóng gói (Encapsulation)
-
-**Đóng gói** là việc kết hợp dữ liệu và các phương thức xử lý dữ liệu vào trong class, đồng thời hạn chế việc truy cập trực tiếp từ bên ngoài.
-
-Trong dự án, các class quản lý hệ thống như:
-
-- **AlienManager**
-- **BuffManager**
-- **CollisionManager**
-- **SoundManager**
-- **ResourceManager**
-
-đảm nhiệm những phần logic xử lý riêng.
-
-Các biến dữ liệu và logic nội bộ được tổ chức bên trong class, trong đó những dữ liệu cần bảo vệ được khai báo ở phạm vi **private**. Bên ngoài chỉ sử dụng các phương thức **public** mà class cung cấp.
-
-Ví dụ về vai trò của các manager:
-
-### **AlienManager**
-
-Quản lý các đối tượng **Alien** và hệ thống sinh quái.
-
-### **BuffManager**
-
-Quản lý các **Buff** được sinh ra trong game, quá trình cập nhật và xử lý các item.
-
-### **CollisionManager**
-
-Đảm nhiệm việc xử lý các tương tác va chạm giữa những đối tượng liên quan trong game.
-
-### **SoundManager**
-
-Quản lý các hoạt động liên quan đến âm thanh.
-
-### **ResourceManager**
-
-Quản lý tài nguyên được sử dụng trong chương trình.
-
-Nhờ đóng gói, class **Game** không cần trực tiếp biết toàn bộ cách các manager thực hiện công việc bên trong. **Game** chủ yếu gọi các phương thức được cung cấp để điều phối hoạt động của hệ thống.
-
----
-
-## 4.4. Tính Trừu tượng (Abstraction)
-
-**Trừu tượng** cho phép che giấu những chi tiết triển khai không cần thiết và chỉ thể hiện những thành phần quan trọng đối với việc sử dụng đối tượng.
-
-Trong dự án, logic lõi của game được tách biệt khỏi các thành phần hiển thị và quản lý tài nguyên.
-
-Có thể chia hệ thống thành các nhóm chính:
-
-```text
-Game / GameState
-       |
-       +------------------+
-       |                  |
-       v                  v
-      UI             ResourceManager
-       |                  |
-       v                  v
- MainMenu/...        GlobalAudio
-```
-
-Trong đó:
-
-- **Game** và **GameState** tập trung vào logic và trạng thái của trò chơi.
-- Các class **UI** phụ trách phần giao diện.
-- **ResourceManager** xử lý tài nguyên.
-- **GlobalAudio** xử lý phần âm thanh dùng ở phạm vi hệ thống.
-
-Cách tổ chức này giúp phần logic gameplay không phải phụ thuộc trực tiếp vào từng chi tiết triển khai của giao diện hoặc tài nguyên.
-
----
-
-# 5. CÁC MODULE CHÍNH
-
-## 5.1. Game và GameState
-
-**Game** đóng vai trò điều phối các thành phần chính của trò chơi.
-
-**GameState** được sử dụng để tổ chức trạng thái hoạt động của game, giúp tách biệt các trạng thái khác nhau trong quá trình sử dụng chương trình.
-
-Việc tách **Game** và **GameState** góp phần làm cho phần xử lý gameplay và quản lý trạng thái có cấu trúc rõ ràng hơn.
-
-## 5.2. GameObject
-
-**GameObject** là class nền tảng của hệ thống thực thể.
-
-Các thực thể như **Player**, **Alien**, **Bullet**, **Missile** và **Buff** kế thừa từ class này để sử dụng lại cấu trúc chung.
-
-## 5.3. Player
-
-**Player** đại diện cho nhân vật do người chơi điều khiển.
-
-Player có vai trò chính trong gameplay:
-
-- Điều khiển khẩu pháo laser.
-- Thực hiện hoạt động bắn.
-- Tương tác với các đối tượng trong game.
-- Nhặt và sử dụng **Buff**.
-
-## 5.4. Alien
-
-**Alien** đại diện cho các kẻ xâm lược ngoài hành tinh.
-
-Hệ thống sử dụng **AlienManager** để hỗ trợ quản lý và sinh các Alien trong game.
-
-## 5.5. Bullet và Missile
-
-**Bullet** đại diện cho đạn được sử dụng trong chiến đấu.
-
-**Missile** là một loại thực thể tấn công riêng, có hành vi khác với Bullet và được xử lý thông qua cơ chế đa hình của hệ thống thực thể.
-
-## 5.6. Buff
-
-**Buff** đại diện cho các item có hiệu ứng hỗ trợ người chơi.
-
-Các hiệu ứng Buff được kiểm thử trong quá trình phát triển, bao gồm:
-
-- Hiệu ứng **đạn đôi**.
-- Hiệu ứng liên quan đến **Missile**.
-- Cơ chế nhặt item.
-
-## 5.7. Các Manager
-
-Hệ thống Manager được sử dụng để tách riêng những nhiệm vụ quản lý:
-
-| Module | Vai trò |
-|---|---|
-| **AlienManager** | Quản lý và sinh Alien |
-| **BuffManager** | Quản lý Buff/item |
-| **CollisionManager** | Xử lý va chạm |
-| **SoundManager** | Quản lý âm thanh |
-| **ResourceManager** | Quản lý tài nguyên |
-
-Việc phân chia này hỗ trợ nguyên tắc tổ chức module và giảm sự phụ thuộc trực tiếp giữa các thành phần.
-
----
-
-# 6. CẤU TRÚC CÀI ĐẶT
-
-Dự án được phân chia thành các thư mục theo chức năng.
-
-```text
-Space-Invaders/
-│
+oop/
 ├── assets/
 │   ├── audio/
 │   └── images/
-│
-├── include/
-│   └── *.hpp
-│
-├── src/
-│   └── *.cpp
-│
 ├── build/
-│   ├── main.exe
-│   └── *.dll
-│
+├── include/
+│   ├── Alien.hpp
+│   ├── AlienManager.hpp
+│   ├── Buff.hpp
+│   ├── BuffManager.hpp
+│   ├── Bullet.hpp
+│   ├── CollisionManager.hpp
+│   ├── Game.hpp
+│   ├── GameObject.hpp
+│   ├── GameOverMenu.hpp
+│   ├── GameState.hpp
+│   ├── GlobalAudio.hpp
+│   ├── MainMenu.hpp
+│   ├── Missile.hpp
+│   ├── PauseMenu.hpp
+│   ├── Player.hpp
+│   ├── ResourceManager.hpp
+│   ├── ScoreHistoryMenu.hpp
+│   ├── SoundManager.hpp
+│   └── UI.hpp
+├── src/
+│   ├── Alien.cpp
+│   ├── AlienManager.cpp
+│   ├── Buff.cpp
+│   ├── BuffManager.cpp
+│   ├── Bullet.cpp
+│   ├── CollisionManager.cpp
+│   ├── Game.cpp
+│   ├── GameOverMenu.cpp
+│   ├── GlobalAudio.cpp
+│   ├── MainMenu.cpp
+│   ├── Missile.cpp
+│   ├── PauseMenu.cpp
+│   ├── Player.cpp
+│   ├── ResourceManager.cpp
+│   ├── ScoreHistoryMenu.cpp
+│   ├── SoundManager.cpp
+│   ├── UI.cpp
+│   └── main.cpp
 ├── highscore.txt
-└── history.txt
+├── history.txt
+└── README.md
 ```
 
-## 6.1. Thư mục `assets/`
-
-Thư mục **assets/** dùng để quản lý tài nguyên media của game.
-
-### `assets/audio/`
-
-Chứa các tài nguyên âm thanh như:
-
-- Nhạc nền.
-- Tiếng nổ.
-- Hiệu ứng súng.
-- Các hiệu ứng âm thanh khác được sử dụng trong game.
-
-### `assets/images/`
-
-Chứa các hình ảnh/sprite phục vụ cho game, bao gồm:
-
-- Sprite tàu.
-- Sprite Alien.
-- Hình ảnh đạn.
-- Hình ảnh khiên.
-- Các tài nguyên hình ảnh liên quan.
-
-## 6.2. Thư mục `include/`
-
-Thư mục **include/** chứa các file header **`.hpp`**.
-
-Các file này chủ yếu khai báo:
-
-- Class.
-- Thuộc tính.
-- Phương thức.
-- Quan hệ giữa các thành phần.
-
-## 6.3. Thư mục `src/`
-
-Thư mục **src/** chứa các file mã nguồn **`.cpp`**.
-
-Đây là nơi định nghĩa chi tiết logic của các class đã được khai báo trong `include/`.
-
-## 6.4. Thư mục `build/`
-
-Thư mục **build/** chứa các file phục vụ quá trình chạy chương trình, bao gồm:
-
-- `main.exe`
-- Các thư viện động **`.dll`** của **SFML 3**.
-
-## 6.5. File lưu trữ dữ liệu
-
-Dự án sử dụng:
-
-- **`highscore.txt`**: lưu thành tích điểm cao.
-- **`history.txt`**: lưu lịch sử điểm của người chơi.
+- `assets/`: chứa ảnh, audio, font.
+- `build/`: output binary.
+- `include/`: khai báo class.
+- `src/`: định nghĩa logic.
+- `highscore.txt`, `history.txt`: lưu điểm.
 
 ---
 
-# 7. GIAO DIỆN NGƯỜI DÙNG
+# 5. Architecture Overview
+
+## Quan hệ chính
+
+```mermaid
+flowchart TD
+    Main --> Game
+    Game --> ResourceManager
+    Game --> Player
+    Game --> AlienManager
+    Game --> BuffManager
+    Game --> CollisionManager
+    Game --> UI
+    Game --> SoundManager
+    Game --> MainMenu
+    Game --> PauseMenu
+    Game --> GameOverMenu
+    Game --> ScoreHistoryMenu
+    Player --> Bullet
+    AlienManager --> Alien
+    BuffManager --> Buff
+    CollisionManager --> Player
+    CollisionManager --> Alien
+    CollisionManager --> Bullet
+    CollisionManager --> Buff
+```
+
+## Inheritance
+
+```mermaid
+classDiagram
+    GameObject <|-- Player
+    GameObject <|-- Alien
+    GameObject <|-- Bullet
+    GameObject <|-- Buff
+```
+
+---
+
+# 6. Program Execution Flow
+
+### Từ `main()` đến game loop
+
+1. `main.cpp` tạo `Game myGame;`.
+2. `main.cpp` gọi `myGame.Run();`.
+3. `Game::Game()` tạo window, load tài nguyên, khởi tạo `Player`, `AlienManager`, `BuffManager`, `UI`, `MainMenu`, `PauseMenu`.
+4. `Run()` bắt đầu vòng lặp game chính.
+5. Trong mỗi vòng lặp:
+   - `ProcessEvents()` xử lý input.
+   - `Update(deltaTime)` cập nhật trạng thái.
+   - `Render()` vẽ scene.
+6. Khi người dùng đóng cửa sổ hoặc `GameOver` và thoát menu, vòng lặp dừng.
+
+### Chi tiết từng bước
+
+- `main()`:
+  - file entry point duy nhất.
+  - tạo đối tượng `Game` và chạy `Run()`.
+- `Game::Game()`:
+  - `window` được tạo với kích thước 900x900.
+  - load texture/font/audio.
+  - tạo `Player`, `AlienManager`, `BuffManager`, `UI`, `MainMenu`, `PauseMenu`.
+  - `currentState = GameState::MainMenu`.
+- `Game::Run()`:
+  - vòng lặp `while (window.isOpen())`.
+  - tính `deltaTime`.
+  - gọi `ProcessEvents()`, `Update(deltaTime)`, `Render()`.
+- `ProcessEvents()`:
+  - `window.pollEvent()` đọc event.
+  - đóng cửa sổ nếu `sf::Event::Closed`.
+  - xử lý mouse move, key pressed, mouse click.
+- `Update(deltaTime)`:
+  - cập nhật player, enemy, bullets, buffs.
+  - kiểm tra va chạm.
+  - xử lý win/lose.
+- `Render()`:
+  - vẽ background.
+  - vẽ player, aliens, bullets, buffs, UI.
+  - nếu đang menu, vẽ menu tương ứng.
+
+---
+
+# 7. Game Loop
+
+### Cấu trúc thực tế
+
+`Game::Run()` là nơi vòng lặp được thực hiện:
+
+```cpp
+while (window.isOpen())
+{
+    ProcessEvents();
+    Update(deltaTime);
+    Render();
+}
+```
+
+### Input/Event Processing
+
+- keyboard:
+  - `Space`: bắn.
+  - `Enter`: bắt đầu game hoặc restart.
+- mouse:
+  - click trái dùng để bắn và click button.
+- window event:
+  - đóng cửa sổ.
+- pause:
+  - click icon pause trong `PauseMenu`.
+
+### Update
+
+- `Player::HandleInput(deltaTime)`.
+- `Player::Update(deltaTime)`.
+- `AlienManager::Update(deltaTime)`.
+- Updates cho `Bullet`, `Buff`.
+- `CollisionManager::CheckCollisions(...)`.
+- kiểm tra round clear hoặc game over.
+
+### Render
+
+- vẽ background.
+- vẽ `Player`.
+- vẽ `AlienManager`.
+- vẽ `Bullet`.
+- vẽ `BuffManager`.
+- vẽ `UI`.
+- vẽ menu theo `currentState`.
+
+---
+
+# 8. Class Documentation
+
+## `Game`
+**File:**
+
+```
+include/Game.hpp
+src/Game.cpp
+```
+
+### Purpose
+
+Điều phối toàn bộ trò chơi: vòng lặp, trạng thái, quản lý đối tượng, menu, audio, tài nguyên.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `window` | `sf::RenderWindow` | private | cửa sổ hiển thị |
+| `gameView` | `sf::View` | private | view game |
+| `resourceManager` | `ResourceManager` | private | quản lý tài nguyên |
+| `player` | `Player*` | private | đối tượng người chơi |
+| `alienManager` | `AlienManager*` | private | quản lý quái |
+| `bullets` | `std::vector<Bullet*>` | private | đạn đang tồn tại |
+| `missiles` | `std::vector<Missile*>` | private | missile hiện có |
+| `buffManager` | `BuffManager*` | private | quản lý buff |
+| `collisionManager` | `CollisionManager` | private | xử lý va chạm |
+| `gameUI` | `UI*` | private | giao diện người chơi |
+| `soundManager` | `SoundManager` | private | quản lý âm thanh |
+| `backgroundSprite` | `sf::Sprite*` | private | sprite background |
+| `explosionSprite` | `sf::Sprite*` | private | sprite explosion |
+| `currentState` | `GameState` | private | trạng thái game |
+| `highScore` | `int` | private | điểm cao |
+| `mainMenu` | `MainMenu*` | private | menu chính |
+| `gameOverMenu` | `GameOverMenu*` | private | menu game over |
+| `pauseMenu` | `PauseMenu*` | private | menu pause |
+| `scoreHistoryMenu` | `ScoreHistoryMenu*` | private | menu lịch sử điểm |
+| `viewingHistory` | `bool` | private | đang xem lịch sử |
+| `matchHistory` | `std::vector<int>` | private | danh sách điểm gần nhất |
+| `isPaused` | `bool` | private | pause state |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|
+| `Game()` |  | constructor, load asset, init object |
+| `~Game()` |  | destructor, delete object |
+| `void Run()` | void | vòng lặp chính |
+| `void ProcessEvents()` | void | xử lý input và menu |
+| `void Update(float)` | void | cập nhật gameplay |
+| `void CleanUpDeadEntities()` | void | xóa các entity đã inactive |
+| `void Render()` | void | vẽ scene |
+| `void RestartGame()` | void | reset game state |
+| `void LoadHighScore()` | void | load `highscore.txt` |
+| `void LoadHistory()` | void | load `history.txt` |
+| `void SaveHighScore()` | void | lưu điểm cao |
+| `void SaveHistory()` | void | lưu lịch sử điểm |
+| `sf::Texture* GetAlienTextureForRound(int)` | `sf::Texture*` | trả texture phù hợp round |
+
+### Chi tiết
+
+- `Game::Game()` tạo window 900x900, thiết lập view và load texture/font/audio.
+- `Game::Run()` là vòng lặp chính.
+- `Game::ProcessEvents()` xử lý mọi event SFML, click chuột, phím, và menu.
+- `Game::Update(deltaTime)` cập nhật player, aliens, bullets, buffs, collision, game state.
+- `Game::Render()` vẽ background, game object và UI/menu.
+
+## `GameObject`
+**File:**
+
+```
+include/GameObject.hpp
+```
+
+### Purpose
+
+Base class trừu tượng cho các đối tượng có `sprite`, vị trí và trạng thái active.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `position` | `sf::Vector2f` | protected | vị trí |
+| `sprite` | `sf::Sprite` | protected | sprite |
+| `isActive` | `bool` | protected | trạng thái tồn tại |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `virtual void Update(float)` | pure virtual | cập nhật object |
+| `virtual void Render(sf::RenderWindow&)` | pure virtual | vẽ object |
+| `bool IsActive()` | bool | kiểm tra active |
+| `void Destroy()` | void | đánh dấu inactive |
+| `sf::FloatRect GetBounds()` | sf::FloatRect | bounding box |
+| `sf::Vector2f GetPosition() const` | sf::Vector2f | vị trí |
+
+## `Player`
+**File:**
+
+```
+include/Player.hpp
+src/Player.cpp
+```
+
+### Purpose
+
+Điều khiển tàu người chơi, xử lý input, bắn đạn, buff và tính trạng thái.
+
+### Inheritance
+
+```
+GameObject
+   ↓
+Player
+```
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `speed` | float | private | tốc độ di chuyển |
+| `lives` | int | private | số mạng |
+| `score` | int | private | điểm hiện tại |
+| `fireCooldown` | float | private | khoảng thời gian giữa 2 lần bắn |
+| `currentCooldown` | float | private | thời gian chờ bắn |
+| `doubleShot` | bool | private | buff double shot |
+| `shield` | bool | private | buff shield |
+| `shieldTexture` | sf::Texture* | private | texture shield |
+| `doubleShotTimer` | float | private | thời gian double shot |
+| `shieldTimer` | float | private | thời gian shield |
+| `shieldHitsRemaining` | int | private | số hits shield chịu được |
+| `bombReady` | bool | private | bomb sẵn sàng |
+| `bombTimer` | float | private | timer bomb |
+| `bombCount` | int | public | số bomb |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(float)` | void | cập nhật cooldown, buff, vị trí |
+| `void Render(sf::RenderWindow&)` | void | vẽ player và shield |
+| `void HandleInput(float)` | void | xử lý phím di chuyển |
+| `void Shoot(std::vector<Bullet*>&, sf::Texture*)` | void | tạo bullet |
+| `void TakeDamage()` | void | nhận sát thương |
+| `void ActivateDoubleShot()` | void | kích hoạt double shot |
+| `void ActivateShield()` | void | kích hoạt shield |
+| `void ActivateBomb()` | void | tăng bombCount |
+| `bool IsBombReady() const` | bool | kiểm tra bomb sẵn sàng |
+| `void ResetBomb()` | void | giảm bombCount khi dùng |
+| `void SetShieldTexture(sf::Texture*)` | void | gán texture khiên |
+| `bool HasShield() const` | bool | kiểm tra shield |
+
+### Chi tiết
+
+- `HandleInput(deltaTime)` dùng `Keyboard::isKeyPressed` với `Left/Right/Up/Down` và `A/D/W/S`.
+- Giới hạn vị trí `x` trong `[0, 900 - width]` và `y` trong `[450, 900 - height]`.
+- `Update(deltaTime)` giảm `currentCooldown`, `doubleShotTimer`, `shieldTimer`, `bombTimer`.
+- `Shoot(...)` tạo `Bullet` tại đầu tàu. Nếu `doubleShot` tạo 2 viên.
+- `TakeDamage()` nếu có shield thì gọi `TakeShieldHit()`, nếu không thì giảm `lives` và `Destroy()` khi hết mạng.
+- `ActivateDoubleShot()` đặt `fireCooldown = 0.15f`, `doubleShotTimer = 10s`.
+- `ActivateShield()` đặt `shieldTimer = 10s`, `shieldHitsRemaining = 2`.
+
+## `Alien`
+**File:**
+
+```
+include/Alien.hpp
+src/Alien.cpp
+```
+
+### Purpose
+
+Đại diện quái vật, xử lý di chuyển, spawn, cooldown bắn và điểm.
+
+### Inheritance
+
+```
+GameObject
+   ↓
+Alien
+```
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `pointValue` | int | private | điểm cơ bản |
+| `movementType` | MovementType | private | kiểu di chuyển |
+| `orbitCenter` | sf::Vector2f | private | tâm di chuyển |
+| `orbitRadius` | float | private | bán kính di chuyển |
+| `angle` | float | private | góc orbit |
+| `spawnDelay` | float | private | delay spawn |
+| `spawnTimer` | float | private | timer spawn |
+| `hasSpawned` | bool | private | đã spawn chưa |
+| `aliveTimer` | float | private | thời gian sống |
+| `survivalTime` | float | private | dùng tính điểm |
+| `entryStartPos` | sf::Vector2f | private | vị trí vào màn |
+| `shootCooldown` | float | private | cooldown bắn |
+| `shootTimer` | float | private | timer bắn |
+| `maxHealth` | int | private | HP tối đa |
+| `currentHealth` | int | private | HP hiện tại |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(float)` | void | update spawn, movement, cooldown |
+| `void Render(sf::RenderWindow&)` | void | vẽ alien |
+| `void MoveDown(float)` | void | di chuyển xuống |
+| `void MoveHorizontal(float)` | void | di chuyển ngang |
+| `bool CanShoot()` | bool | kiểm tra cooldown |
+| `void ResetShootCooldown()` | void | reset timer bắn |
+| `void TakeDamage(int)` | void | giảm HP và destroy |
+| `int CalculateBossHitScore() const` | int | điểm bắn trúng boss |
+| `int CalculateBossKillScore() const` | int | điểm giết boss |
+| `int CalculateNormalScore() const` | int | điểm giết quái thường |
+
+### Chi tiết
+
+- `MovementType::Patrol`: alien di chuyển ngang đồng bộ.
+- `MovementType::Orbit`: alien bay quanh center.
+- `MovementType::Boss`: boss di chuyển ngang theo sin.
+- `CanShoot()` trả true khi `shootTimer <= 0` và đã spawn.
+- `TakeDamage(1)` giảm HP và `Destroy()` nếu HP ≤ 0.
+- `CalculateNormalScore()` giảm theo thời gian tồn tại, không thấp hơn 10.
+
+## `AlienManager`
+**File:**
+
+```
+include/AlienManager.hpp
+src/AlienManager.cpp
+```
+
+### Purpose
+
+Tạo, quản lý và vẽ quái. Điều khiển round và bắn của quái.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `aliens` | std::vector<Alien*> | private | danh sách quái |
+| `moveSpeed` | float | private | tốc độ di chuyển ngang round 1 |
+| `movingRight` | bool | private | hướng di chuyển |
+| `currentRound` | int | private | round hiện tại |
+| `maxRounds` | int | private | số round tối đa |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void InitializeSwarm(sf::Texture*)` | void | tạo quái theo round |
+| `void Update(float)` | void | cập nhật quái |
+| `void Render(sf::RenderWindow&)` | void | vẽ quái |
+| `void AlienShoot(std::vector<Bullet*>&, sf::Texture*)` | void | quái bắn |
+| `bool IsRoundCleared()` | bool | kiểm tra hết quái |
+| `bool IsFinalRound()` | bool | kiểm tra final round |
+| `void StartNextRound(sf::Texture*)` | void | tạo round mới |
+| `void Reset(sf::Texture*)` | void | reset game |
+
+### Chi tiết
+
+- Round 1: 4x8 quái `Patrol`.
+- Round 2: 5x9 quái `Orbit`.
+- Round 3: 1 boss `Boss`.
+- `Update()` round 1 xử lý di chuyển swarm ngang và đổi hướng.
+- `AlienShoot()` giới hạn số đạn quái dựa trên round và tạo đạn thẳng hoặc tỏa góc cho boss.
+
+## `Bullet`
+**File:**
+
+```
+include/Bullet.hpp
+src/Bullet.cpp
+```
+
+### Purpose
+
+Đại diện viên đạn, di chuyển và tự destroy khi ra khỏi màn.
+
+### Inheritance
+
+```
+GameObject
+   ↓
+Bullet
+```
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `velocity` | sf::Vector2f | private | vận tốc đạn |
+| `isPlayerBullet` | bool | private | phân biệt đạn player/quái |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(float)` | void | di chuyển đạn, destroy khi ra khỏi màn |
+| `void Render(sf::RenderWindow&)` | void | vẽ đạn |
+| `bool IsPlayerBullet()` | bool | kiểm tra loại đạn |
+
+### Chi tiết
+
+- `Update()` cộng `velocity * deltaTime` vào `position`.
+- Destroy khi `position.y < 0` hoặc `position.y > 900`.
+
+## `Buff`
+**File:**
+
+```
+include/Buff.hpp
+src/Buff.cpp
+```
+
+### Purpose
+
+Đại diện power-up rơi từ quái chết.
+
+### Inheritance
+
+```
+GameObject
+   ↓
+Buff
+```
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `type` | BuffType | private | loại buff |
+| `fallSpeed` | float | private | tốc độ rơi |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(float)` | void | di chuyển xuống |
+| `void Render(sf::RenderWindow&)` | void | vẽ buff |
+| `BuffType GetType() const` | BuffType | trả loại |
+
+### Chi tiết
+
+- `Update()` tăng `position.y`.
+- Destroy nếu rơi qua `y > 920`.
+
+## `BuffManager`
+**File:**
+
+```
+include/BuffManager.hpp
+src/BuffManager.cpp
+```
+
+### Purpose
+
+Quản lý tập buff đang tồn tại.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `buffs` | std::vector<Buff*> | private | danh sách buff |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void SpawnBuff(sf::Texture*, sf::Vector2f, BuffType)` | void | tạo buff |
+| `void Update(float)` | void | cập nhật buffs |
+| `void Render(sf::RenderWindow&)` | void | vẽ buffs |
+| `void CleanUp()` | void | xóa buff inactive |
+| `std::vector<Buff*>& GetBuffs()` | vector<Buff*>& | truy xuất buff |
+
+### Chi tiết
+
+- `SpawnBuff()` thêm buff mới.
+- `Update()` gọi `Update()` từng buff và xóa buff destroyed.
+- `CleanUp()` xóa phần tử inactive từ cuối vector.
+
+## `CollisionManager`
+**File:**
+
+```
+include/CollisionManager.hpp
+src/CollisionManager.cpp
+```
+
+### Purpose
+
+Xử lý va chạm giữa player, alien, bullet và buff.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void CheckCollisions(...)` | void | kiểm tra mọi va chạm |
+| `void AwardScore(Player*, Alien*)` | void | cộng điểm khi kill alien |
+
+### Chi tiết
+
+- Player bullet vs Alien: `findIntersection()` kiểm tra bounding box.
+- Alien bullet vs Player: trúng player thì giảm mạng/shield và destroy bullet.
+- Player vs Buff: trúng buff thì activate effect.
+- Spawn buff 50% khi alien chết.
+- Score:
+  - Normal alien tính `CalculateNormalScore()`.
+  - Boss tính `CalculateBossHitScore()` và `CalculateBossKillScore()`.
+
+## `ResourceManager`
+**File:**
+
+```
+include/ResourceManager.hpp
+src/ResourceManager.cpp
+```
+
+### Purpose
+
+Load và cache texture/font.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `textures` | std::map<std::string, sf::Texture*> | private | lưu texture |
+| `fonts` | std::map<std::string, sf::Font*> | private | lưu font |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void LoadTexture(std::string, std::string)` | void | load texture |
+| `sf::Texture* GetTexture(std::string)` | sf::Texture* | lấy texture |
+| `void LoadFont(std::string, std::string)` | void | load font |
+| `sf::Font* GetFont(std::string)` | sf::Font* | lấy font |
+
+### Chi tiết
+
+- `LoadTexture()` load texture từ file và lưu vào map.
+- `GetTexture()` trả `nullptr` nếu không tìm.
+- Destructor xóa pointer trong map.
+
+## `SoundManager`
+**File:**
+
+```
+include/SoundManager.hpp
+src/SoundManager.cpp
+```
+
+### Purpose
+
+Quản lý hiệu ứng âm thanh và nhạc nền.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `soundBuffers` | std::map<std::string, sf::SoundBuffer*> | private | buffer âm thanh |
+| `sounds` | std::map<std::string, sf::Sound*> | private | sound effect |
+| `music` | sf::Music | private | nhạc nền |
+| `volume` | float | private | âm lượng |
+| `isMuted` | bool | private | trạng thái mute |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void LoadSound(std::string, std::string)` | void | load sound effect |
+| `void LoadMusic(std::string)` | void | load nhạc nền |
+| `void Play(std::string)` | void | phát effect |
+| `void PlayMusic()` | void | phát nhạc |
+| `void UpdateVolume()` | void | cập nhật volume |
+
+### Chi tiết
+
+- `LoadSound()` tạo `SoundBuffer` và `Sound`.
+- `LoadMusic()` mở file nhạc.
+- `Play()` phát effect nếu không mute.
+
+## `UI`
+**File:**
+
+```
+include/UI.hpp
+src/UI.cpp
+```
+
+### Purpose
+
+Hiển thị score, lives, buff timers và màn hình Game Over/Victory.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `font` | sf::Font* | private | font hiển thị |
+| `scoreText` | sf::Text | private | điểm |
+| `heartTexture` | sf::Texture | private | icon mạng |
+| `shieldText` | sf::Text | private | thời gian shield |
+| `doubleShotText` | sf::Text | private | thời gian double shot |
+| `overlay` | sf::RectangleShape | private | overlay game over |
+| `state` | GameState | private | trạng thái hiển thị |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(Player*, GameState, int)` | void | cập nhật UI |
+| `void Render(sf::RenderWindow&)` | void | vẽ UI |
+
+### Chi tiết
+
+- `Update()` đồng bộ score/lives và buff timers.
+- `Render()` vẽ hearts, icon shield, icon double shot khi active.
+- Khi `GameOver` hoặc `Victory`, vẽ overlay và text.
+
+## `MainMenu`
+**File:**
+
+```
+include/MainMenu.hpp
+src/MainMenu.cpp
+```
+
+### Purpose
+
+Hiển thị menu chính và xử lý start/history/volume.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `bgSprite` | sf::Sprite* | private | background |
+| `logoSprite` | sf::Sprite* | private | logo |
+| `playSprite` | sf::Sprite* | private | nút play |
+| `historySprite` | sf::Sprite* | private | nút history |
+| `muteButtonSprite` | sf::Sprite* | private | nút mute |
+| `volumeUpSprite` | sf::Sprite* | private | tăng volume |
+| `volumeDownSprite` | sf::Sprite* | private | giảm volume |
+| `isMuted` | bool | private | mute state |
+| `currentVolume` | int | private | volume |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(sf::Vector2f)` | void | hover effect |
+| `int HandleClick(sf::Vector2f)` | int | xử lý click |
+| `void Render(sf::RenderWindow&)` | void | vẽ menu |
+| `void SetVolume(int, bool)` | void | set volume |
+| `bool IsMuted() const` | bool | kiểm tra mute |
+
+### Chi tiết
+
+- `HandleClick()` trả:
+  - `1` để play.
+  - `2` để xem history.
+  - `3` toggle mute.
+  - `4`/`5` volume down/up.
+
+## `PauseMenu`
+**File:**
+
+```
+include/PauseMenu.hpp
+src/PauseMenu.cpp
+```
+
+### Purpose
+
+Hiển thị menu pause và điều chỉnh âm lượng.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `backgroundOverlay` | sf::RectangleShape | private | overlay |
+| `menuBgSprite` | sf::Sprite* | private | khung menu |
+| `pauseSprite` | sf::Sprite* | private | icon pause |
+| `resumeSprite` | sf::Sprite* | private | nút resume |
+| `homeSprite` | sf::Sprite* | private | nút home |
+| `muteSprite` | sf::Sprite* | private | mute icon |
+| `volumeText` | sf::Text | private | hiển thị % |
+| `volume` | float | private | volume |
+| `isMuted` | bool | private | mute state |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `bool IsPauseButtonClicked(sf::Vector2f)` | bool | kiểm tra click pause |
+| `void Update(sf::Vector2f)` | void | hover effect |
+| `int HandleClick(sf::Vector2f)` | int | xử lý click |
+| `void Render(sf::RenderWindow&, bool)` | void | vẽ pause menu |
+| `void SetVolume(float, bool)` | void | set volume |
+
+### Chi tiết
+
+- `HandleClick()` trả `1` resume, `2` home, `3` pause icon.
+- `Render()` vẽ icon pause và menu overlay khi pause.
+
+## `GameOverMenu`
+**File:**
+
+```
+include/GameOverMenu.hpp
+src/GameOverMenu.cpp
+```
+
+### Purpose
+
+Hiển thị màn game over / victory và cho phép restart hoặc về main menu.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `titleSprite` | sf::Sprite* | private | victory/defeat image |
+| `finalScoreText` | sf::Text | private | điểm cuối |
+| `restartSprite` | sf::Sprite* | private | nút restart |
+| `menuSprite` | sf::Sprite* | private | nút về main menu |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(sf::Vector2f)` | void | hover effect |
+| `int HandleClick(sf::Vector2f)` | int | xử lý click |
+| `void Render(sf::RenderWindow&)` | void | vẽ menu |
+
+### Chi tiết
+
+- `HandleClick()` trả `1` nếu restart, `2` nếu về menu.
+
+## `ScoreHistoryMenu`
+**File:**
+
+```
+include/ScoreHistoryMenu.hpp
+src/ScoreHistoryMenu.cpp
+```
+
+### Purpose
+
+Hiển thị 5 trận gần nhất trong lịch sử.
+
+### Inheritance
+
+Không kế thừa.
+
+### Important Attributes
+
+| Attribute | Type | Visibility | Purpose |
+|---|---|---|---|
+| `backgroundOverlay` | sf::RectangleShape | private | overlay |
+| `menuBgSprite` | sf::Sprite* | private | khung menu |
+| `titleText` | sf::Text | private | tiêu đề |
+| `backSprite` | sf::Sprite* | private | nút back |
+| `scoreTexts` | std::vector<sf::Text> | private | hiển thị điểm |
+
+### Important Methods
+
+| Function | Return | Purpose |
+|---|---|---|---|
+| `void Update(sf::Vector2f)` | void | hover effect |
+| `bool IsBackButtonClicked(sf::Vector2f)` | bool | kiểm tra click back |
+| `void Render(sf::RenderWindow&)` | void | vẽ menu |
+
+### Chi tiết
+
+- Hiển thị tối đa 5 trận. Nếu ít, điền `0 pts`.
+
+---
+
+# 9. Class Relationships
+
+- `Game` sở hữu `Player`, `AlienManager`, `BuffManager`, `UI`, `SoundManager`, `MainMenu`, `PauseMenu`, `GameOverMenu`, `ScoreHistoryMenu`.
+- `AlienManager` chứa `std::vector<Alien*>`.
+- `Game` chứa `std::vector<Bullet*> bullets` và `std::vector<Missile*> missiles`.
+- `BuffManager` chứa `std::vector<Buff*> buffs`.
+- `CollisionManager` nhận tham chiếu/pointer đến các đối tượng để kiểm tra va chạm.
+- `Player::Shoot()` thêm bullet vào vector do `Game` quản lý.
+- `AlienManager::AlienShoot()` cũng thêm bullet vào cùng vector.
+
+---
+
+# 10. Inheritance & Polymorphism
+
+- `GameObject` là base class với `Update(float)` và `Render(sf::RenderWindow&)` là pure virtual.
+- `Player`, `Alien`, `Bullet`, `Buff` kế thừa `GameObject`.
+- Polymorphism hiện diện qua override các hàm `Update` và `Render`.
+- Project không dùng container `GameObject*` chung nên polymorphism chỉ diễn ra ở cấp độ class chứ không phải qua một container duy nhất.
+
+---
+
+# 11. Game Object System
+
+- `Player`: có position, sprite, tốc độ, lives, score, buff state.
+- `Alien`: có spawn delay, movement type, health, scoring, shoot cooldown.
+- `Bullet`: có velocity và flag `isPlayerBullet`.
+- `Buff`: rơi xuống, có type và fall speed.
+- `AlienManager`: quản lý vòng đời quái.
+- `BuffManager`: quản lý và xóa buffs.
+
+---
+
+# 12. Player System
+
+### Movement
+
+- `Player::HandleInput(float deltaTime)` xử lý `Left/Right/Up/Down` và `A/D/W/S`.
+- Giới hạn di chuyển trong khu vực dưới màn.
+
+### Shooting
+
+- `Space` và click trái gọi `Player::Shoot(...)`.
+- `Player::Shoot()` tạo bullet player với vận tốc `-500`.
+- `doubleShot` tạo 2 bullet.
+
+### Cooldown
+
+- `fireCooldown = 0.3f`.
+- `currentCooldown` giảm trong `Player::Update()`.
+- `doubleShot` có timer 10 giây.
+
+### Lives
+
+- `lives = 3`.
+- `Player::TakeDamage()` giảm mạng hoặc xử lý shield.
+- Khi `lives <= 0`, `Destroy()`.
+
+### Buffs
+
+- `ActivateDoubleShot()`: giảm cooldown, bắn đôi.
+- `ActivateShield()`: shield tồn tại 10s và chịu 2 hits.
+- `ActivateBomb()`: tăng `bombCount`.
+
+### Shield
+
+- khi shield active, `TakeDamage()` gọi `TakeShieldHit()`.
+- shield có `shieldHitsRemaining`.
+
+---
+
+# 13. Enemy System
+
+### Spawn
+
+- `AlienManager::InitializeSwarm(sf::Texture*)` tạo quái theo round.
+- `Game::Game()` gọi hàm này để tạo round 1.
+
+### Movement
+
+- Round 1: `Patrol` với di chuyển ngang đồng bộ.
+- Round 2: `Orbit` quay vòng quanh tâm.
+- Round 3: `Boss` di chuyển ngang theo sin.
+
+### Destroy
+
+- `CollisionManager` xử lý khi bullet player trúng.
+- `Alien::TakeDamage(int)` giảm health và gọi `Destroy()` nếu ≤ 0.
+
+### Attack
+
+- `AlienManager::AlienShoot()` tạo đạn quái.
+- Boss bắn 5 viên tỏa góc, quái thường bắn 1 viên thẳng.
+
+### Buff spawn
+
+- Khi alien chết, 50% chance spawn buff.
+- Random 3 loại: `doubleShot`, `Shield`, `Bomb`.
+
+---
+
+# 14. Bullet System
+
+### Tạo
+
+- Player: `Player::Shoot(...)`.
+- Alien: `AlienManager::AlienShoot(...)`.
+
+### Hướng bay
+
+- Player: `velocity(0, -500)`.
+- Alien: `velocity(0, 150 + (currentRound - 1) * 75)`.
+- Boss: 5 viên tỏa góc.
+
+### Update
+
+- `Bullet::Update(float)` di chuyển theo velocity.
+- Destroy khi ra khỏi màn.
+
+### Collision
+
+- `CollisionManager::CheckCollisions()` kiểm tra bullet vs alien và bullet vs player.
+
+---
+
+# 15. Buff / Power-up System
+
+### Cơ chế
+
+- Quái chết có 50% rơi buff.
+- `BuffManager::SpawnBuff()` tạo buff.
+- `Buff::Update()` cho buff rơi.
+- `CollisionManager` kiểm tra player nap buff.
+
+### Loại buff
+
+- `doubleShot`: `Player::ActivateDoubleShot()`.
+- `Shield`: `Player::ActivateShield()`.
+- `Bomb`: `Player::ActivateBomb()`.
+
+---
+
+# 16. Collision System
+
+### Trường hợp va chạm
+
+- `Player Bullet → Alien`.
+- `Alien Bullet → Player`.
+- `Player → Buff`.
+
+### Cách kiểm tra
+
+- Dùng `sf::FloatRect::findIntersection()`.
+- Duyệt từng bullet, kiểm tra với từng alien hoặc player.
+
+### Xử lý
+
+- Player bullet trúng alien: `alien->TakeDamage(1)`, `bullet->Destroy()`, cộng điểm.
+- Alien bullet trúng player: `player->TakeDamage()`, `soundManager.Play("hit")`, `bullet->Destroy()`.
+- Player trúng buff: gọi activate effect và `buff->Destroy()`.
+
+---
+
+# 17. Resource Management
+
+- `ResourceManager` load texture và font.
+- `LoadTexture()` tạo `sf::Texture*` và lưu vào map `textures`.
+- `GetTexture()` trả pointer theo tên.
+- `LoadFont()` tương tự.
+- Destructor xóa pointer.
+
+Lợi ích: tránh load lại, truy xuất tài nguyên theo tên, tái sử dụng.
+
+---
+
+# 18. Audio System
+
+- `SoundManager` quản lý `soundBuffers` và `sounds`.
+- `LoadSound()` và `LoadMusic()` load audio từ file.
+- `Play()` phát hiệu ứng, `PlayMusic()` phát nhạc nền.
+- `PauseMenu` và `MainMenu` cập nhật `GlobalAudio`.
+
+---
+
+# 19. UI System
+
+- `UI::Update(Player*, GameState, int)` đồng bộ score, lives, shield, double shot.
+- `UI::Render()` vẽ score, hearts, icon buff và overlay game over/victory.
+
+---
+
+# 20. Game State / Menu System
+
+- `GameState::MainMenu`
+- `GameState::Playing`
+- `GameState::GameOver`
+- `GameState::Victory`
+
+### Chuyển trạng thái
+
+- Main menu -> Playing: nhấn `Enter` hoặc click play.
+- Playing -> GameOver: player hết mạng.
+- Playing -> Victory: `AlienManager::IsRoundCleared()` và là final round.
+- Pause bật/tắt bằng click icon pause.
+
+---
+
+# 21. Detailed Feature Flow
+
+### Shooting
+
+```mermaid
+flowchart TD
+    Input --> Game::ProcessEvents()
+    Game::ProcessEvents() --> Player::Shoot()
+    Player::Shoot() --> bullets.push_back()
+    Game::Update() --> Bullet::Update()
+    Bullet::Update() --> CollisionManager::CheckCollisions()
+```
+
+### Buff
+
+```mermaid
+flowchart TD
+    AlienDeath --> RandomChance
+    RandomChance --> BuffSpawn
+    BuffSpawn --> Buff::Update()
+    Buff::Update() --> PlayerCollision
+    PlayerCollision --> BuffEffect
+```
+
+---
+
+# 22. Important Function Call Flow
+
+```mermaid
+flowchart TD
+    main() --> Game::Game()
+    Game::Game() --> ResourceManager::LoadTexture()
+    Game::Game() --> Player::Player()
+    main() --> Game::Run()
+    Game::Run() --> Game::ProcessEvents()
+    Game::Run() --> Game::Update()
+    Game::Update() --> Player::HandleInput()
+    Game::Update() --> AlienManager::Update()
+    Game::Update() --> CollisionManager::CheckCollisions()
+    Game::Run() --> Game::Render()
+```
+
+---
+
+# 23. How To Read The Code
+
+### Step 1
+
+Đọc `src/main.cpp` để hiểu chương trình bắt đầu ở đâu.
+
+### Step 2
+
+Đọc `include/Game.hpp` và `src/Game.cpp` để hiểu vòng lặp game và quản lý trạng thái.
+
+### Step 3
+
+Đọc `include/GameObject.hpp` để hiểu base object.
+
+### Step 4
+
+Đọc `include/Player.hpp`, `src/Player.cpp`, `include/Alien.hpp`, `src/Alien.cpp`.
+
+### Step 5
+
+Đọc `include/AlienManager.hpp`, `src/AlienManager.cpp` để hiểu spawn và update enemy.
+
+### Step 6
+
+Đọc `include/Bullet.hpp`, `src/Bullet.cpp`, `include/Buff.hpp`, `src/Buff.cpp`, `include/BuffManager.hpp`, `src/BuffManager.cpp`.
+
+### Step 7
+
+Đọc `include/CollisionManager.hpp`, `src/CollisionManager.cpp`.
+
+### Step 8
+
+Đọc `include/ResourceManager.hpp`, `src/ResourceManager.cpp`.
+
+### Step 9
+
+Đọc `include/UI.hpp`, `src/UI.cpp`, `include/MainMenu.hpp`, `src/MainMenu.cpp`, `include/PauseMenu.hpp`, `src/PauseMenu.cpp`, `include/GameOverMenu.hpp`, `src/GameOverMenu.cpp`, `include/ScoreHistoryMenu.hpp`, `src/ScoreHistoryMenu.cpp`.
+
+---
+
+# 24. How To Modify The Game
+
+### Thay đổi Player speed
+
+- File: `include/Player.hpp`, `src/Player.cpp`.
+- Biến: `speed`.
+- Hàm: `Player::HandleInput(float deltaTime)`.
+
+### Thay đổi tốc độ bullet
+
+- File: `src/Player.cpp` và `src/AlienManager.cpp`.
+- Giảm `velocity` của bullet player hoặc alien.
+
+### Thay đổi tỷ lệ drop buff
+
+- File: `src/CollisionManager.cpp`.
+- Cấu hình `if (rand() % 100 < 50)`.
+
+### Thêm loại buff
+
+- File: `include/Buff.hpp`, `src/Buff.cpp`, `src/CollisionManager.cpp`, `src/Game.cpp`.
+- Thêm giá trị vào `BuffType` và xử lý tương ứng.
+
+### Thêm enemy type
+
+- File: `include/Alien.hpp`, `src/Alien.cpp`, `src/AlienManager.cpp`.
+- Thêm `MovementType` mới và logic spawn.
+
+### Thay đổi score
+
+- File: `src/CollisionManager.cpp`.
+- Sửa `AwardScore()`, `CalculateNormalScore()`, `CalculateBossHitScore()`, `CalculateBossKillScore()`.
+
+### Thêm sound
+
+- File: `src/Game.cpp`, `src/SoundManager.cpp`.
+- Load sound mới và gọi `soundManager.Play(...)`.
+
+### Thêm UI
+
+- File: `include/UI.hpp`, `src/UI.cpp`.
+- Thêm text/sprite và cập nhật trong `UI::Update()` / `UI::Render()`.
+
+---
+
+# 25. Build & Run
+
+### Requirements
+
+- C++ compiler hỗ trợ C++17.
+- SFML.
+- Windows.
+
+### Build
+
+Dự án không chứa `CMakeLists.txt` nhưng task VS Code dùng g++:
+
+```bash
+g++ -std=c++17 src/*.cpp -I include -o build/main.exe -I C:/msys64/ucrt64/include -L C:/msys64/ucrt64/lib -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
+```
+
+### Run
+
+```bash
+build/main.exe
+```
+
+---
+
+# 26. Controls
+
+| Key | Action |
+|---|---|
+| `Left` / `A` | Move left |
+| `Right` / `D` | Move right |
+| `Up` / `W` | Move up |
+| `Down` / `S` | Move down |
+| `Space` | Shoot |
+| Mouse left click | Shoot / click buttons |
+| `Enter` | Start / restart |
+
+---
+
+# 27. OOP Concepts Used
+
+- **Encapsulation**: `AlienManager`, `BuffManager`, `CollisionManager`, `SoundManager`, `ResourceManager` giữ dữ liệu private.
+- **Inheritance**: `GameObject` là base class, `Player`, `Alien`, `Bullet`, `Buff` kế thừa.
+- **Abstraction**: `Game` điều phối game, `ResourceManager` ẩn chi tiết load tài nguyên.
+- **Composition**: `Game` chứa các manager và đối tượng.
+- **Dependency**: `CollisionManager` phụ thuộc vào `Player`, `Alien`, `Bullet`, `Buff`, `SoundManager`.
+
+---
+
+# 28. Design Patterns
+
+- Manager pattern xuất hiện ở `AlienManager`, `BuffManager`, `CollisionManager`, `ResourceManager`, `SoundManager`.
+- Không có evidence rõ ràng của Singleton, Factory, Observer hoặc State pattern chuẩn.
+
+---
+
+# 29. Memory & Pointer Management
+
+- Dùng nhiều raw pointer (`new`/`delete`) trong `Game`, `AlienManager`, `BuffManager`, menus, `ResourceManager`.
+- Lifetime phần lớn được quản lý thủ công trong destructor.
+- `Game` chịu trách nhiệm delete `Player`, `AlienManager`, `BuffManager`, `UI`, menu và sprite.
+- Có khả năng dangling pointer nếu object được `Destroy()` nhưng pointer vẫn tồn tại trong vector trước khi xóa.
+
+---
+
+# 30. Error Handling & Edge Cases
+
+- `ResourceManager` in lỗi nếu load texture/font thất bại.
+- UI/menu in lỗi nếu load image thất bại.
+- `Bullet` destroy khi ra khỏi màn.
+- `Buff` destroy khi rơi xuống dưới màn.
+- `Game::ProcessEvents()` đóng cửa sổ khi event `Closed`.
+- `AlienManager::IsRoundCleared()` kiểm tra hết quái.
+- Không có xử lý cụ thể cho file `highscore.txt`/`history.txt` không tồn tại.
+
+---
+
+# 31. Performance Considerations
+
+- Collision O(n*m) khi duyệt từng bullet và từng alien.
+- `AlienManager::Update()` duyệt từng alien và kiểm tra biên giới.
+- `BuffManager::CleanUp()` xóa từ cuối vector, tối ưu.
+- `ResourceManager` chỉ load tài nguyên một lần.
+- Dùng raw pointer có thể gây overhead quản lý bộ nhớ.
+
+---
+
+# 32. Testing Guide
+
+- Test Player Movement:
+  - Input: `WASD` / arrow keys.
+  - Expected: player di chuyển, không ra khỏi khu vực.
+- Test Shooting:
+  - Input: `Space` hoặc click trái.
+  - Expected: bullets xuất hiện và bay lên.
+- Test Alien Collision:
+  - Hành động: bắn quái.
+  - Expected: quái giảm HP và chết, điểm tăng.
+- Test Buff Drop:
+  - Hành động: giết alien.
+  - Expected: có buff rơi 50%.
+- Test Shield:
+  - Hành động: nhặt shield và bị trúng đạn.
+  - Expected: shield chịu 2 lần, sau đó mất.
+- Test Double Shot:
+  - Hành động: nhặt double shot.
+  - Expected: bắn 2 viên.
+- Test Game Over:
+  - Hành động: mất 3 mạng.
+  - Expected: chuyển sang `GameOver`.
+- Test Pause:
+  - Input: click icon pause.
+  - Expected: hiển thị pause menu, gameplay tạm dừng.
+
+---
+
+# 33. Known Limitations
+
+- Dùng raw pointer nhiều, dễ lỗi memory management.
+- Không có `CMakeLists.txt` trong source.
+- `Missile` tồn tại nhưng không được sử dụng rõ ràng trong logic chính.
+- `Player::SetShieldTexture()` được khai báo nhưng không thấy gọi.
+- `ResourceManager::GetTexture()` trả `nullptr` nhưng không được kiểm tra đầy đủ.
+- Một số logic menu và game state có coupling cao.
+
+---
+
+# 34. Future Improvements
+
+- Chuyển raw pointer sang smart pointers (`std::unique_ptr`, `std::shared_ptr`).
+- Thêm `CMakeLists.txt` để build dễ dàng.
+- Tối ưu collision bằng spatial partition.
+- Hoàn thiện `Missile` hoặc bomb effect.
+- Thêm state machine rõ ràng cho menu và game states.
+- Thêm animation sprite sheet.
+- Thêm file config cho key bindings và tốc độ.
+- Thêm save/load hoặc settings in-game.
+
+---
+
+# 35. Conclusion
+
+Dự án là một game shooter 2D SFML C++ với cấu trúc rõ ràng:
+
+- `Game` điều phối vòng lặp và trạng thái.
+- `Player`, `Alien`, `Bullet`, `Buff` kế thừa `GameObject`.
+- `AlienManager` tạo và update quái.
+- `CollisionManager` xử lý va chạm và điểm.
+- `ResourceManager` quản lý texture/font.
+- UI/menu đầy đủ cho play/pause/game over/history.
+- Audio và save score/history.
+
+README này giúp người đọc mới tìm đúng file, hiểu luồng từ `main()` tới game loop và biết nơi sửa mở rộng game.
 
 ## 7.1. Luồng giao diện
 
