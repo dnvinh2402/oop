@@ -1,5 +1,6 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <memory>
 
 class PauseMenu {
 private:
@@ -9,28 +10,28 @@ private:
     sf::RectangleShape backgroundOverlay;
     
     // Biến ảnh khung nền
-    sf::Texture* menuBgTexture;
-    sf::Sprite* menuBgSprite;
+    std::unique_ptr<sf::Texture> menuBgTexture;
+    std::unique_ptr<sf::Sprite> menuBgSprite;
 
     // Các biến hình ảnh icon
-    sf::Texture* pauseTexture;
-    sf::Sprite* pauseSprite;
+    std::unique_ptr<sf::Texture> pauseTexture;
+    std::unique_ptr<sf::Sprite> pauseSprite;
 
-    sf::Texture* resumeTexture;
-    sf::Sprite* resumeSprite;
+    std::unique_ptr<sf::Texture> resumeTexture;
+    std::unique_ptr<sf::Sprite> resumeSprite;
 
-    sf::Texture* homeTexture;
-    sf::Sprite* homeSprite;
+    std::unique_ptr<sf::Texture> homeTexture;
+    std::unique_ptr<sf::Sprite> homeSprite;
 
-    sf::Texture* unmuteTexture;
-    sf::Texture* muteTexture;
-    sf::Sprite* muteSprite;
+    std::unique_ptr<sf::Texture> unmuteTexture;
+    std::unique_ptr<sf::Texture> muteTexture;
+    std::unique_ptr<sf::Sprite> muteSprite;
 
-    sf::Texture* minusTexture;
-    sf::Sprite* minusSprite;
+    std::unique_ptr<sf::Texture> minusTexture;
+    std::unique_ptr<sf::Sprite> minusSprite;
 
-    sf::Texture* plusTexture;
-    sf::Sprite* plusSprite;
+    std::unique_ptr<sf::Texture> plusTexture;
+    std::unique_ptr<sf::Sprite> plusSprite;
 
     // Chỉ còn văn bản hiện % âm lượng
     sf::Text volumeText;
@@ -40,7 +41,10 @@ private:
 
 public:
     PauseMenu(sf::Font* f);
-    ~PauseMenu(); 
+    ~PauseMenu() = default;
+
+    PauseMenu(const PauseMenu&) = delete;
+    PauseMenu& operator=(const PauseMenu&) = delete;
 
     bool IsPauseButtonClicked(sf::Vector2f mousePos) const;
     void Update(sf::Vector2f mousePos);

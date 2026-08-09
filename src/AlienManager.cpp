@@ -2,6 +2,7 @@
 #include <cstdlib> // Thư viện hỗ trợ hàm rand() để random tỉ lệ nhả đạn
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 const float WORLD_WIDTH_HALF = 450.0f;
 AlienManager::AlienManager() {
@@ -11,13 +12,7 @@ AlienManager::AlienManager() {
     maxRounds = 3;
 }
 
-AlienManager::~AlienManager() {
-    // Dọn dẹp RAM: Xóa từng con quái khi tắt game
-    for (Alien* alien : aliens) {
-        delete alien;
-    }
-    aliens.clear();
-}
+AlienManager::~AlienManager() = default;
 
 void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
     if (currentRound == 1) {
@@ -36,8 +31,7 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
                 int points = (rows - row) * 10;
                 float delay = index * 0.05f;
 
-                Alien* newAlien = new Alien(alienTexture, pos, 0.0f, 0.0f, delay, points, MovementType::Patrol, 1);
-                aliens.push_back(newAlien);
+                aliens.push_back(std::make_unique<Alien>(alienTexture, pos, 0.0f, 0.0f, delay, points, MovementType::Patrol, 1));
                 index++;
             }
         }
@@ -65,8 +59,7 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
                 float delay = index * staggerDelay;
                 int points = (rows - row) * 10;
 
-                Alien* newAlien = new Alien(alienTexture, center, radius, speed, delay, points, MovementType::Orbit, 1);
-                aliens.push_back(newAlien);
+                aliens.push_back(std::make_unique<Alien>(alienTexture, center, radius, speed, delay, points, MovementType::Orbit, 1));
                 index++;
             }
         }
@@ -77,8 +70,7 @@ void AlienManager::InitializeSwarm(sf::Texture* alienTexture) {
         int bossHealth = 40;
         int bossPoints = 200;
 
-        Alien* boss = new Alien(alienTexture, bossCenter, 250.0f, 0.4f, 0.0f, bossPoints, MovementType::Boss, bossHealth);
-        aliens.push_back(boss);
+        aliens.push_back(std::make_unique<Alien>(alienTexture, bossCenter, 250.0f, 0.4f, 0.0f, bossPoints, MovementType::Boss, bossHealth));
     }
 
     std::cout << "Da khoi tao Round " << currentRound << " voi " << aliens.size() << " quai vat!\n";
@@ -91,7 +83,8 @@ void AlienManager::Update(float deltaTime) {
         float moveDistance = moveSpeed * deltaTime;
         if (!movingRight) moveDistance = -moveDistance;
 
-        for (Alien* alien : aliens) {
+        for (auto &alienPtr : aliens) {
+            Alien* alien = alienPtr.get();
             if (alien->IsActive()) {
                 alien->MoveHorizontal(moveDistance);
             }
@@ -101,7 +94,8 @@ void AlienManager::Update(float deltaTime) {
         float maxX = -9999.0f;
         bool hasActiveAliens = false;
 
-        for (Alien* alien : aliens) {
+        for (auto &alienPtr : aliens) {
+            Alien* alien = alienPtr.get();
             if (alien->IsActive()) {
                 hasActiveAliens = true;
                 sf::FloatRect bounds = alien->GetBounds();
@@ -113,13 +107,15 @@ void AlienManager::Update(float deltaTime) {
         if (hasActiveAliens) {
             if (maxX > 900.0f) {
                 float overshoot = maxX - 900.0f;
-                for (Alien* alien : aliens) {
+                for (auto &alienPtr : aliens) {
+                    Alien* alien = alienPtr.get();
                     if (alien->IsActive()) alien->MoveHorizontal(-overshoot);
                 }
                 movingRight = false;
             } else if (minX < 0.0f) {
                 float overshoot = 0.0f - minX;
-                for (Alien* alien : aliens) {
+                for (auto &alienPtr : aliens) {
+                    Alien* alien = alienPtr.get();
                     if (alien->IsActive()) alien->MoveHorizontal(overshoot);
                 }
                 movingRight = true;
@@ -128,7 +124,8 @@ void AlienManager::Update(float deltaTime) {
     }
 
     // Mọi round đều cần Update() riêng của từng Alien (spawn, cooldown, Orbit/Boss di chuyển)
-    for (Alien* alien : aliens) {
+    for (auto &alienPtr : aliens) {
+        Alien* alien = alienPtr.get();
         if (alien->IsActive()) {
             alien->Update(deltaTime);
         }
@@ -136,24 +133,27 @@ void AlienManager::Update(float deltaTime) {
 }
 
 void AlienManager::Render(sf::RenderWindow& window) {
-    for (Alien* alien : aliens) {
+    for (auto &alienPtr : aliens) {
+        Alien* alien = alienPtr.get();
         if (alien->IsActive()) {
             alien->Render(window);
         }
     }
 }
 
-void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bulletTexture) {
+void AlienManager::AlienShoot(std::vector<std::unique_ptr<Bullet>>& bulletList, sf::Texture* bulletTexture) {
     // 1. Lọc danh sách quái còn sống
     std::vector<Alien*> activeAliens;
-    for (Alien* alien : aliens) {
+    for (auto &alienPtr : aliens) {
+        Alien* alien = alienPtr.get();
         if (alien->IsActive()) activeAliens.push_back(alien);
     }
     if (activeAliens.empty()) return;
 
     // 2. Đếm số lượng đạn quái đang bay trên màn hình
     int currentAlienBullets = 0;
-    for (Bullet* b : bulletList) {
+    for (auto &bptr : bulletList) {
+        Bullet* b = bptr.get();
         if (!b->IsPlayerBullet() && b->IsActive()) {
             currentAlienBullets++;
         }
@@ -186,8 +186,7 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
 
                     sf::Vector2f vel(std::sin(angleRad) * bulletSpeed, std::cos(angleRad) * bulletSpeed);
 
-                    Bullet* newBullet = new Bullet(bulletTexture, basePos, vel, false);
-                    bulletList.push_back(newBullet);
+                    bulletList.push_back(std::make_unique<Bullet>(bulletTexture, basePos, vel, false));
                     currentAlienBullets++;
                 }
             }
@@ -196,8 +195,7 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
                 float bulletSpeed = 150.0f + (currentRound - 1) * 75.0f;
                 sf::Vector2f bulletVel(0.0f, bulletSpeed);
 
-                Bullet* newBullet = new Bullet(bulletTexture, basePos, bulletVel, false);
-                bulletList.push_back(newBullet);
+                bulletList.push_back(std::make_unique<Bullet>(bulletTexture, basePos, bulletVel, false));
 
                 currentAlienBullets++;
             }
@@ -208,7 +206,8 @@ void AlienManager::AlienShoot(std::vector<Bullet*>& bulletList, sf::Texture* bul
 
 bool AlienManager::IsRoundCleared() {
     // Nếu danh sách rỗng hoặc mọi con đều không còn active -> round đã bị tiêu diệt hết
-    for (Alien* alien : aliens) {
+    for (auto &alienPtr : aliens) {
+        Alien* alien = alienPtr.get();
         if (alien->IsActive()) return false;
     }
     return true;
@@ -219,10 +218,7 @@ bool AlienManager::IsFinalRound() {
 }
 
 void AlienManager::StartNextRound(sf::Texture* alienTexture) {
-    // Dọn sạch danh sách quái cũ đã chết (giải phóng bộ nhớ)
-    for (Alien* alien : aliens) {
-        delete alien;
-    }
+    // Dọn sạch danh sách quái cũ đã chết
     aliens.clear();
 
     currentRound++;
@@ -230,10 +226,6 @@ void AlienManager::StartNextRound(sf::Texture* alienTexture) {
 }
 
 void AlienManager::Reset(sf::Texture* alienTexture){
-    for (Alien* alien : aliens){
-        delete alien;
-    }
-
     aliens.clear();
 
     currentRound = 1;
@@ -241,4 +233,11 @@ void AlienManager::Reset(sf::Texture* alienTexture){
     movingRight = true;
 
     InitializeSwarm(alienTexture);
+}
+
+std::vector<Alien*> AlienManager::GetAliens() const {
+    std::vector<Alien*> res;
+    res.reserve(aliens.size());
+    for (const auto &p : aliens) res.push_back(p.get());
+    return res;
 }

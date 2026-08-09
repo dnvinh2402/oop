@@ -23,3 +23,6 @@
 - `UML/uml_diagrams.md`: chứa cả class diagram và sequence diagram đầy đủ.
 
 Những file này giúp bạn tham khảo nhanh mà không cần mở toàn bộ tài liệu UML lớn.
+
+Note: Recent refactors converted many owning raw pointers to `std::unique_ptr` and owning containers to `std::vector<std::unique_ptr<T>>`.
+High score and history files were moved to `docs/highscore.txt` and `docs/history.txt`.

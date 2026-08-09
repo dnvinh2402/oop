@@ -14,14 +14,14 @@ PauseMenu::PauseMenu(sf::Font *f)
     backgroundOverlay.setFillColor(sf::Color(0, 0, 0, 160));
 
     // 2. KHỞI TẠO TẤT CẢ TEXTURE
-    menuBgTexture = new sf::Texture();
-    pauseTexture = new sf::Texture();
-    resumeTexture = new sf::Texture();
-    homeTexture = new sf::Texture();
-    unmuteTexture = new sf::Texture();
-    muteTexture = new sf::Texture();
-    minusTexture = new sf::Texture();
-    plusTexture = new sf::Texture();
+    menuBgTexture = std::make_unique<sf::Texture>();
+    pauseTexture = std::make_unique<sf::Texture>();
+    resumeTexture = std::make_unique<sf::Texture>();
+    homeTexture = std::make_unique<sf::Texture>();
+    unmuteTexture = std::make_unique<sf::Texture>();
+    muteTexture = std::make_unique<sf::Texture>();
+    minusTexture = std::make_unique<sf::Texture>();
+    plusTexture = std::make_unique<sf::Texture>();
 
     if (!menuBgTexture->loadFromFile("assets/images/menu_frame.png")) std::cout << "Loi load menu_frame.png\n";
     if (!pauseTexture->loadFromFile("assets/images/pausemenu.png")) std::cout << "Loi load pausemenu.png\n";
@@ -32,13 +32,13 @@ PauseMenu::PauseMenu(sf::Font *f)
     if (!minusTexture->loadFromFile("assets/images/minus.png")) std::cout << "Loi load minus.png\n";
     if (!plusTexture->loadFromFile("assets/images/plus.png")) std::cout << "Loi load plus.png\n";
 
-    menuBgSprite = new sf::Sprite(*menuBgTexture);
-    pauseSprite = new sf::Sprite(*pauseTexture);
-    resumeSprite = new sf::Sprite(*resumeTexture);
-    homeSprite = new sf::Sprite(*homeTexture);
-    muteSprite = new sf::Sprite(*unmuteTexture);
-    minusSprite = new sf::Sprite(*minusTexture);
-    plusSprite = new sf::Sprite(*plusTexture);
+    menuBgSprite = std::make_unique<sf::Sprite>(*menuBgTexture);
+    pauseSprite = std::make_unique<sf::Sprite>(*pauseTexture);
+    resumeSprite = std::make_unique<sf::Sprite>(*resumeTexture);
+    homeSprite = std::make_unique<sf::Sprite>(*homeTexture);
+    muteSprite = std::make_unique<sf::Sprite>(*unmuteTexture);
+    minusSprite = std::make_unique<sf::Sprite>(*minusTexture);
+    plusSprite = std::make_unique<sf::Sprite>(*plusTexture);
 
     // 3. THIẾT LẬP KHUNG NỀN (Ngang 600, Cao 750)
     sf::Vector2u bgSize = menuBgTexture->getSize();
@@ -61,34 +61,26 @@ PauseMenu::PauseMenu(sf::Font *f)
     };
 
     // Nút Pause ở góc phải
-    setupSprite(pauseSprite, pauseTexture, 80.0f, sf::Vector2f(850.0f, 40.0f));
+    setupSprite(pauseSprite.get(), pauseTexture.get(), 80.0f, sf::Vector2f(850.0f, 40.0f));
     
     // 4. SẮP XẾP BỐ CỤC (ĐÃ KÉO XUỐNG 10 PIXEL CHO TẤT CẢ)
     
     // Nút Resume (Kéo xuống Y = 330)
-    setupSprite(resumeSprite, resumeTexture, 100.0f, sf::Vector2f(450.0f, 330.0f));
+    setupSprite(resumeSprite.get(), resumeTexture.get(), 100.0f, sf::Vector2f(450.0f, 330.0f));
     
     // Nút Home (Kéo xuống Y = 420)
-    setupSprite(homeSprite, homeTexture, 70.0f, sf::Vector2f(450.0f, 420.0f));
+    setupSprite(homeSprite.get(), homeTexture.get(), 70.0f, sf::Vector2f(450.0f, 420.0f));
 
     // Chữ % Âm lượng
     volumeText.setFillColor(sf::Color(80, 80, 80)); 
 
     // Cụm nút Âm lượng (Kéo xuống Y = 570)
-    setupSprite(minusSprite, minusTexture, 45.0f, sf::Vector2f(360.0f, 570.0f));
-    setupSprite(muteSprite, unmuteTexture, 45.0f, sf::Vector2f(450.0f, 570.0f));
-    setupSprite(plusSprite, plusTexture, 45.0f, sf::Vector2f(540.0f, 570.0f));
+    setupSprite(minusSprite.get(), minusTexture.get(), 45.0f, sf::Vector2f(360.0f, 570.0f));
+    setupSprite(muteSprite.get(), unmuteTexture.get(), 45.0f, sf::Vector2f(450.0f, 570.0f));
+    setupSprite(plusSprite.get(), plusTexture.get(), 45.0f, sf::Vector2f(540.0f, 570.0f));
 }
 
-PauseMenu::~PauseMenu() {
-    delete menuBgSprite; delete menuBgTexture;
-    delete pauseSprite;  delete pauseTexture;
-    delete resumeSprite; delete resumeTexture;
-    delete homeSprite;   delete homeTexture;
-    delete muteSprite;   delete muteTexture; delete unmuteTexture;
-    delete minusSprite;  delete minusTexture;
-    delete plusSprite;   delete plusTexture;
-}
+ 
 
 bool PauseMenu::IsPauseButtonClicked(sf::Vector2f mousePos) const {
     return pauseSprite->getGlobalBounds().contains(mousePos);
@@ -103,18 +95,18 @@ void PauseMenu::Update(sf::Vector2f mousePos) {
         }
     };
 
-    hoverEffect(pauseSprite); 
-    hoverEffect(resumeSprite);
-    hoverEffect(homeSprite);
+    hoverEffect(pauseSprite.get()); 
+    hoverEffect(resumeSprite.get());
+    hoverEffect(homeSprite.get());
     
     if (!isMuted) {
-        hoverEffect(minusSprite);
-        hoverEffect(plusSprite);
+        hoverEffect(minusSprite.get());
+        hoverEffect(plusSprite.get());
     } else {
         minusSprite->setColor(sf::Color(255, 255, 255, 40)); 
         plusSprite->setColor(sf::Color(255, 255, 255, 40));  
     }
-    hoverEffect(muteSprite);
+    hoverEffect(muteSprite.get());
 }
 
 int PauseMenu::HandleClick(sf::Vector2f mousePos) {

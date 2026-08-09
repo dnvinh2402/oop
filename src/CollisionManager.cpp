@@ -24,15 +24,14 @@ void CollisionManager::AwardScore(Player* player, Alien* alien)
         int normalScore = alien->CalculateNormalScore();
         player->AddScore(normalScore);
 
-        // std::cout << "TIEU DIET LINH THUONG! (+ "
-        //           << normalScore << " diem)\n";
+        
     }
 }
 void CollisionManager::CheckCollisions(
     Player *player,
-    std::vector<Alien *> &aliens,
-    std::vector<Bullet *> &bullets,
-    std::vector<Buff *> &buffs,
+    const std::vector<Alien *> &aliens,
+    const std::vector<Bullet *> &bullets,
+    const std::vector<Buff *> &buffs,
     BuffManager *buffManager,
     ResourceManager &resourceManager,
     SoundManager &soundManager)
@@ -44,9 +43,7 @@ void CollisionManager::CheckCollisions(
 
         sf::FloatRect bulletBounds = bullet->GetBounds();
 
-        // =========================
         // Đạn của Player
-        // =========================
         if (bullet->IsPlayerBullet())
         {
             for (Alien *alien : aliens)
@@ -65,7 +62,7 @@ void CollisionManager::CheckCollisions(
                         // 1. XỬ LÝ CHO BOSS: Mỗi lần bắn trúng được cộng điểm (200đ -> thấp nhất 30đ)
                         int hitScore = alien->CalculateBossHitScore();
                         player->AddScore(hitScore);
-                        // std::cout << "BAN TRUNG BOSS! (+ " << hitScore << " diem)\n";
+                        
 
                         // Nếu Boss chết hẳn -> Cộng thêm 1000 điểm thưởng tiêu diệt
                         if (!alien->IsActive())
@@ -127,27 +124,30 @@ void CollisionManager::CheckCollisions(
                 }
             }
         }
-        // =========================
         // Đạn của Alien
-        // =========================
         else
         {
             if (player->IsActive())
             {
                 if (bulletBounds.findIntersection(player->GetBounds()).has_value())
                 {
-                    player->TakeDamage();
-                    soundManager.Play("hit");
-                    std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+                        // Nếu player đang có shield, phát âm thanh khiên, ngược lại phát âm thanh trúng
+                        if (player->HasShield()) {
+                            player->TakeDamage();
+                            soundManager.Play("shield");
+                        } else {
+                            player->TakeDamage();
+                            soundManager.Play("hit");
+                        }
 
-                    bullet->Destroy();
+                        std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+
+                        bullet->Destroy();
                 }
             }
         }
     }
-    // =========================
     // Player nhặt Buff
-    // =========================
     for (Buff *buff : buffs)
     {
         if (!buff->IsActive())

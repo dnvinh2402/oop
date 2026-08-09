@@ -20,7 +20,7 @@ classDiagram
         +Update(float)
         +Render(sf::RenderWindow&)
         +HandleInput(float)
-        +Shoot(std::vector<Bullet*>&, sf::Texture*)
+        +Shoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)
         +TakeDamage()
         +ActivateDoubleShot()
         +ActivateShield()
@@ -51,7 +51,7 @@ classDiagram
         +InitializeSwarm(sf::Texture*)
         +Update(float)
         +Render(sf::RenderWindow&)
-        +AlienShoot(std::vector<Bullet*>&, sf::Texture*)
+        +AlienShoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)
         +IsRoundCleared()
         +IsFinalRound()
         +StartNextRound(sf::Texture*)
@@ -67,7 +67,7 @@ classDiagram
     }
 
     class CollisionManager {
-        +CheckCollisions(Player*, std::vector<Alien*>&, std::vector<Bullet*>&, std::vector<Buff*>&, BuffManager*, ResourceManager&, SoundManager&)
+        +CheckCollisions(Player*, std::vector<std::unique_ptr<Alien>>&, std::vector<std::unique_ptr<Bullet>>&, std::vector<std::unique_ptr<Buff>>&, BuffManager*, ResourceManager&, SoundManager&)
         +AwardScore(Player*, Alien*)
     }
 

@@ -103,8 +103,9 @@ oop/
 │   ├── SoundManager.cpp
 │   ├── UI.cpp
 │   └── main.cpp
-├── highscore.txt
-├── history.txt
+├── docs/
+│   ├── highscore.txt
+│   └── history.txt
 └── README.md
 ```
 
@@ -112,7 +113,7 @@ oop/
 - `build/`: output binary.
 - `include/`: khai báo class.
 - `src/`: định nghĩa logic.
-- `highscore.txt`, `history.txt`: lưu điểm.
+- `docs/highscore.txt`, `docs/history.txt`: lưu điểm.
 
 ---
 
@@ -271,16 +272,16 @@ Không kế thừa.
 | `window` | `sf::RenderWindow` | private | cửa sổ hiển thị |
 | `gameView` | `sf::View` | private | view game |
 | `resourceManager` | `ResourceManager` | private | quản lý tài nguyên |
-| `player` | `Player*` | private | đối tượng người chơi |
-| `alienManager` | `AlienManager*` | private | quản lý quái |
-| `bullets` | `std::vector<Bullet*>` | private | đạn đang tồn tại |
-| `missiles` | `std::vector<Missile*>` | private | missile hiện có |
-| `buffManager` | `BuffManager*` | private | quản lý buff |
-| `collisionManager` | `CollisionManager` | private | xử lý va chạm |
-| `gameUI` | `UI*` | private | giao diện người chơi |
-| `soundManager` | `SoundManager` | private | quản lý âm thanh |
-| `backgroundSprite` | `sf::Sprite*` | private | sprite background |
-| `explosionSprite` | `sf::Sprite*` | private | sprite explosion |
+| `player` | `std::unique_ptr<Player>` | private | đối tượng người chơi (owned)
+| `alienManager` | `std::unique_ptr<AlienManager>` | private | quản lý quái (owned)
+| `bullets` | `std::vector<std::unique_ptr<Bullet>>` | private | đạn đang tồn tại (owned)
+| `missiles` | `std::vector<std::unique_ptr<Missile>>` | private | missile hiện có (owned)
+| `buffManager` | `std::unique_ptr<BuffManager>` | private | quản lý buff (owned)
+| `collisionManager` | `CollisionManager` | private | xử lý va chạm (non-owning interface)
+| `gameUI` | `std::unique_ptr<UI>` | private | giao diện người chơi (owned)
+| `soundManager` | `std::unique_ptr<SoundManager>` | private | quản lý âm thanh (owned)
+| `backgroundSprite` | `sf::Sprite` | private | sprite background (owned)
+| `explosionSprite` | `sf::Sprite` | private | sprite explosion (owned)
 | `currentState` | `GameState` | private | trạng thái game |
 | `highScore` | `int` | private | điểm cao |
 | `mainMenu` | `MainMenu*` | private | menu chính |
@@ -303,10 +304,10 @@ Không kế thừa.
 | `void CleanUpDeadEntities()` | void | xóa các entity đã inactive |
 | `void Render()` | void | vẽ scene |
 | `void RestartGame()` | void | reset game state |
-| `void LoadHighScore()` | void | load `highscore.txt` |
-| `void LoadHistory()` | void | load `history.txt` |
-| `void SaveHighScore()` | void | lưu điểm cao |
-| `void SaveHistory()` | void | lưu lịch sử điểm |
+| `void LoadHighScore()` | void | load `docs/highscore.txt` |
+| `void LoadHistory()` | void | load `docs/history.txt` |
+| `void SaveHighScore()` | void | lưu điểm cao vào `docs/highscore.txt` |
+| `void SaveHistory()` | void | lưu lịch sử vào `docs/history.txt` |
 | `sf::Texture* GetAlienTextureForRound(int)` | `sf::Texture*` | trả texture phù hợp round |
 
 ### Chi tiết
@@ -397,7 +398,7 @@ Player
 | `void Update(float)` | void | cập nhật cooldown, buff, vị trí |
 | `void Render(sf::RenderWindow&)` | void | vẽ player và shield |
 | `void HandleInput(float)` | void | xử lý phím di chuyển |
-| `void Shoot(std::vector<Bullet*>&, sf::Texture*)` | void | tạo bullet |
+| `void Shoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)` | void | tạo bullet |
 | `void TakeDamage()` | void | nhận sát thương |
 | `void ActivateDoubleShot()` | void | kích hoạt double shot |
 | `void ActivateShield()` | void | kích hoạt shield |
@@ -412,7 +413,7 @@ Player
 - Giới hạn vị trí `x` trong `[0, 900 - width]` và `y` trong `[450, 900 - height]`.
 - `Update(deltaTime)` giảm `currentCooldown`, `doubleShotTimer`, `shieldTimer`, `bombTimer`.
 - `Shoot(...)` tạo `Bullet` tại đầu tàu. Nếu `doubleShot` tạo 2 viên.
-- `TakeDamage()` nếu có shield thì gọi `TakeShieldHit()`, nếu không thì giảm `lives` và `Destroy()` khi hết mạng.
+- `TakeDamage()` nếu có shield thì gọi `TakeShieldHit()`; nếu không thì giảm `lives` và `Destroy()` khi hết mạng. Khi mất 1 mạng (vẫn còn mạng > 0) game sẽ tự động kích hoạt hiệu ứng `shield` (tạm thời) để giúp người chơi phục hồi.
 - `ActivateDoubleShot()` đặt `fireCooldown = 0.15f`, `doubleShotTimer = 10s`.
 - `ActivateShield()` đặt `shieldTimer = 10s`, `shieldHitsRemaining = 2`.
 
@@ -500,7 +501,7 @@ Không kế thừa.
 
 | Attribute | Type | Visibility | Purpose |
 |---|---|---|---|
-| `aliens` | std::vector<Alien*> | private | danh sách quái |
+| `aliens` | std::vector<std::unique_ptr<Alien>> | private | danh sách quái (owned)
 | `moveSpeed` | float | private | tốc độ di chuyển ngang round 1 |
 | `movingRight` | bool | private | hướng di chuyển |
 | `currentRound` | int | private | round hiện tại |
@@ -513,7 +514,7 @@ Không kế thừa.
 | `void InitializeSwarm(sf::Texture*)` | void | tạo quái theo round |
 | `void Update(float)` | void | cập nhật quái |
 | `void Render(sf::RenderWindow&)` | void | vẽ quái |
-| `void AlienShoot(std::vector<Bullet*>&, sf::Texture*)` | void | quái bắn |
+| `void AlienShoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)` | void | quái bắn |
 | `bool IsRoundCleared()` | bool | kiểm tra hết quái |
 | `bool IsFinalRound()` | bool | kiểm tra final round |
 | `void StartNextRound(sf::Texture*)` | void | tạo round mới |
@@ -627,7 +628,7 @@ Không kế thừa.
 
 | Attribute | Type | Visibility | Purpose |
 |---|---|---|---|
-| `buffs` | std::vector<Buff*> | private | danh sách buff |
+| `buffs` | std::vector<std::unique_ptr<Buff>> | private | danh sách buff (owned) |
 
 ### Important Methods
 
@@ -637,7 +638,7 @@ Không kế thừa.
 | `void Update(float)` | void | cập nhật buffs |
 | `void Render(sf::RenderWindow&)` | void | vẽ buffs |
 | `void CleanUp()` | void | xóa buff inactive |
-| `std::vector<Buff*>& GetBuffs()` | vector<Buff*>& | truy xuất buff |
+| `std::vector<std::unique_ptr<Buff>>& GetBuffs()` | vector<std::unique_ptr<Buff>>& | truy xuất buff |
 
 ### Chi tiết
 
@@ -972,9 +973,9 @@ Không kế thừa.
 # 9. Class Relationships
 
 - `Game` sở hữu `Player`, `AlienManager`, `BuffManager`, `UI`, `SoundManager`, `MainMenu`, `PauseMenu`, `GameOverMenu`, `ScoreHistoryMenu`.
-- `AlienManager` chứa `std::vector<Alien*>`.
-- `Game` chứa `std::vector<Bullet*> bullets` và `std::vector<Missile*> missiles`.
-- `BuffManager` chứa `std::vector<Buff*> buffs`.
+- `AlienManager` chứa `std::vector<std::unique_ptr<Alien>>` (owned).
+- `Game` chứa `std::vector<std::unique_ptr<Bullet>> bullets` và `std::vector<std::unique_ptr<Missile>> missiles` (owned).
+- `BuffManager` chứa `std::vector<std::unique_ptr<Buff>>` (owned).
 - `CollisionManager` nhận tham chiếu/pointer đến các đối tượng để kiểm tra va chạm.
 - `Player::Shoot()` thêm bullet vào vector do `Game` quản lý.
 - `AlienManager::AlienShoot()` cũng thêm bullet vào cùng vector.
@@ -1126,7 +1127,7 @@ Không kế thừa.
 ### Xử lý
 
 - Player bullet trúng alien: `alien->TakeDamage(1)`, `bullet->Destroy()`, cộng điểm.
-- Alien bullet trúng player: `player->TakeDamage()`, `soundManager.Play("hit")`, `bullet->Destroy()`.
+- Alien bullet trúng player: `player->TakeDamage()`; if the player has an active shield the game plays `soundManager.Play("shield")`, otherwise it plays `soundManager.Play("hit")`; then `bullet->Destroy()`.
 - Player trúng buff: gọi activate effect và `buff->Destroy()`.
 
 ---
@@ -1321,9 +1322,9 @@ build/main.exe
 
 # 28. Memory & Pointer Management
 
-- Dùng nhiều raw pointer (`new`/`delete`) trong `Game`, `AlienManager`, `BuffManager`, menus, `ResourceManager`.
-- Lifetime phần lớn được quản lý thủ công trong destructor.
-- `Game` chịu trách nhiệm delete `Player`, `AlienManager`, `BuffManager`, `UI`, menu và sprite.
+- Nhiều ownership đã được chuyển sang `std::unique_ptr` (ví dụ: `Game` sở hữu `Player`, `AlienManager`, `BuffManager`, `UI`, menus và `SoundManager`).
+- Các container sở hữu giờ dùng `std::vector<std::unique_ptr<T>>` cho `Bullet`, `Missile`, `Alien`, `Buff`.
+- Vẫn còn các con trỏ không sở hữu (non-owning raw pointers hoặc tham chiếu) được dùng làm interface giữa manager và các hàm kiểm tra va chạm.
 
 ---
 

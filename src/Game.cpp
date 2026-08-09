@@ -23,9 +23,9 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     resourceManager.LoadTexture("alien_2", "assets/images/alien_2.png");
     resourceManager.LoadTexture("boss", "assets/images/boss.png");
 
-    alienManager = new AlienManager();
+    alienManager = std::make_unique<AlienManager>();
     alienManager->InitializeSwarm(GetAlienTextureForRound(1));
-    buffManager = new BuffManager();
+    buffManager = std::make_unique<BuffManager>();
 
     resourceManager.LoadTexture("bullet", "assets/images/bullet.png");
     std::cout << "Da load xong bullet texture\n";
@@ -48,8 +48,7 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
 
     resourceManager.LoadTexture("explosion", "assets/images/explosion.png");
 
-    explosionSprite = new sf::Sprite(
-        *resourceManager.GetTexture("explosion"));
+    explosionSprite = std::make_unique<sf::Sprite>(*resourceManager.GetTexture("explosion"));
 
     explosionActive = false;
     explosionTimer = 0.f;
@@ -79,27 +78,27 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     soundManager.PlayMusic();
 
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
-    player = new Player(resourceManager.GetTexture("player"), startPos);
+    player = std::make_unique<Player>(resourceManager.GetTexture("player"), startPos);
     std::cout << "Da tao xong Player\n";
 
     currentState = GameState::MainMenu;
     LoadHighScore();
     LoadHistory(); // Load lịch sử trận đấu
 
-    gameUI = new UI(resourceManager.GetFont("PressStart2P-Regular"));
+    gameUI = std::make_unique<UI>(resourceManager.GetFont("PressStart2P-Regular"));
 
-    mainMenu = new MainMenu(resourceManager.GetFont("PressStart2P-Regular"), resourceManager.GetTexture("background"), highScore);
+    mainMenu = std::make_unique<MainMenu>(resourceManager.GetFont("PressStart2P-Regular"), resourceManager.GetTexture("background"), highScore);
     gameOverMenu = nullptr;
-    pauseMenu = new PauseMenu(resourceManager.GetFont("PressStart2P-Regular"));
+    pauseMenu = std::make_unique<PauseMenu>(resourceManager.GetFont("PressStart2P-Regular"));
     pauseMenu->SetVolume(
         GlobalAudio::volume,
         GlobalAudio::isMuted);
     scoreHistoryMenu = nullptr;
     viewingHistory = false;
 
-    backgroundSprite = new sf::Sprite(*resourceManager.GetTexture("background"));
+    backgroundSprite = std::make_unique<sf::Sprite>(*resourceManager.GetTexture("background"));
 
-    shieldSprite = new sf::Sprite(*resourceManager.GetTexture("shield_effect"));
+    shieldSprite = std::make_unique<sf::Sprite>(*resourceManager.GetTexture("shield_effect"));
     sf::Vector2u size = resourceManager.GetTexture("shield_effect")->getSize();
 
     shieldSprite->setScale(sf::Vector2f(64.f / size.x, 64.f / size.y));
@@ -111,31 +110,7 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     std::cout << "Da tao xong Background\n";
 }
 
-Game::~Game()
-{
-    delete player;
-    delete backgroundSprite;
-    delete alienManager;
-    delete buffManager;
-    delete explosionSprite;
-    delete shieldSprite;
-    delete gameUI;
-    delete mainMenu;
-    delete gameOverMenu;
-    delete pauseMenu;
-    delete scoreHistoryMenu;
-
-    for (Bullet *bullet : bullets)
-    {
-        delete bullet;
-    }
-    for (Missile *missile : missiles)
-    {
-        delete missile;
-    }
-    missiles.clear();
-    bullets.clear();
-}
+Game::~Game() = default;
 void Game::ProcessEvents()
 {
     std::optional<sf::Event> event;
@@ -153,10 +128,10 @@ void Game::ProcessEvents()
             sf::Vector2f mousePos(mouseMoved->position.x, mouseMoved->position.y);
             if (currentState == GameState::MainMenu)
             {
-                if (viewingHistory && scoreHistoryMenu)
-                {
-                    scoreHistoryMenu->Update(mousePos);
-                }
+                        if (viewingHistory && scoreHistoryMenu)
+                        {
+                            scoreHistoryMenu->Update(mousePos);
+                        }
                 else
                 {
                     mainMenu->Update(mousePos);
@@ -248,8 +223,7 @@ void Game::ProcessEvents()
                     {
                         if (scoreHistoryMenu && scoreHistoryMenu->IsBackButtonClicked(mousePos))
                         {
-                            delete scoreHistoryMenu;
-                            scoreHistoryMenu = nullptr;
+                            scoreHistoryMenu.reset();
                             viewingHistory = false; // Đóng bảng lịch sử để về Main Menu chính
                         }
                     }
@@ -264,8 +238,8 @@ void Game::ProcessEvents()
                         else if (action == 2)
                         { // Bấm nút xem lịch sử điểm
                             viewingHistory = true;
-                            delete scoreHistoryMenu;
-                            scoreHistoryMenu = new ScoreHistoryMenu(resourceManager.GetFont("PressStart2P-Regular"), matchHistory);
+                            scoreHistoryMenu.reset();
+                            scoreHistoryMenu = std::make_unique<ScoreHistoryMenu>(resourceManager.GetFont("PressStart2P-Regular"), matchHistory);
                         }
                         else if (action == 3)
                         {
@@ -316,20 +290,20 @@ void Game::Update(float deltaTime)
             sf::Vector2f pos;
             pos.x = playerBounds.position.x + playerBounds.size.x / 2.f - missileSize.x / 2.f;
             pos.y = playerBounds.position.y - missileSize.y;
-
-            missiles.push_back(new Missile(resourceManager.GetTexture("missile"), pos));
+            missiles.push_back(std::make_unique<Missile>(resourceManager.GetTexture("missile"), pos));
             player->ResetBomb();
         }
         alienManager->Update(deltaTime);
         buffManager->Update(deltaTime);
 
-        for (Bullet *bullet : bullets)
-            bullet->Update(deltaTime);
-        for (Missile *missile : missiles)
-            missile->Update(deltaTime);
+        for (auto &bptr : bullets)
+            bptr->Update(deltaTime);
+        for (auto &mptr : missiles)
+            mptr->Update(deltaTime);
 
-        for (Missile *missile : missiles)
+        for (auto &mptr : missiles)
         {
+            Missile *missile = mptr.get();
             if (!missile->IsActive())
                 continue;
             for (Alien *alien : alienManager->GetAliens())
@@ -357,9 +331,16 @@ void Game::Update(float deltaTime)
 
         alienManager->AlienShoot(bullets, resourceManager.GetTexture("alien_bullet"));
 
-        collisionManager.CheckCollisions(
-            player, alienManager->GetAliens(), bullets,
-            buffManager->GetBuffs(), buffManager, resourceManager, soundManager);
+        {
+            auto aliensList = alienManager->GetAliens();
+            auto buffsList = buffManager->GetBuffs();
+            std::vector<Bullet*> bulletsList;
+            bulletsList.reserve(bullets.size());
+            for (const auto &p : bullets) bulletsList.push_back(p.get());
+            collisionManager.CheckCollisions(
+                player.get(), aliensList, bulletsList,
+                buffsList, buffManager.get(), resourceManager, soundManager);
+        }
 
         CleanUpDeadEntities();
 
@@ -368,8 +349,7 @@ void Game::Update(float deltaTime)
             currentState = GameState::GameOver;
             AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thua
 
-            delete gameOverMenu;
-            gameOverMenu = new GameOverMenu(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), false);
+                        gameOverMenu = std::make_unique<GameOverMenu>(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), false);
 
             if (player->GetScore() > highScore)
             {
@@ -384,8 +364,7 @@ void Game::Update(float deltaTime)
                 currentState = GameState::Victory;
                 AddScoreToHistory(player->GetScore()); // Lưu lịch sử trận thắng
 
-                delete gameOverMenu;
-                gameOverMenu = new GameOverMenu(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), true);
+                gameOverMenu = std::make_unique<GameOverMenu>(resourceManager.GetFont("PressStart2P-Regular"), player->GetScore(), true);
 
                 if (player->GetScore() > highScore)
                 {
@@ -402,24 +381,22 @@ void Game::Update(float deltaTime)
         }
     }
 
-    gameUI->Update(player, currentState, highScore);
+    gameUI->Update(player.get(), currentState, highScore);
 }
 
 void Game::CleanUpDeadEntities()
 {
-    for (int i = bullets.size() - 1; i >= 0; i--)
+    for (int i = (int)bullets.size() - 1; i >= 0; i--)
     {
         if (!bullets[i]->IsActive())
         {
-            delete bullets[i];
             bullets.erase(bullets.begin() + i);
         }
     }
-    for (int i = missiles.size() - 1; i >= 0; i--)
+    for (int i = (int)missiles.size() - 1; i >= 0; i--)
     {
         if (!missiles[i]->IsActive())
         {
-            delete missiles[i];
             missiles.erase(missiles.begin() + i);
         }
     }
@@ -464,10 +441,10 @@ void Game::Render()
         alienManager->Render(window);
         buffManager->Render(window);
 
-        for (Missile *missile : missiles)
-            missile->Render(window);
-        for (Bullet *bullet : bullets)
-            bullet->Render(window);
+        for (auto &mptr : missiles)
+            mptr->Render(window);
+        for (auto &bptr : bullets)
+            bptr->Render(window);
 
         if (explosionActive)
             window.draw(*explosionSprite);
@@ -493,7 +470,7 @@ void Game::Run()
 
 void Game::LoadHighScore()
 {
-    std::ifstream file("highscore.txt");
+    std::ifstream file("docs/highscore.txt");
     if (file.is_open())
     {
         file >> highScore;
@@ -507,7 +484,7 @@ void Game::LoadHighScore()
 
 void Game::SaveHighScore()
 {
-    std::ofstream file("highscore.txt");
+    std::ofstream file("docs/highscore.txt");
     if (file.is_open())
     {
         file << highScore;
@@ -518,7 +495,7 @@ void Game::SaveHighScore()
 void Game::LoadHistory()
 {
     matchHistory.clear();
-    std::ifstream file("history.txt");
+    std::ifstream file("docs/history.txt");
     if (file.is_open())
     {
         int score;
@@ -532,7 +509,7 @@ void Game::LoadHistory()
 
 void Game::SaveHistory()
 {
-    std::ofstream file("history.txt");
+    std::ofstream file("docs/history.txt");
     if (file.is_open())
     {
         for (int score : matchHistory)
@@ -584,7 +561,7 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
     int count = std::min(5, (int)targets.size());
     for (int i = 0; i < count; i++)
     {
-        collisionManager.AwardScore(player, targets[i].alien);
+        collisionManager.AwardScore(player.get(), targets[i].alien);
         targets[i].alien->Destroy();
     }
 }
@@ -592,21 +569,14 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
 void Game::RestartGame()
 {
     isPaused = false;
-    delete player;
+    player.reset();
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
-    player = new Player(resourceManager.GetTexture("player"), startPos);
+    player = std::make_unique<Player>(resourceManager.GetTexture("player"), startPos);
 
-    for (Bullet *bullet : bullets)
-        delete bullet;
     bullets.clear();
-
-    for (Missile *missile : missiles)
-        delete missile;
     missiles.clear();
 
-    for (Buff *buff : buffManager->GetBuffs())
-        delete buff;
-    buffManager->GetBuffs().clear();
+    buffManager->ClearAll();
 
     alienManager->Reset(GetAlienTextureForRound(1));
     currentState = GameState::Playing;

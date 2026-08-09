@@ -1,6 +1,7 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include <memory>
 #include "ResourceManager.hpp"
 #include "Player.hpp"
 #include "AlienManager.hpp"
@@ -22,28 +23,28 @@ private:
     sf::RenderWindow window;
     sf::View gameView;
     ResourceManager resourceManager;
-    Player *player;
-    AlienManager *alienManager;
-    std::vector<Bullet *> bullets;
-    std::vector<Missile *> missiles;
-    BuffManager *buffManager;
+    std::unique_ptr<Player> player;
+    std::unique_ptr<AlienManager> alienManager;
+    std::vector<std::unique_ptr<Bullet>> bullets;
+    std::vector<std::unique_ptr<Missile>> missiles;
+    std::unique_ptr<BuffManager> buffManager;
     CollisionManager collisionManager;
-    UI *gameUI;
+    std::unique_ptr<UI> gameUI;
     SoundManager soundManager;
 
-    sf::Sprite *backgroundSprite;
-    sf::Sprite *explosionSprite;
+    std::unique_ptr<sf::Sprite> backgroundSprite;
+    std::unique_ptr<sf::Sprite> explosionSprite;
     bool explosionActive;
     float explosionTimer;
-    sf::Sprite *shieldSprite;
+    std::unique_ptr<sf::Sprite> shieldSprite;
 
     GameState currentState;
     int highScore;
 
-    MainMenu *mainMenu;
-    GameOverMenu *gameOverMenu;
-    PauseMenu *pauseMenu;
-    ScoreHistoryMenu *scoreHistoryMenu; // Quản lý bảng lịch sử điểm
+    std::unique_ptr<MainMenu> mainMenu;
+    std::unique_ptr<GameOverMenu> gameOverMenu;
+    std::unique_ptr<PauseMenu> pauseMenu;
+    std::unique_ptr<ScoreHistoryMenu> scoreHistoryMenu; // Quản lý bảng lịch sử điểm
     
     bool isPaused;
     bool viewingHistory;                 // Trạng thái đang xem màn hình lịch sử điểm
@@ -64,6 +65,9 @@ private:
 public:
     Game();
     ~Game();
+
+    Game(const Game&) = delete;
+    Game& operator=(const Game&) = delete;
 
     void Run();
     void ProcessEvents();

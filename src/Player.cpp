@@ -164,7 +164,7 @@ void Player::Render(sf::RenderWindow& window)
     }
 }
 
-void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
+void Player::Shoot(std::vector<std::unique_ptr<Bullet>> &bulletList, sf::Texture *bulletTexture)
 {
     if (currentCooldown <= 0.0f)
     {
@@ -186,16 +186,13 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
             leftPos.x -= 12.f;
             rightPos.x += 12.f;
 
-            bulletList.push_back(
-                new Bullet(bulletTexture, leftPos, bulletVelocity, true));
+            bulletList.push_back(std::make_unique<Bullet>(bulletTexture, leftPos, bulletVelocity, true));
 
-            bulletList.push_back(
-                new Bullet(bulletTexture, rightPos, bulletVelocity, true));
+            bulletList.push_back(std::make_unique<Bullet>(bulletTexture, rightPos, bulletVelocity, true));
         }
         else
         {
-            bulletList.push_back(
-                new Bullet(bulletTexture, bulletStartPos, bulletVelocity, true));
+            bulletList.push_back(std::make_unique<Bullet>(bulletTexture, bulletStartPos, bulletVelocity, true));
         }
 
         currentCooldown = fireCooldown;
@@ -213,6 +210,12 @@ void Player::TakeDamage()
 
     // ĐÃ XÓA HOÀN TOÀN LỆNH TỰ ĐỘNG BẬT KHIÊN (ActivateShield) KHI MẤT MẠNG
     lives--;
+
+    // Nếu còn mạng sau khi trừ, tự động kích hoạt khiên bảo vệ như tính năng đã thêm trước đó
+    if (lives > 0)
+    {
+        ActivateShield();
+    }
 
     if (lives <= 0)
     {

@@ -5,29 +5,20 @@ BuffManager::BuffManager()
 
 }
 
-BuffManager::~BuffManager()
-{
-    for (Buff* buff : buffs)
-    {
-        delete buff;
-    }
-
-    buffs.clear();
-}
+BuffManager::~BuffManager() = default;
 
 void BuffManager::SpawnBuff(sf::Texture* texture,
                             sf::Vector2f position,
                             BuffType type)
 {
-    Buff* newBuff = new Buff(texture, position, type);
-
-    buffs.push_back(newBuff);
+    buffs.push_back(std::make_unique<Buff>(texture, position, type));
 }
 
 void BuffManager::Update(float deltaTime)
 {
-    for (Buff* buff : buffs)
+    for (auto &buffPtr : buffs)
     {
+        Buff* buff = buffPtr.get();
         if (buff->IsActive())
         {
             buff->Update(deltaTime);
@@ -39,8 +30,9 @@ void BuffManager::Update(float deltaTime)
 
 void BuffManager::Render(sf::RenderWindow& window)
 {
-    for (Buff* buff : buffs)
+    for (auto &buffPtr : buffs)
     {
+        Buff* buff = buffPtr.get();
         if (buff->IsActive())
         {
             buff->Render(window);
@@ -50,17 +42,24 @@ void BuffManager::Render(sf::RenderWindow& window)
 
 void BuffManager::CleanUp()
 {
-    for (int i = buffs.size() - 1; i >= 0; i--)
+    for (int i = (int)buffs.size() - 1; i >= 0; i--)
     {
         if (!buffs[i]->IsActive())
         {
-            delete buffs[i];
             buffs.erase(buffs.begin() + i);
         }
     }
 }
 
-std::vector<Buff*>& BuffManager::GetBuffs()
+std::vector<Buff*> BuffManager::GetBuffs() const
 {
-    return buffs;
+    std::vector<Buff*> res;
+    res.reserve(buffs.size());
+    for (const auto &p : buffs) res.push_back(p.get());
+    return res;
+}
+
+void BuffManager::ClearAll()
+{
+    buffs.clear();
 }

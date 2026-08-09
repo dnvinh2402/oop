@@ -22,7 +22,7 @@ sequenceDiagram
         Game ->> Game: ProcessEvents()
         alt player shoots
             Game ->> Player: Shoot(bullets, bulletTexture)
-            Player ->> Bullets: push_back(new Bullet)
+            Player ->> Bullets: push_back(std::make_unique<Bullet>(...))
             Game ->> SoundManager: Play("shoot")
         end
         Game ->> Player: HandleInput(deltaTime)

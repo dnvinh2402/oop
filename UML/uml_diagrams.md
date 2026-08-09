@@ -33,7 +33,7 @@ classDiagram
         +Update(float)
         +Render(sf::RenderWindow&)
         +HandleInput(float)
-        +Shoot(std::vector<Bullet*>&, sf::Texture*)
+        +Shoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)
         +TakeDamage()
         +ActivateDoubleShot()
         +ActivateShield()
@@ -80,7 +80,7 @@ classDiagram
     }
 
     class AlienManager {
-        -std::vector<Alien*> aliens
+        -std::vector<std::unique_ptr<Alien>> aliens
         -float moveSpeed
         -bool movingRight
         -int currentRound
@@ -88,7 +88,7 @@ classDiagram
         +InitializeSwarm(sf::Texture*)
         +Update(float)
         +Render(sf::RenderWindow&)
-        +AlienShoot(std::vector<Bullet*>&, sf::Texture*)
+        +AlienShoot(std::vector<std::unique_ptr<Bullet>>&, sf::Texture*)
         +IsRoundCleared()
         +IsFinalRound()
         +StartNextRound(sf::Texture*)
@@ -105,7 +105,7 @@ classDiagram
     }
 
     class CollisionManager {
-        +CheckCollisions(Player*, std::vector<Alien*>&, std::vector<Bullet*>&, std::vector<Buff*>&, BuffManager*, ResourceManager&, SoundManager&)
+        +CheckCollisions(Player*, std::vector<std::unique_ptr<Alien>>&, std::vector<std::unique_ptr<Bullet>>&, std::vector<std::unique_ptr<Buff>>&, BuffManager*, ResourceManager&, SoundManager&)
         +AwardScore(Player*, Alien*)
     }
 
@@ -201,23 +201,23 @@ classDiagram
         -sf::RenderWindow window
         -sf::View gameView
         -ResourceManager resourceManager
-        -Player* player
-        -AlienManager* alienManager
-        -std::vector<Bullet*> bullets
-        -std::vector<Missile*> missiles
-        -BuffManager* buffManager
+        -std::unique_ptr<Player> player
+        -std::unique_ptr<AlienManager> alienManager
+        -std::vector<std::unique_ptr<Bullet>> bullets
+        -std::vector<std::unique_ptr<Missile>> missiles
+        -std::unique_ptr<BuffManager> buffManager
         -CollisionManager collisionManager
-        -UI* gameUI
-        -SoundManager soundManager
-        -sf::Sprite* backgroundSprite
-        -sf::Sprite* explosionSprite
+        -std::unique_ptr<UI> gameUI
+        -std::unique_ptr<SoundManager> soundManager
+        -sf::Sprite backgroundSprite
+        -sf::Sprite explosionSprite
         -sf::Sprite* shieldSprite
         -GameState currentState
         -int highScore
-        -MainMenu* mainMenu
-        -GameOverMenu* gameOverMenu
-        -PauseMenu* pauseMenu
-        -ScoreHistoryMenu* scoreHistoryMenu
+        -std::unique_ptr<MainMenu> mainMenu
+        -std::unique_ptr<GameOverMenu> gameOverMenu
+        -std::unique_ptr<PauseMenu> pauseMenu
+        -std::unique_ptr<ScoreHistoryMenu> scoreHistoryMenu
         -bool isPaused
         -bool viewingHistory
         -std::vector<int> matchHistory
@@ -275,7 +275,7 @@ sequenceDiagram
         Game ->> Game: ProcessEvents()
         alt click left / Space
             Game ->> Player: Shoot(bullets, bulletTexture)
-            Player ->> bullets: push_back(new Bullet)
+            Player ->> bullets: push_back(std::make_unique<Bullet>(...))
             Game ->> SoundManager: Play("shoot")
         end
         Game ->> Player: HandleInput(deltaTime)

@@ -16,9 +16,9 @@ public:
     // Thuật toán AABB quét va chạm giữa các mảng
 void CheckCollisions(
     Player* player,
-    std::vector<Alien*>& aliens,
-    std::vector<Bullet*>& bullets,
-    std::vector<Buff*>& buffs,
+    const std::vector<Alien*>& aliens,
+    const std::vector<Bullet*>& bullets,
+    const std::vector<Buff*>& buffs,
     BuffManager* buffManager,
     ResourceManager& resourceManager,
     SoundManager &soundManager);

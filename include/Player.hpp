@@ -3,6 +3,7 @@
 #include "Bullet.hpp"
 #include "Alien.hpp"
 #include <vector>
+#include <memory>
 
 class Player : public GameObject
 {
@@ -37,7 +38,7 @@ public:
 
     void HandleInput(float deltaTime);
 
-    void Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture);
+    void Shoot(std::vector<std::unique_ptr<Bullet>> &bulletList, sf::Texture *bulletTexture);
     void TakeDamage();
 
     // ===== Buff =====

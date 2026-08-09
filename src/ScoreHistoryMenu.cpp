@@ -13,12 +13,12 @@ ScoreHistoryMenu::ScoreHistoryMenu(sf::Font *f, const std::vector<int> &recentSc
     backgroundOverlay.setFillColor(sf::Color(0, 0, 0, 160));
 
     // 2. Tải file ảnh historymenu.png
-    menuBgTexture = new sf::Texture();
+    menuBgTexture = std::make_unique<sf::Texture>();
     if (!menuBgTexture->loadFromFile("assets/images/historymenu.png"))
     {
         std::cout << "Loi load historymenu.jpg trong ScoreHistoryMenu\n";
     }
-    menuBgSprite = new sf::Sprite(*menuBgTexture);
+    menuBgSprite = std::make_unique<sf::Sprite>(*menuBgTexture);
 
     // Thiết lập kích thước khung (Ngang 600, Cao 560)
     sf::Vector2u bgSize = menuBgTexture->getSize();
@@ -78,12 +78,12 @@ ScoreHistoryMenu::ScoreHistoryMenu(sf::Font *f, const std::vector<int> &recentSc
     }
 
     // 5. Tải ảnh nút Back (back.png) ở dưới cùng
-    backTexture = new sf::Texture();
+    backTexture = std::make_unique<sf::Texture>();
     if (!backTexture->loadFromFile("assets/images/back.png"))
     {
         std::cout << "Loi load back.png trong ScoreHistoryMenu\n";
     }
-    backSprite = new sf::Sprite(*backTexture);
+    backSprite = std::make_unique<sf::Sprite>(*backTexture);
 
     sf::Vector2u backSize = backTexture->getSize();
     if (backSize.x > 0 && backSize.y > 0)
@@ -95,13 +95,7 @@ ScoreHistoryMenu::ScoreHistoryMenu(sf::Font *f, const std::vector<int> &recentSc
     backSprite->setPosition(sf::Vector2f(450.0f, 610.0f));
 }
 
-ScoreHistoryMenu::~ScoreHistoryMenu()
-{
-    delete menuBgSprite;
-    delete menuBgTexture;
-    delete backSprite;
-    delete backTexture;
-}
+ 
 
 void ScoreHistoryMenu::Update(sf::Vector2f mousePos)
 {

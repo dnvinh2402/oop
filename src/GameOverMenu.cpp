@@ -6,7 +6,7 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
     : font(f), finalScoreText(*font) {
     
     // 1. Tải ảnh Victory hoặc Defeat
-    titleTexture = new sf::Texture();
+    titleTexture = std::make_unique<sf::Texture>();
     if (isVictory) {
         if (!titleTexture->loadFromFile("assets/images/victory.png")) {
             std::cout << "Loi load victory.png\n";
@@ -17,7 +17,7 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
         }
     }
     
-    titleSprite = new sf::Sprite(*titleTexture);
+    titleSprite = std::make_unique<sf::Sprite>(*titleTexture);
 
     // Thu nhỏ logo
     sf::Vector2u texSize = titleTexture->getSize();
@@ -43,13 +43,13 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
     finalScoreText.setPosition(sf::Vector2f(450.0f, 480.0f));
 
     // 2. Tải ảnh nút
-    restartTexture = new sf::Texture();
-    menuTexture = new sf::Texture();
+    restartTexture = std::make_unique<sf::Texture>();
+    menuTexture = std::make_unique<sf::Texture>();
     if (!restartTexture->loadFromFile("assets/images/play_again.png")) std::cout << "Loi load play_again.png\n";
     if (!menuTexture->loadFromFile("assets/images/main_menu.png")) std::cout << "Loi load main_menu.png\n";
 
-    restartSprite = new sf::Sprite(*restartTexture);
-    menuSprite = new sf::Sprite(*menuTexture);
+    restartSprite = std::make_unique<sf::Sprite>(*restartTexture);
+    menuSprite = std::make_unique<sf::Sprite>(*menuTexture);
 
     // Hàm thiết lập nút
     auto setupButtonSprite = [](sf::Sprite* sprite, sf::Texture* tex, float targetWidth, sf::Vector2f pos) {
@@ -63,18 +63,11 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
         sprite->setPosition(pos);
     };
 
-    setupButtonSprite(restartSprite, restartTexture, 75.0f, sf::Vector2f(380.0f, 650.0f));
-    setupButtonSprite(menuSprite, menuTexture, 70.0f, sf::Vector2f(520.0f, 650.0f));
+    setupButtonSprite(restartSprite.get(), restartTexture.get(), 75.0f, sf::Vector2f(380.0f, 650.0f));
+    setupButtonSprite(menuSprite.get(), menuTexture.get(), 70.0f, sf::Vector2f(520.0f, 650.0f));
 }
 
-GameOverMenu::~GameOverMenu() {
-    delete titleSprite;
-    delete titleTexture;
-    delete restartSprite;
-    delete restartTexture;
-    delete menuSprite;
-    delete menuTexture;
-}
+ 
 
 void GameOverMenu::Update(sf::Vector2f mousePos) {
     auto hoverEffect = [&](sf::Sprite* spr) {
@@ -85,8 +78,8 @@ void GameOverMenu::Update(sf::Vector2f mousePos) {
         }
     };
 
-    hoverEffect(restartSprite);
-    hoverEffect(menuSprite);
+    hoverEffect(restartSprite.get());
+    hoverEffect(menuSprite.get());
 }
 
 int GameOverMenu::HandleClick(sf::Vector2f mousePos) {

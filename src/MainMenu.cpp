@@ -7,13 +7,13 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     : font(f)
 {
     // 1. HÌNH NỀN
-    bgSprite = new sf::Sprite(*bgTexture);
+    bgSprite = std::make_unique<sf::Sprite>(*bgTexture);
     sf::Vector2u texSize = bgTexture->getSize();
     bgSprite->setScale(sf::Vector2f(900.0f / (float)texSize.x, 900.0f / (float)texSize.y));
     bgSprite->setPosition(sf::Vector2f(0.0f, 0.0f));
 
     // 2. TẢI VÀ TỰ ĐỘNG XÓA NỀN TRẮNG + SỌC CARO CHO LOGO
-    logoTexture = new sf::Texture();
+    logoTexture = std::make_unique<sf::Texture>();
     sf::Image logoImage;
     if (logoImage.loadFromFile("assets/images/logo.png"))
     {
@@ -39,12 +39,12 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
         std::cout << "Loi load logo.png\n";
     }
 
-    playTexture = new sf::Texture();
-    historyTexture = new sf::Texture();
-    unmuteTexture = new sf::Texture();
-    muteTexture = new sf::Texture();
-    plusTexture = new sf::Texture();
-    minusTexture = new sf::Texture();
+    playTexture = std::make_unique<sf::Texture>();
+    historyTexture = std::make_unique<sf::Texture>();
+    unmuteTexture = std::make_unique<sf::Texture>();
+    muteTexture = std::make_unique<sf::Texture>();
+    plusTexture = std::make_unique<sf::Texture>();
+    minusTexture = std::make_unique<sf::Texture>();
 
     if (!playTexture->loadFromFile("assets/images/play.png"))
         std::cout << "Loi load play.png\n";
@@ -59,12 +59,12 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     if (!minusTexture->loadFromFile("assets/images/minus.png"))
         std::cout << "Loi load minus.png\n";
 
-    logoSprite = new sf::Sprite(*logoTexture);
-    playSprite = new sf::Sprite(*playTexture);
-    historySprite = new sf::Sprite(*historyTexture);
-    muteButtonSprite = new sf::Sprite(*unmuteTexture);
-    volumeDownSprite = new sf::Sprite(*minusTexture);
-    volumeUpSprite = new sf::Sprite(*plusTexture);
+    logoSprite = std::make_unique<sf::Sprite>(*logoTexture);
+    playSprite = std::make_unique<sf::Sprite>(*playTexture);
+    historySprite = std::make_unique<sf::Sprite>(*historyTexture);
+    muteButtonSprite = std::make_unique<sf::Sprite>(*unmuteTexture);
+    volumeDownSprite = std::make_unique<sf::Sprite>(*minusTexture);
+    volumeUpSprite = std::make_unique<sf::Sprite>(*plusTexture);
 
     // 3. HÀM HELPER: CHỈNH KÍCH THƯỚC VÀ CĂN GIỮA TỰ ĐỘNG
     auto setupSprite = [](sf::Sprite *sprite, sf::Texture *tex, float targetSize, sf::Vector2f pos)
@@ -92,41 +92,25 @@ MainMenu::MainMenu(sf::Font *f, sf::Texture *bgTexture, int highScore)
     logoSprite->setPosition(sf::Vector2f(450.0f, 250.0f));
 
     // Đặt vị trí các nút chính
-    setupSprite(playSprite, playTexture, 150.0f, sf::Vector2f(450.0f, 440.0f));
+    setupSprite(playSprite.get(), playTexture.get(), 150.0f, sf::Vector2f(450.0f, 440.0f));
     float scaleX = 200.0f / playTexture->getSize().x;
     float scaleY = 200.0f / playTexture->getSize().y;
     float scale = std::min(scaleX, scaleY);
 
     playSprite->setScale(sf::Vector2f(scale, scale));
-    setupSprite(historySprite, historyTexture, 70.0f, sf::Vector2f(450.0f, 540.0f));
+    setupSprite(historySprite.get(), historyTexture.get(), 70.0f, sf::Vector2f(450.0f, 540.0f));
 
     // Đặt vị trí hàng nút âm thanh (Đã đẩy xuống 15 pixel: Y = 645.0f)
-    setupSprite(volumeDownSprite, minusTexture, 45.0f, sf::Vector2f(360.0f, 645.0f));
-    setupSprite(muteButtonSprite, unmuteTexture, 45.0f, sf::Vector2f(450.0f, 645.0f));
-    setupSprite(volumeUpSprite, plusTexture, 45.0f, sf::Vector2f(540.0f, 645.0f));
+    setupSprite(volumeDownSprite.get(), minusTexture.get(), 45.0f, sf::Vector2f(360.0f, 645.0f));
+    setupSprite(muteButtonSprite.get(), unmuteTexture.get(), 45.0f, sf::Vector2f(450.0f, 645.0f));
+    setupSprite(volumeUpSprite.get(), plusTexture.get(), 45.0f, sf::Vector2f(540.0f, 645.0f));
 
     isMuted = GlobalAudio::isMuted;
     currentVolume = (int)GlobalAudio::volume;
     SetVolume(currentVolume, isMuted);
 }
 
-MainMenu::~MainMenu()
-{
-    delete bgSprite;
-    delete logoSprite;
-    delete logoTexture;
-    delete playSprite;
-    delete playTexture;
-    delete historySprite;
-    delete historyTexture;
-    delete muteButtonSprite;
-    delete unmuteTexture;
-    delete muteTexture;
-    delete volumeDownSprite;
-    delete minusTexture;
-    delete volumeUpSprite;
-    delete plusTexture;
-}
+ 
 
 void MainMenu::Update(sf::Vector2f mousePos)
 {
@@ -142,9 +126,9 @@ void MainMenu::Update(sf::Vector2f mousePos)
         }
     };
 
-    hoverEffect(playSprite);
-    hoverEffect(historySprite);
-    hoverEffect(muteButtonSprite);
+    hoverEffect(playSprite.get());
+    hoverEffect(historySprite.get());
+    hoverEffect(muteButtonSprite.get());
 
     if (isMuted)
     {
@@ -153,8 +137,8 @@ void MainMenu::Update(sf::Vector2f mousePos)
     }
     else
     {
-        hoverEffect(volumeDownSprite);
-        hoverEffect(volumeUpSprite);
+        hoverEffect(volumeDownSprite.get());
+        hoverEffect(volumeUpSprite.get());
     }
 }
 
