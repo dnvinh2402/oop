@@ -1,28 +1,34 @@
 #include "ResourceManager.hpp"
 #include <iostream>
 
-ResourceManager::ResourceManager() {
+ResourceManager::ResourceManager()
+{
     // Chưa cần làm gì lúc khởi tạo
 }
 
-ResourceManager::~ResourceManager() {
+ResourceManager::~ResourceManager()
+{
     // Duyệt qua toàn bộ map, giải phóng từng con trỏ texture
-    for (auto& pair : textures) {
+    for (auto &pair : textures)
+    {
         delete pair.second;
     }
     textures.clear();
 
     // Tương tự cho font
-    for (auto& pair : fonts) {
+    for (auto &pair : fonts)
+    {
         delete pair.second;
     }
     fonts.clear();
 }
 
-void ResourceManager::LoadTexture(std::string name, std::string filename) {
-    sf::Texture* texture = new sf::Texture();
+void ResourceManager::LoadTexture(std::string name, std::string filename)
+{
+    sf::Texture *texture = new sf::Texture();
 
-    if (!texture->loadFromFile(filename)) {
+    if (!texture->loadFromFile(filename))
+    {
         std::cerr << "Loi: khong the load texture: " << filename << std::endl;
         delete texture;
         return;
@@ -31,20 +37,27 @@ void ResourceManager::LoadTexture(std::string name, std::string filename) {
     textures[name] = texture;
 }
 
-sf::Texture* ResourceManager::GetTexture(std::string name) {
+sf::Texture *ResourceManager::GetTexture(std::string name)
+{
     auto it = textures.find(name);
-    if (it != textures.end()) {
+
+    if (it != textures.end() && it->second != nullptr)
+    {
         return it->second;
     }
 
-    std::cerr << "Canh bao: khong tim thay texture ten: " << name << std::endl;
+    std::cerr << "Canh bao: khong tim thay texture hop le: "
+              << name << std::endl;
+
     return nullptr;
 }
 
-void ResourceManager::LoadFont(std::string name, std::string filename) {
-    sf::Font* font = new sf::Font();
+void ResourceManager::LoadFont(std::string name, std::string filename)
+{
+    sf::Font *font = new sf::Font();
 
-    if (!font->openFromFile(filename)) {
+    if (!font->openFromFile(filename))
+    {
         std::cerr << "Loi: khong the load font: " << filename << std::endl;
         delete font;
         return;
@@ -53,9 +66,11 @@ void ResourceManager::LoadFont(std::string name, std::string filename) {
     fonts[name] = font;
 }
 
-sf::Font* ResourceManager::GetFont(std::string name) {
+sf::Font *ResourceManager::GetFont(std::string name)
+{
     auto it = fonts.find(name);
-    if (it != fonts.end()) {
+    if (it != fonts.end())
+    {
         return it->second;
     }
 

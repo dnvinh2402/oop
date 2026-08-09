@@ -85,10 +85,10 @@ void CollisionManager::CheckCollisions(
                         }
                     }
 
-                    // Xử lý tỉ lệ rơi Buff (50% cho test) khi quái/Boss bất kỳ bị tiêu diệt
+                    // Xử lý tỉ lệ rơi Buff 30% khi quái/Boss bất kỳ bị tiêu diệt
                     if (!alien->IsActive())
                     {
-                        if (rand() % 100 < 20)
+                        if (rand() % 100 < 30)
                         {
                             BuffType type;
                             int randomType = rand() % 3; // 3 loại: doubleShot, Shield, Bomb

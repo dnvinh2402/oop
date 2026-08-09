@@ -48,8 +48,6 @@ public:
     void ResetBomb();
     int bombCount;
 
-    void SetShieldTexture(sf::Texture *texture);
-
     bool HasShield() const;
     void TakeShieldHit(); // Hàm xử lý khi khiên hứng đạn
 

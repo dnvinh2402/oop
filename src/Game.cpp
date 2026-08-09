@@ -11,7 +11,7 @@
 const float WORLD_WIDTH = 900.0f;
 const float WORLD_HEIGHT = 900.0f;
 
-Game::Game() : window(sf::VideoMode({900, 900}), "My first game", sf::Style::Default | sf::Style::Resize), isPaused(false)
+Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::Default | sf::Style::Resize), isPaused(false)
 {
     gameView.setSize(sf::Vector2f(WORLD_WIDTH, WORLD_HEIGHT));
     gameView.setCenter(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));

@@ -282,8 +282,3 @@ void Player::ResetBomb()
         bombTimer = 0.f;
     }
 }
-
-void Player::SetShieldTexture(sf::Texture* texture)
-{
-    shieldTexture = texture;
-}

@@ -1,11 +1,11 @@
 # Project Overview
 
-- **Tên game:** My first game
+- **Tên game:** Space Invaders
 - **Thể loại:** Shooter 2D / Arcade
 - **Mục tiêu:** Điều khiển tàu vũ trụ, tiêu diệt quái, thu buff và tồn tại qua các màn.
-- **Công nghệ:** C++ với SFML
+- **Công nghệ:** C++ với SFML3
 - **Ngôn ngữ:** C++
-- **Thư viện:** SFML (Graphics, Audio, Window)
+- **Thư viện:** SFML3 (Graphics, Audio, Window)
 - **Mục đích đồ án:** Xây dựng game 2D với game loop, state management, collision, UI và audio.
 
 ### Các tính năng chính
@@ -24,7 +24,8 @@
 
 # 1. Project Overview
 
-Game là một shooter 2D đơn giản được viết bằng C++ và SFML. Người chơi điều khiển một con tàu vũ trụ ở nửa dưới màn hình, bắn quái và thu buff để tăng sức mạnh. Trò chơi có nhiều màn, menu, pause, game over và lưu điểm.
+- Người chơi bước vào một cuộc chiến sinh tử giữa nhân loại và những kẻ xâm lược ngoài hành tinh. Không có lời cảnh báo, không có đàm phán – chỉ có một làn sóng quái vật không gian đang ồ ạt tiến xuống Trái Đất. 
+- Người chơi đóng vai trò là tuyến phòng thủ cuối cùng, điều khiển một khẩu pháo laser đơn độc để chống lại lực lượng Alien. 
 
 ---
 
@@ -36,7 +37,7 @@ Game là một shooter 2D đơn giản được viết bằng C++ và SFML. Ngư
 - **Collision detection:** `CollisionManager` kiểm tra va chạm bằng bounding box.
 - **Score system:** Tính điểm khi quái chết, boss điểm lớn hơn.
 - **Lives system:** Player có 3 mạng.
-- **Buff system:** Quái có 50% rơi buff gồm `doubleShot`, `Shield`, `Bomb`.
+- **Buff system:** Quái có 30% rơi buff gồm `doubleShot`, `Shield`, `Bomb`.
 - **Audio effects:** Âm thanh bắn, nhặt, trúng đạn, enemy dead và nhạc nền.
 - **Pause:** Pause menu với resume/home/volume.
 - **Game states:** `MainMenu`, `Playing`, `GameOver`, `Victory`.
@@ -49,7 +50,7 @@ Game là một shooter 2D đơn giản được viết bằng C++ và SFML. Ngư
 
 - **C++**: ngôn ngữ chính.
 - **C++17**: sử dụng tính năng `std::optional`, lambda và container chuẩn.
-- **SFML**: dùng cho graphics, window, input, audio.
+- **SFML3**: dùng cho graphics, window, input, audio.
 - **Compiler:** g++ (theo task trong VS Code).
 - **Windows:** môi trường được sử dụng trong workspace.
 
@@ -342,7 +343,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `virtual void Update(float)` | pure virtual | cập nhật object |
 | `virtual void Render(sf::RenderWindow&)` | pure virtual | vẽ object |
 | `bool IsActive()` | bool | kiểm tra active |
@@ -392,7 +393,7 @@ Player
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(float)` | void | cập nhật cooldown, buff, vị trí |
 | `void Render(sf::RenderWindow&)` | void | vẽ player và shield |
 | `void HandleInput(float)` | void | xử lý phím di chuyển |
@@ -403,7 +404,6 @@ Player
 | `void ActivateBomb()` | void | tăng bombCount |
 | `bool IsBombReady() const` | bool | kiểm tra bomb sẵn sàng |
 | `void ResetBomb()` | void | giảm bombCount khi dùng |
-| `void SetShieldTexture(sf::Texture*)` | void | gán texture khiên |
 | `bool HasShield() const` | bool | kiểm tra shield |
 
 ### Chi tiết
@@ -459,7 +459,7 @@ Alien
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(float)` | void | update spawn, movement, cooldown |
 | `void Render(sf::RenderWindow&)` | void | vẽ alien |
 | `void MoveDown(float)` | void | di chuyển xuống |
@@ -745,7 +745,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void LoadSound(std::string, std::string)` | void | load sound effect |
 | `void LoadMusic(std::string)` | void | load nhạc nền |
 | `void Play(std::string)` | void | phát effect |
@@ -789,7 +789,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(Player*, GameState, int)` | void | cập nhật UI |
 | `void Render(sf::RenderWindow&)` | void | vẽ UI |
 
@@ -832,7 +832,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(sf::Vector2f)` | void | hover effect |
 | `int HandleClick(sf::Vector2f)` | int | xử lý click |
 | `void Render(sf::RenderWindow&)` | void | vẽ menu |
@@ -880,7 +880,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `bool IsPauseButtonClicked(sf::Vector2f)` | bool | kiểm tra click pause |
 | `void Update(sf::Vector2f)` | void | hover effect |
 | `int HandleClick(sf::Vector2f)` | int | xử lý click |
@@ -920,7 +920,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(sf::Vector2f)` | void | hover effect |
 | `int HandleClick(sf::Vector2f)` | int | xử lý click |
 | `void Render(sf::RenderWindow&)` | void | vẽ menu |
@@ -958,7 +958,7 @@ Không kế thừa.
 ### Important Methods
 
 | Function | Return | Purpose |
-|---|---|---|---|
+|---|---|---|
 | `void Update(sf::Vector2f)` | void | hover effect |
 | `bool IsBackButtonClicked(sf::Vector2f)` | bool | kiểm tra click back |
 | `void Render(sf::RenderWindow&)` | void | vẽ menu |
@@ -1097,7 +1097,7 @@ Không kế thừa.
 
 ### Cơ chế
 
-- Quái chết có 50% rơi buff.
+- Quái chết có 30% rơi buff.
 - `BuffManager::SpawnBuff()` tạo buff.
 - `Buff::Update()` cho buff rơi.
 - `CollisionManager` kiểm tra player nap buff.
@@ -1181,11 +1181,11 @@ Lợi ích: tránh load lại, truy xuất tài nguyên theo tên, tái sử d�
 
 ```mermaid
 flowchart TD
-    Input --> Game::ProcessEvents()
-    Game::ProcessEvents() --> Player::Shoot()
-    Player::Shoot() --> bullets.push_back()
-    Game::Update() --> Bullet::Update()
-    Bullet::Update() --> CollisionManager::CheckCollisions()
+    Input --> ProcessEvents["Game::ProcessEvents()"]
+    ProcessEvents --> Shoot["Player::Shoot()"]
+    Shoot --> PushBack["bullets.push_back()"]
+    Update["Game::Update()"] --> BulletUpdate["Bullet::Update()"]
+    BulletUpdate --> CheckColl["CollisionManager::CheckCollisions()"]
 ```
 
 ### Buff
@@ -1194,8 +1194,8 @@ flowchart TD
 flowchart TD
     AlienDeath --> RandomChance
     RandomChance --> BuffSpawn
-    BuffSpawn --> Buff::Update()
-    Buff::Update() --> PlayerCollision
+    BuffSpawn --> BuffUpdate["Buff::Update()"]
+    BuffUpdate --> PlayerCollision
     PlayerCollision --> BuffEffect
 ```
 
@@ -1205,61 +1205,22 @@ flowchart TD
 
 ```mermaid
 flowchart TD
-    main() --> Game::Game()
-    Game::Game() --> ResourceManager::LoadTexture()
-    Game::Game() --> Player::Player()
-    main() --> Game::Run()
-    Game::Run() --> Game::ProcessEvents()
-    Game::Run() --> Game::Update()
-    Game::Update() --> Player::HandleInput()
-    Game::Update() --> AlienManager::Update()
-    Game::Update() --> CollisionManager::CheckCollisions()
-    Game::Run() --> Game::Render()
+    Main["main()"] --> GameInit["Game::Game()"]
+    GameInit --> LoadTex["ResourceManager::LoadTexture()"]
+    GameInit --> PlayerInit["Player::Player()"]
+    Main --> GameRun["Game::Run()"]
+    GameRun --> ProcessEvents["Game::ProcessEvents()"]
+    GameRun --> GameUpdate["Game::Update()"]
+    GameUpdate --> HandleInput["Player::HandleInput()"]
+    GameUpdate --> AlienUpdate["AlienManager::Update()"]
+    GameUpdate --> CheckColl["CollisionManager::CheckCollisions()"]
+    GameRun --> GameRender["Game::Render()"]
 ```
 
 ---
 
-# 23. How To Read The Code
 
-### Step 1
-
-Đọc `src/main.cpp` để hiểu chương trình bắt đầu ở đâu.
-
-### Step 2
-
-Đọc `include/Game.hpp` và `src/Game.cpp` để hiểu vòng lặp game và quản lý trạng thái.
-
-### Step 3
-
-Đọc `include/GameObject.hpp` để hiểu base object.
-
-### Step 4
-
-Đọc `include/Player.hpp`, `src/Player.cpp`, `include/Alien.hpp`, `src/Alien.cpp`.
-
-### Step 5
-
-Đọc `include/AlienManager.hpp`, `src/AlienManager.cpp` để hiểu spawn và update enemy.
-
-### Step 6
-
-Đọc `include/Bullet.hpp`, `src/Bullet.cpp`, `include/Buff.hpp`, `src/Buff.cpp`, `include/BuffManager.hpp`, `src/BuffManager.cpp`.
-
-### Step 7
-
-Đọc `include/CollisionManager.hpp`, `src/CollisionManager.cpp`.
-
-### Step 8
-
-Đọc `include/ResourceManager.hpp`, `src/ResourceManager.cpp`.
-
-### Step 9
-
-Đọc `include/UI.hpp`, `src/UI.cpp`, `include/MainMenu.hpp`, `src/MainMenu.cpp`, `include/PauseMenu.hpp`, `src/PauseMenu.cpp`, `include/GameOverMenu.hpp`, `src/GameOverMenu.cpp`, `include/ScoreHistoryMenu.hpp`, `src/ScoreHistoryMenu.cpp`.
-
----
-
-# 24. How To Modify The Game
+# 23. How To Modify The Game
 
 ### Thay đổi Player speed
 
@@ -1304,12 +1265,12 @@ flowchart TD
 
 ---
 
-# 25. Build & Run
+# 24. Build & Run
 
 ### Requirements
 
 - C++ compiler hỗ trợ C++17.
-- SFML.
+- SFML3.
 - Windows.
 
 ### Build
@@ -1328,7 +1289,7 @@ build/main.exe
 
 ---
 
-# 26. Controls
+# 25. Controls
 
 | Key | Action |
 |---|---|
@@ -1337,12 +1298,12 @@ build/main.exe
 | `Up` / `W` | Move up |
 | `Down` / `S` | Move down |
 | `Space` | Shoot |
-| Mouse left click | Shoot / click buttons |
+| `Mouse left click` | Shoot / click buttons |
 | `Enter` | Start / restart |
 
 ---
 
-# 27. OOP Concepts Used
+# 26. OOP Concepts Used
 
 - **Encapsulation**: `AlienManager`, `BuffManager`, `CollisionManager`, `SoundManager`, `ResourceManager` giữ dữ liệu private.
 - **Inheritance**: `GameObject` là base class, `Player`, `Alien`, `Bullet`, `Buff` kế thừa.
@@ -1352,45 +1313,41 @@ build/main.exe
 
 ---
 
-# 28. Design Patterns
+# 27. Design Patterns
 
 - Manager pattern xuất hiện ở `AlienManager`, `BuffManager`, `CollisionManager`, `ResourceManager`, `SoundManager`.
-- Không có evidence rõ ràng của Singleton, Factory, Observer hoặc State pattern chuẩn.
 
 ---
 
-# 29. Memory & Pointer Management
+# 28. Memory & Pointer Management
 
 - Dùng nhiều raw pointer (`new`/`delete`) trong `Game`, `AlienManager`, `BuffManager`, menus, `ResourceManager`.
 - Lifetime phần lớn được quản lý thủ công trong destructor.
 - `Game` chịu trách nhiệm delete `Player`, `AlienManager`, `BuffManager`, `UI`, menu và sprite.
-- Có khả năng dangling pointer nếu object được `Destroy()` nhưng pointer vẫn tồn tại trong vector trước khi xóa.
 
 ---
 
-# 30. Error Handling & Edge Cases
+# 29. Error Handling & Edge Cases
 
 - `ResourceManager` in lỗi nếu load texture/font thất bại.
-- UI/menu in lỗi nếu load image thất bại.
+- `UI/menu` in lỗi nếu load image thất bại.
 - `Bullet` destroy khi ra khỏi màn.
 - `Buff` destroy khi rơi xuống dưới màn.
 - `Game::ProcessEvents()` đóng cửa sổ khi event `Closed`.
 - `AlienManager::IsRoundCleared()` kiểm tra hết quái.
-- Không có xử lý cụ thể cho file `highscore.txt`/`history.txt` không tồn tại.
 
 ---
 
-# 31. Performance Considerations
+# 30. Performance Considerations
 
-- Collision O(n*m) khi duyệt từng bullet và từng alien.
+- `Collision O(n*m)` khi duyệt từng bullet và từng alien.
 - `AlienManager::Update()` duyệt từng alien và kiểm tra biên giới.
 - `BuffManager::CleanUp()` xóa từ cuối vector, tối ưu.
 - `ResourceManager` chỉ load tài nguyên một lần.
-- Dùng raw pointer có thể gây overhead quản lý bộ nhớ.
 
 ---
 
-# 32. Testing Guide
+# 31. Testing Guide
 
 - Test Player Movement:
   - Input: `WASD` / arrow keys.
@@ -1403,7 +1360,7 @@ build/main.exe
   - Expected: quái giảm HP và chết, điểm tăng.
 - Test Buff Drop:
   - Hành động: giết alien.
-  - Expected: có buff rơi 50%.
+  - Expected: có buff rơi 30%.
 - Test Shield:
   - Hành động: nhặt shield và bị trúng đạn.
   - Expected: shield chịu 2 lần, sau đó mất.
@@ -1419,18 +1376,15 @@ build/main.exe
 
 ---
 
-# 33. Known Limitations
+# 32. Known Limitations
 
 - Dùng raw pointer nhiều, dễ lỗi memory management.
 - Không có `CMakeLists.txt` trong source.
-- `Missile` tồn tại nhưng không được sử dụng rõ ràng trong logic chính.
-- `Player::SetShieldTexture()` được khai báo nhưng không thấy gọi.
-- `ResourceManager::GetTexture()` trả `nullptr` nhưng không được kiểm tra đầy đủ.
 - Một số logic menu và game state có coupling cao.
 
 ---
 
-# 34. Future Improvements
+# 33. Future Improvements
 
 - Chuyển raw pointer sang smart pointers (`std::unique_ptr`, `std::shared_ptr`).
 - Thêm `CMakeLists.txt` để build dễ dàng.
@@ -1443,7 +1397,7 @@ build/main.exe
 
 ---
 
-# 35. Conclusion
+# 34. Conclusion
 
 Dự án là một game shooter 2D SFML C++ với cấu trúc rõ ràng:
 
@@ -1455,202 +1409,9 @@ Dự án là một game shooter 2D SFML C++ với cấu trúc rõ ràng:
 - UI/menu đầy đủ cho play/pause/game over/history.
 - Audio và save score/history.
 
-README này giúp người đọc mới tìm đúng file, hiểu luồng từ `main()` tới game loop và biết nơi sửa mở rộng game.
-
-## 7.1. Luồng giao diện
-
-Luồng UI của chương trình:
-
-```text
-+------------+
-| Main Menu  |
-+-----+------+
-      |
-      v
-+------------+
-|  Vào Game  |
-+-----+------+
-      |
-      v
-+-------------+
-| Pause Menu  |
-+------+------+ 
-       |
-       v
-+-------------+
-|  Game Over  |
-+------+------+ 
-       |
-       v
-+--------------------+
-| Score History Menu |
-+--------------------+
-```
-
-Các thành phần UI được chia thành các class:
-
-- **MainMenu**
-- **PauseMenu**
-- **GameOverMenu**
-- **ScoreHistoryMenu**
-
-Cách tổ chức này giúp mỗi menu đảm nhiệm một chức năng giao diện riêng.
-
 ---
 
-# 8. KIỂM THỬ
-
-## 8.1. Nội dung kiểm thử
-
-Trong quá trình phát triển, các chức năng sau đã được kiểm thử:
-
-- **Hệ thống va chạm (`CollisionManager`)**
-- **Hệ thống sinh quái (`AlienManager`)**
-- **Hiệu ứng Buff/nhặt item**
-- **Bắn đạn đôi**
-- **Missile**
-- **Âm thanh động**
-
-## 8.2. Kiểm thử giao diện
-
-### Main Menu
-
-[Chèn ảnh màn hình: Main Menu]
-
-### Gameplay
-
-[Chèn ảnh màn hình: Màn hình gameplay chính]
-
-### Pause Menu
-
-[Chèn ảnh màn hình: Pause Menu]
-
-### Buff / Item
-
-[Chèn ảnh màn hình: Hiệu ứng Buff hoặc quá trình nhặt item]
-
-### Bắn đạn đôi / Missile
-
-[Chèn ảnh màn hình: Bắn đạn đôi hoặc Missile]
-
-### Game Over
-
-[Chèn ảnh màn hình: Game Over Menu]
-
-### Score History
-
-[Chèn ảnh màn hình: Score History Menu]
-
-### Âm thanh
-
-[Chèn ảnh màn hình: Minh họa giao diện/chức năng có âm thanh động]
-
-## 8.3. Kết quả kiểm thử
-
-Các chức năng được liệt kê trong phạm vi kiểm thử đã được nhóm thực hiện kiểm tra trong quá trình phát triển, bao gồm hệ thống va chạm, sinh Alien, Buff/item, đạn đôi, Missile và âm thanh động.
-
-Các hình ảnh minh họa kết quả thực tế có thể được bổ sung vào các vị trí placeholder ở trên.
-
----
-
-# 9. PHÂN CÔNG CÔNG VIỆC NHÓM
-
-| Thành viên | Công việc | Hoàn thành |
-|---|---|---:|
-| **Quân** | Buff, Audio, Collision | **34%** |
-| **Vinh** | Alien, Bullet, Player, Image | **35%** |
-| **Huy** | History, UI, Menu | **31%** |
-| **Tổng cộng** |  | **100%** |
-
-Việc phân chia công việc được thực hiện theo từng nhóm chức năng của hệ thống, qua đó mỗi thành viên chịu trách nhiệm đối với những module được giao.
-
----
-
-# 10. HƯỚNG PHÁT TRIỂN TƯƠNG LAI
-
-Dự án có thể tiếp tục được mở rộng theo các hướng sau:
-
-## 10.1. Mở rộng Game State
-
-Phát triển thêm nhiều **Game State** mới nhằm mở rộng cách tổ chức trạng thái của trò chơi.
-
-Việc bổ sung các state mới giúp hệ thống có thể quản lý nhiều trạng thái hoạt động khác nhau một cách rõ ràng hơn.
-
-## 10.2. Đa dạng hóa kẻ địch
-
-Phát triển thêm nhiều loại **Alien** khác nhau và bổ sung **Boss**.
-
-Mục tiêu là tạo sự đa dạng hơn cho hệ thống kẻ địch và mở rộng khả năng phát triển gameplay.
-
-## 10.3. Mở rộng hệ thống đạn
-
-Bổ sung thêm nhiều loại **Bullet** mới với các đặc điểm khác nhau.
-
-## 10.4. Đa dạng hóa phi thuyền
-
-Thêm nhiều mẫu **Spaceship** cho người chơi để mở rộng lựa chọn và khả năng phát triển hệ thống Player.
-
----
-
-# 11. KẾT LUẬN
-
-Qua quá trình xây dựng dự án **Space Invaders**, nhóm đã áp dụng các kiến thức của môn **Lập trình Hướng đối tượng** vào một chương trình game viết bằng **C++** và sử dụng **SFML 3**.
-
-Điểm trọng tâm của dự án là việc tổ chức hệ thống theo hướng đối tượng thông qua bốn tính chất:
-
-- **Kế thừa (Inheritance)** với nền tảng **GameObject**.
-- **Đa hình (Polymorphism)** thông qua các hành vi được ghi đè như `update()` và `draw()`.
-- **Đóng gói (Encapsulation)** thông qua các module quản lý như **AlienManager**, **BuffManager**, **CollisionManager**, **SoundManager** và **ResourceManager**.
-- **Trừu tượng (Abstraction)** thông qua việc tách biệt logic game, giao diện và quản lý tài nguyên.
-
-Bên cạnh đó, dự án được tổ chức thành các module và thư mục riêng biệt, bao gồm tài nguyên, header, source code, file thực thi và dữ liệu điểm số. Một số hệ thống quan trọng như va chạm, sinh quái, Buff/item, đạn đôi, Missile và âm thanh động đã được kiểm thử.
-
-Dự án cũng đặt nền tảng để tiếp tục phát triển trong tương lai thông qua việc mở rộng **Game State**, đa dạng hóa **Alien**, bổ sung **Boss**, các loại **Bullet** mới và nhiều mẫu **Spaceship**.
-
----
-
-# 12. PHỤ LỤC
-
-## 12.1. Cấu trúc class tiêu biểu
-
-Quan hệ kế thừa chính của các thực thể có thể được mô tả khái quát:
-
-```text
-                         GameObject
-                    _________|_________
-                   /    /     |     \   \
-                  /    /      |      \   \
-              Player Alien  Bullet  Missile Buff
-```
-
-Các class giao diện được tổ chức riêng:
-
-```text
-UI
-├── MainMenu
-├── PauseMenu
-├── GameOverMenu
-└── ScoreHistoryMenu
-```
-
-> Các sơ đồ trên mang tính minh họa cho cấu trúc được mô tả trong báo cáo.
-
-## 12.2. Vị trí bổ sung hình ảnh
-
-Người thực hiện có thể bổ sung các ảnh chụp màn hình thực tế vào phần **Kiểm thử** tại các placeholder:
-
-- `[Chèn ảnh màn hình: Main Menu]`
-- `[Chèn ảnh màn hình: Màn hình gameplay chính]`
-- `[Chèn ảnh màn hình: Pause Menu]`
-- `[Chèn ảnh màn hình: Hiệu ứng Buff hoặc quá trình nhặt item]`
-- `[Chèn ảnh màn hình: Bắn đạn đôi hoặc Missile]`
-- `[Chèn ảnh màn hình: Game Over Menu]`
-- `[Chèn ảnh màn hình: Score History Menu]`
-- `[Chèn ảnh màn hình: Minh họa giao diện/chức năng có âm thanh động]`
-
----
-
-# 13. TÀI LIỆU THAM KHẢO
+# 35. TÀI LIỆU THAM KHẢO
 
 1. **Source code ý tưởng tham khảo:**  
    https://github.com/attreyabhatt/Space-Invaders-Pygame
