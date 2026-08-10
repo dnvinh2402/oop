@@ -3,19 +3,16 @@
 
 ResourceManager::ResourceManager()
 {
-    // Chưa cần làm gì lúc khởi tạo
 }
 
 ResourceManager::~ResourceManager()
 {
-    // Duyệt qua toàn bộ map, giải phóng từng con trỏ texture
     for (auto &pair : textures)
     {
         delete pair.second;
     }
     textures.clear();
 
-    // Tương tự cho font
     for (auto &pair : fonts)
     {
         delete pair.second;
@@ -32,6 +29,12 @@ void ResourceManager::LoadTexture(std::string name, std::string filename)
         std::cerr << "Loi: khong the load texture: " << filename << std::endl;
         delete texture;
         return;
+    }
+
+    auto it = textures.find(name);
+    if (it != textures.end())
+    {
+        delete it->second;
     }
 
     textures[name] = texture;
@@ -61,6 +64,12 @@ void ResourceManager::LoadFont(std::string name, std::string filename)
         std::cerr << "Loi: khong the load font: " << filename << std::endl;
         delete font;
         return;
+    }
+
+    auto it = fonts.find(name);
+    if (it != fonts.end())
+    {
+        delete it->second;
     }
 
     fonts[name] = font;

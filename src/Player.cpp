@@ -211,13 +211,16 @@ void Player::TakeDamage()
         return;
     }
 
-    // ĐÃ XÓA HOÀN TOÀN LỆNH TỰ ĐỘNG BẬT KHIÊN (ActivateShield) KHI MẤT MẠNG
     lives--;
 
     if (lives <= 0)
     {
         Destroy();
+        return;
     }
+
+    // Nếu còn mạng thì tự động bật shield để bảo vệ mạng mới
+    ActivateShield();
 }
 
 // Xử lý khi bị đạn địch trúng lúc đang bật khiên (chịu tối đa 2 viên)

@@ -147,7 +147,6 @@ void Game::ProcessEvents()
             window.close();
         }
 
-        // Bắt sự kiện di chuyển chuột
         if (const auto *mouseMoved = event->getIf<sf::Event::MouseMoved>())
         {
             sf::Vector2f mousePos(mouseMoved->position.x, mouseMoved->position.y);
@@ -172,7 +171,6 @@ void Game::ProcessEvents()
             }
         }
 
-        // Bắt sự kiện từ bàn phím
         if (const auto *keyPressed = event->getIf<sf::Event::KeyPressed>())
         {
             if (currentState == GameState::Playing && !isPaused)
@@ -493,7 +491,7 @@ void Game::Run()
 
 void Game::LoadHighScore()
 {
-    std::ifstream file("highscore.txt");
+    std::ifstream file("docs/highscore.txt");
     if (file.is_open())
     {
         file >> highScore;
@@ -507,7 +505,7 @@ void Game::LoadHighScore()
 
 void Game::SaveHighScore()
 {
-    std::ofstream file("highscore.txt");
+    std::ofstream file("docs/highscore.txt");
     if (file.is_open())
     {
         file << highScore;
@@ -518,7 +516,7 @@ void Game::SaveHighScore()
 void Game::LoadHistory()
 {
     matchHistory.clear();
-    std::ifstream file("history.txt");
+    std::ifstream file("docs/history.txt");
     if (file.is_open())
     {
         int score;
@@ -532,7 +530,7 @@ void Game::LoadHistory()
 
 void Game::SaveHistory()
 {
-    std::ofstream file("history.txt");
+    std::ofstream file("docs/history.txt");
     if (file.is_open())
     {
         for (int score : matchHistory)
@@ -592,6 +590,14 @@ void Game::DestroyNearestAliens(sf::Vector2f center)
 void Game::RestartGame()
 {
     isPaused = false;
+
+    delete gameOverMenu;
+    gameOverMenu = nullptr;
+
+    delete scoreHistoryMenu;
+    scoreHistoryMenu = nullptr;
+    viewingHistory = false;
+
     delete player;
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
     player = new Player(resourceManager.GetTexture("player"), startPos);

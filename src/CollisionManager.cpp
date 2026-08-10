@@ -44,9 +44,6 @@ void CollisionManager::CheckCollisions(
 
         sf::FloatRect bulletBounds = bullet->GetBounds();
 
-        // =========================
-        // Đạn của Player
-        // =========================
         if (bullet->IsPlayerBullet())
         {
             for (Alien *alien : aliens)
@@ -59,15 +56,11 @@ void CollisionManager::CheckCollisions(
                     alien->TakeDamage(1);
                     bullet->Destroy();
 
-                    // PHÂN LOẠI TÍNH ĐIỂM: BOSS VS LÍNH THƯỜNG
                     if (alien->GetMaxHealth() > 1)
                     {
-                        // 1. XỬ LÝ CHO BOSS: Mỗi lần bắn trúng được cộng điểm (200đ -> thấp nhất 30đ)
                         int hitScore = alien->CalculateBossHitScore();
                         player->AddScore(hitScore);
-                        // std::cout << "BAN TRUNG BOSS! (+ " << hitScore << " diem)\n";
 
-                        // Nếu Boss chết hẳn -> Cộng thêm 1000 điểm thưởng tiêu diệt
                         if (!alien->IsActive())
                         {
                             soundManager.Play("enemyDead");
@@ -77,7 +70,6 @@ void CollisionManager::CheckCollisions(
                     }
                     else
                     {
-                        // 2. XỬ LÝ CHO LÍNH THƯỜNG: Chỉ cộng điểm khi tiêu diệt hoàn toàn
                         if (!alien->IsActive())
                         {
                             soundManager.Play("enemyDead");
@@ -85,13 +77,12 @@ void CollisionManager::CheckCollisions(
                         }
                     }
 
-                    // Xử lý tỉ lệ rơi Buff 30% khi quái/Boss bất kỳ bị tiêu diệt
                     if (!alien->IsActive())
                     {
                         if (rand() % 100 < 30)
                         {
                             BuffType type;
-                            int randomType = rand() % 3; // 3 loại: doubleShot, Shield, Bomb
+                            int randomType = rand() % 3;
 
                             if (randomType == 0)
                                 type = BuffType::doubleShot;
@@ -136,9 +127,13 @@ void CollisionManager::CheckCollisions(
             {
                 if (bulletBounds.findIntersection(player->GetBounds()).has_value())
                 {
+                    bool shielded = player->HasShield();
                     player->TakeDamage();
-                    soundManager.Play("hit");
-                    std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+                    soundManager.Play(shielded ? "shield" : "hit");
+                    if (!shielded)
+                    {
+                        std::cout << "CANH BAO! Phi thuyen trung dan!\n";
+                    }
 
                     bullet->Destroy();
                 }
