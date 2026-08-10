@@ -65,6 +65,11 @@ oop/
 │   ├── SoundManager.cpp
 │   ├── UI.cpp
 │   └── main.cpp
+├── UML/
+│   ├── class_diagram.md
+│   ├── sequence_diagrams.md
+│   ├── summary.md
+│   └── uml_diagrams.md
 └── README.md
 ```
 
@@ -73,6 +78,7 @@ oop/
 - `docs/`: chứa điểm cao và lịch sử trận.
 - `include/`: khai báo header cho các class.
 - `src/`: định nghĩa hành vi và logic game.
+- `UML/`: chứa sơ đồ lớp, sơ đồ trình tự và tóm tắt kiến trúc dự án.
 
 ## Luồng chương trình chính
 
@@ -96,6 +102,15 @@ oop/
 - `SoundManager`: load và phát âm thanh.
 - `UI`: hiển thị điểm, lives, buff.
 - `MainMenu`, `PauseMenu`, `GameOverMenu`, `ScoreHistoryMenu`: giao diện tương tác.
+
+## Tài liệu UML
+
+Các sơ đồ UML được cập nhật theo source code hiện tại và nằm trong thư mục `UML/`:
+
+- [UML/class_diagram.md](UML/class_diagram.md): sơ đồ lớp chính và quan hệ giữa các class.
+- [UML/sequence_diagrams.md](UML/sequence_diagrams.md): sơ đồ trình tự cho game loop và tương tác menu.
+- [UML/summary.md](UML/summary.md): tóm tắt nhanh các thành phần chính.
+- [UML/uml_diagrams.md](UML/uml_diagrams.md): bản đầy đủ gồm cả class diagram và sequence diagram.
 
 ## Chi tiết game flow
 
