@@ -338,7 +338,14 @@ void Game::Update(float deltaTime)
                 {
                     missile->Destroy();
                     soundManager.Play("explosion");
-                    DestroyNearestAliens(missile->GetPosition());
+                    if (alien->GetMovementType() == MovementType::Boss)
+                    {
+                        alien->TakeDamage(20);
+                    }
+                    else
+                    {
+                        DestroyNearestAliens(missile->GetPosition());
+                    }
                     explosionSprite->setPosition(missile->GetPosition());
                     explosionActive = true;
                     explosionTimer = 0.3f;

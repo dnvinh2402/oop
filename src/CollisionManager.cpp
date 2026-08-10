@@ -127,6 +127,12 @@ void CollisionManager::CheckCollisions(
             {
                 if (bulletBounds.findIntersection(player->GetBounds()).has_value())
                 {
+                    if (player->IsInvincible())
+                    {
+                        bullet->Destroy();
+                        continue;
+                    }
+
                     bool shielded = player->HasShield();
                     player->TakeDamage();
                     soundManager.Play(shielded ? "shield" : "hit");

@@ -17,6 +17,11 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
     shieldTimer = 0.0f;
     shieldHitsRemaining = 2;
 
+    invincible = false;
+    invincibleTimer = 0.0f;
+    blinkTimer = 0.0f;
+    blinkVisible = true;
+
     bombReady = false;
     bombTimer = 0.f;
     bombCount = 0;
@@ -101,6 +106,24 @@ void Player::Update(float deltaTime)
         }
     }
 
+    if (invincible)
+    {
+        invincibleTimer -= deltaTime;
+        blinkTimer -= deltaTime;
+
+        if (blinkTimer <= 0.0f)
+        {
+            blinkTimer = 0.1f;
+            blinkVisible = !blinkVisible;
+        }
+
+        if (invincibleTimer <= 0.0f)
+        {
+            invincible = false;
+            blinkVisible = true;
+        }
+    }
+
     if (bombReady && bombTimer > 0.f)
     {
         bombTimer -= deltaTime;
@@ -109,7 +132,17 @@ void Player::Update(float deltaTime)
 
 void Player::Render(sf::RenderWindow& window)
 {
-    window.draw(sprite);
+    if (invincible)
+    {
+        if (blinkVisible)
+        {
+            window.draw(sprite);
+        }
+    }
+    else
+    {
+        window.draw(sprite);
+    }
 }
 
 void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
@@ -152,7 +185,11 @@ void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture
 
 void Player::TakeDamage()
 {
-    // Nếu đang có khiên thì khiên chịu đòn trước, không thì trừ mạng trực tiếp
+    if (invincible)
+    {
+        return;
+    }
+
     if (shield)
     {
         TakeShieldHit();
@@ -167,8 +204,20 @@ void Player::TakeDamage()
         return;
     }
 
-    // Nếu còn mạng thì tự động bật shield để bảo vệ mạng mới
-    ActivateShield();
+    StartInvincibility(3.0f);
+}
+
+bool Player::IsInvincible() const
+{
+    return invincible;
+}
+
+void Player::StartInvincibility(float duration)
+{
+    invincible = true;
+    invincibleTimer = duration;
+    blinkTimer = 0.1f;
+    blinkVisible = false;
 }
 
 // Xử lý khi bị đạn địch trúng lúc đang bật khiên (chịu tối đa 2 viên)

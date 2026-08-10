@@ -22,6 +22,11 @@ private:
     float shieldTimer;
     int shieldHitsRemaining; // Thêm biến đếm số lần chịu đạn (tối đa 2 lần)
 
+    bool invincible;
+    float invincibleTimer;
+    float blinkTimer;
+    bool blinkVisible;
+
     bool bombReady;
     float bombTimer;
     // ================
@@ -47,11 +52,14 @@ public:
     int bombCount;
 
     bool HasShield() const;
-    void TakeShieldHit(); // Hàm xử lý khi khiên hứng đạn
+    bool IsInvincible() const;
+    void StartInvincibility(float duration);
+    void TakeShieldHit();
 
     // Thêm 2 hàm này để lấy thông tin hiển thị lên UI
     float GetShieldTimer() const { return shieldTimer; }
     int GetShieldHitsRemaining() const { return shieldHitsRemaining; }
+    float GetInvincibleTimer() const { return invincibleTimer; }
     // ================
 
     float GetDoubleShotTimer() const { return doubleShotTimer; }
