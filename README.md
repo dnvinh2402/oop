@@ -144,7 +144,6 @@ build/main.exe
 - `Left click`: bắn hoặc chọn button
 - `Enter`: bắt đầu hoặc restart
 
-
 ## TÀI LIỆU THAM KHẢO
 
 1. **Source code ý tưởng tham khảo:**     
@@ -155,3 +154,10 @@ https://www.youtube.com/shorts/u2e5RYYej_4
 
 3. **Github mã nguồn của nhóm:**     
 https://github.com/dnvinh2402/oop
+
+## Nếu bạn cần chạy file mà không cần biên dịch(phòng trường hợp không thể), bạn có thể giải nén thư mục release
+Khởi chạy game:
+
+```bash
+release/SpaceInvaders.exe
+```
