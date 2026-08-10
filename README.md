@@ -129,8 +129,14 @@ build/main.exe
 - `Left click`: bắn hoặc chọn button
 - `Enter`: bắt đầu hoặc restart
 
-## Lưu ý
 
-- `docs/highscore.txt` và `docs/history.txt` chứa dữ liệu lưu điểm.
-- Nếu có lỗi font trong quá trình build, hãy kiểm tra file `assets/font/PressStart2P-Regular.ttf` và `assets/font/arial.ttf`.
-- README này đã mở rộng để cả người đọc code lẫn reviewer dễ nắm cấu trúc dự án.
+## TÀI LIỆU THAM KHẢO
+
+1. **Source code ý tưởng tham khảo:**     
+https://github.com/attreyabhatt/Space-Invaders-Pygame
+
+2. **Cảm hứng Gameplay:**     
+https://www.youtube.com/shorts/u2e5RYYej_4
+
+3. **Github mã nguồn của nhóm:**     
+https://github.com/dnvinh2402/oop
