@@ -4,7 +4,6 @@ Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture
 {
     position = startPos;
     sprite.setPosition(position);
-    shieldTexture = nullptr;
 
     speed = 300.0f;
     lives = 3;
@@ -46,30 +45,6 @@ void Player::HandleInput(float deltaTime)
         position.y += speed * deltaTime;
     }
 
-    sf::FloatRect bounds = sprite.getGlobalBounds();
-
-    if (position.x < 0.f)
-    {
-        position.x = 0.f;
-    }
-    else if (position.x > 900.f - bounds.size.x)
-    {
-        position.x = 900.f - bounds.size.x;
-    }
-
-    float maxY = 900.f - bounds.size.y;
-    float minY = 450.f;
-
-    if (position.y < minY)
-    {
-        position.y = minY;
-    }
-    else if (position.y > maxY)
-    {
-        position.y = maxY;
-    }
-
-    sprite.setPosition(position);
 }
 
 void Player::Update(float deltaTime)
@@ -135,33 +110,6 @@ void Player::Update(float deltaTime)
 void Player::Render(sf::RenderWindow& window)
 {
     window.draw(sprite);
-
-    if (shield && shieldTexture != nullptr)
-    {
-        sf::Sprite shieldSpriteInstance(*shieldTexture);
-
-        sf::FloatRect playerBounds = sprite.getGlobalBounds();
-        sf::FloatRect shieldBounds = shieldSpriteInstance.getGlobalBounds();
-
-        shieldSpriteInstance.setOrigin({
-            shieldBounds.size.x / 2.f,
-            shieldBounds.size.y / 2.f
-        });
-
-        shieldSpriteInstance.setPosition({
-            position.x + playerBounds.size.x / 2.f,
-            position.y + playerBounds.size.y / 2.f
-        });
-
-        float scale = 2.f;
-
-        shieldSpriteInstance.setScale({
-            scale,
-            scale
-        });
-
-        window.draw(shieldSpriteInstance);
-    }
 }
 
 void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)

@@ -18,8 +18,6 @@ private:
     bool doubleShot;
     bool shield;
 
-    sf::Texture *shieldTexture;
-
     float doubleShotTimer;
     float shieldTimer;
     int shieldHitsRemaining; // Thêm biến đếm số lần chịu đạn (tối đa 2 lần)
