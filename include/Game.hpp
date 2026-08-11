@@ -15,6 +15,7 @@
 #include "PauseMenu.hpp"
 #include "ScoreHistoryMenu.hpp" // Thêm header lịch sử điểm
 #include "SoundManager.hpp"
+#include "ShipSelectionMenu.hpp"
 
 class Game
 {
@@ -44,11 +45,15 @@ private:
     GameOverMenu *gameOverMenu;
     PauseMenu *pauseMenu;
     ScoreHistoryMenu *scoreHistoryMenu; // Quản lý bảng lịch sử điểm
-    
-    bool isPaused;
-    bool viewingHistory;                 // Trạng thái đang xem màn hình lịch sử điểm
-    std::vector<int> matchHistory;       // Lưu tối đa 5 điểm trận đấu gần nhất
 
+    ShipSelectionMenu *shipSelectionMenu;
+
+    std::vector<sf::Texture *> shipTextures;
+
+    int selectedShip;
+    bool isPaused;
+    bool viewingHistory;           // Trạng thái đang xem màn hình lịch sử điểm
+    std::vector<int> matchHistory; // Lưu tối đa 5 điểm trận đấu gần nhất
 
     void LoadHighScore();
     void SaveHighScore();
@@ -59,8 +64,8 @@ private:
     void RestartGame();
     void UpdateView();
 
-    sf::Texture* GetAlienTextureForRound(int round);
-    
+    sf::Texture *GetAlienTextureForRound(int round);
+
 public:
     Game();
     ~Game();
@@ -70,4 +75,4 @@ public:
     void Update(float deltaTime);
     void CleanUpDeadEntities();
     void Render();
-}; 
+};

@@ -20,11 +20,11 @@ ScoreHistoryMenu::ScoreHistoryMenu(sf::Font *f, const std::vector<int> &recentSc
     }
     menuBgSprite = new sf::Sprite(*menuBgTexture);
 
-    // Thiết lập kích thước khung (Ngang 600, Cao 560)
+    // Thiết lập kích thước khung (Ngang 600, Cao 480)
     sf::Vector2u bgSize = menuBgTexture->getSize();
     if (bgSize.x > 0 && bgSize.y > 0)
     {
-        menuBgSprite->setScale(sf::Vector2f(600.0f / bgSize.x, 560.0f / bgSize.y));
+        menuBgSprite->setScale(sf::Vector2f(600.0f / bgSize.x, 480.0f / bgSize.y));
     }
     sf::FloatRect bgBounds = menuBgSprite->getLocalBounds();
     menuBgSprite->setOrigin(sf::Vector2f(bgBounds.position.x + bgBounds.size.x / 2.0f, bgBounds.position.y + bgBounds.size.y / 2.0f));

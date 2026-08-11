@@ -64,7 +64,7 @@ GameOverMenu::GameOverMenu(sf::Font* f, int score, bool isVictory)
     };
 
     setupButtonSprite(restartSprite, restartTexture, 75.0f, sf::Vector2f(380.0f, 650.0f));
-    setupButtonSprite(menuSprite, menuTexture, 70.0f, sf::Vector2f(520.0f, 650.0f));
+    setupButtonSprite(menuSprite, menuTexture, 85.0f, sf::Vector2f(520.0f, 650.0f));
 }
 
 GameOverMenu::~GameOverMenu() {

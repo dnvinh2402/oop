@@ -17,7 +17,27 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     gameView.setCenter(sf::Vector2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT / 2.0f));
     window.setView(gameView);
     resourceManager.LoadTexture("player", "assets/images/player.png");
-    std::cout << "Da load xong player texture\n";
+    resourceManager.LoadTexture("player2", "assets/images/player2.png");
+    resourceManager.LoadTexture("player3", "assets/images/player3.png");
+
+    std::cout << "Da load xong player texture \n";
+
+    selectedShip = 0;
+    std::vector<std::string> playerTextureNames = {"player", "player2", "player3"};
+    for (const std::string &name : playerTextureNames)
+    {
+        if (sf::Texture *tex = resourceManager.GetTexture(name))
+        {
+            shipTextures.push_back(tex);
+        }
+    }
+    if (shipTextures.empty())
+    {
+        if (sf::Texture *fallback = resourceManager.GetTexture("player"))
+        {
+            shipTextures.push_back(fallback);
+        }
+    }
 
     resourceManager.LoadTexture("alien_1", "assets/images/alien_1.png");
     resourceManager.LoadTexture("alien_2", "assets/images/alien_2.png");
@@ -60,7 +80,6 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     std::cout << "Da load xong font\n";
     resourceManager.LoadFont("PressStart2P-Regular", "assets/font/PressStart2P-Regular.ttf");
     std::cout << "Da load xong font\n";
-    
 
     soundManager.LoadSound("shoot", "assets/audio/shoot.wav");
     std::cout << "Da load xong am thanh dan\n";
@@ -78,8 +97,16 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     soundManager.LoadMusic("assets/audio/background.ogg");
     soundManager.PlayMusic();
 
+    shipSelectionMenu = new ShipSelectionMenu(resourceManager.GetFont("PressStart2P-Regular"), shipTextures);
+
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
-    player = new Player(resourceManager.GetTexture("player"), startPos);
+    sf::Texture *initialPlayerTexture = nullptr;
+    if (!shipTextures.empty())
+        initialPlayerTexture = shipTextures[selectedShip];
+    if (!initialPlayerTexture)
+        initialPlayerTexture = resourceManager.GetTexture("player");
+
+    player = new Player(initialPlayerTexture, startPos);
     std::cout << "Da tao xong Player\n";
 
     currentState = GameState::MainMenu;
@@ -102,7 +129,7 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     shieldSprite = new sf::Sprite(*resourceManager.GetTexture("shield_effect"));
     sf::Vector2u size = resourceManager.GetTexture("shield_effect")->getSize();
 
-    shieldSprite->setScale(sf::Vector2f(64.f / size.x, 64.f / size.y));
+    shieldSprite->setScale(sf::Vector2f(80.f / size.x, 120.f / size.y));
 
     sf::Vector2u textureSize = resourceManager.GetTexture("background")->getSize();
     float scaleX = WORLD_WIDTH / textureSize.x;
@@ -124,6 +151,7 @@ Game::~Game()
     delete gameOverMenu;
     delete pauseMenu;
     delete scoreHistoryMenu;
+    delete shipSelectionMenu;
 
     for (Bullet *bullet : bullets)
     {
@@ -185,8 +213,44 @@ void Game::ProcessEvents()
             {
                 if (keyPressed->code == sf::Keyboard::Key::Enter)
                 {
-                    RestartGame();
+                    if (shipSelectionMenu)
+                        shipSelectionMenu->SetSelectedShip(selectedShip);
+                    currentState = GameState::ShipSelection;
+                }
+            }
+            else if (currentState == GameState::ShipSelection)
+            {
+                if (keyPressed->code == sf::Keyboard::Key::Left)
+                {
+                    if (shipSelectionMenu)
+                    {
+                        shipSelectionMenu->MoveSelection(-1);
+                        selectedShip = shipSelectionMenu->GetSelectedShip();
+                    }
+                }
+                else if (keyPressed->code == sf::Keyboard::Key::Right)
+                {
+                    if (shipSelectionMenu)
+                    {
+                        shipSelectionMenu->MoveSelection(1);
+                        selectedShip = shipSelectionMenu->GetSelectedShip();
+                    }
+                }
+                else if (keyPressed->code == sf::Keyboard::Key::Enter)
+                {
+                    delete player;
+                    sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
+                    sf::Texture *selectedTexture = nullptr;
+                    if (!shipTextures.empty() && selectedShip >= 0 && selectedShip < static_cast<int>(shipTextures.size()))
+                        selectedTexture = shipTextures[selectedShip];
+                    if (!selectedTexture)
+                        selectedTexture = resourceManager.GetTexture("player");
+                    player = new Player(selectedTexture, startPos);
                     currentState = GameState::Playing;
+                }
+                else if (keyPressed->code == sf::Keyboard::Key::Escape)
+                {
+                    currentState = GameState::MainMenu;
                 }
             }
             else if (currentState == GameState::GameOver || currentState == GameState::Victory)
@@ -256,8 +320,9 @@ void Game::ProcessEvents()
                         int action = mainMenu->HandleClick(mousePos);
                         if (action == 1)
                         {
-                            RestartGame();
-                            currentState = GameState::Playing;
+                            if (shipSelectionMenu)
+                                shipSelectionMenu->SetSelectedShip(selectedShip);
+                            currentState = GameState::ShipSelection;
                         }
                         else if (action == 2)
                         { // Bấm nút xem lịch sử điểm
@@ -444,6 +509,12 @@ void Game::Render()
             scoreHistoryMenu->Render(window); // Vẽ trang lịch sử điểm đè lên Main Menu
         }
     }
+    else if (currentState == GameState::ShipSelection)
+    {
+        window.draw(*backgroundSprite);
+        if (shipSelectionMenu)
+            shipSelectionMenu->Render(window);
+    }
     else if (currentState == GameState::GameOver || currentState == GameState::Victory)
     {
         window.draw(*backgroundSprite);
@@ -607,7 +678,12 @@ void Game::RestartGame()
 
     delete player;
     sf::Vector2f startPos(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - 100.0f);
-    player = new Player(resourceManager.GetTexture("player"), startPos);
+    sf::Texture *selectedTexture = nullptr;
+    if (!shipTextures.empty() && selectedShip >= 0 && selectedShip < static_cast<int>(shipTextures.size()))
+        selectedTexture = shipTextures[selectedShip];
+    if (!selectedTexture)
+        selectedTexture = resourceManager.GetTexture("player");
+    player = new Player(selectedTexture, startPos);
 
     for (Bullet *bullet : bullets)
         delete bullet;
@@ -648,8 +724,11 @@ void Game::UpdateView()
     window.setView(gameView);
 }
 
-sf::Texture* Game::GetAlienTextureForRound(int round) {
-    if (round == 1) return resourceManager.GetTexture("alien_1");
-    if (round == 2) return resourceManager.GetTexture("alien_2");
+sf::Texture *Game::GetAlienTextureForRound(int round)
+{
+    if (round == 1)
+        return resourceManager.GetTexture("alien_1");
+    if (round == 2)
+        return resourceManager.GetTexture("alien_2");
     return resourceManager.GetTexture("boss");
 }
