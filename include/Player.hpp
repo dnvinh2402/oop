@@ -47,7 +47,7 @@ public:
 
     void HandleInput(float deltaTime);
 
-    void Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture);
+    bool Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture);
     void TakeDamage();
 
     // ===== Buff =====
@@ -67,6 +67,7 @@ public:
     float GetShieldTimer() const { return shieldTimer; }
     int GetShieldHitsRemaining() const { return shieldHitsRemaining; }
     float GetInvincibleTimer() const { return invincibleTimer; }
+    float GetCurrentCooldown() const {return currentCooldown; }
     // ================
 
     float GetDoubleShotTimer() const { return doubleShotTimer; }

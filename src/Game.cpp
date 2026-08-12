@@ -208,8 +208,14 @@ void Game::ProcessEvents()
             {
                 if (keyPressed->code == sf::Keyboard::Key::Space)
                 {
-                    player->Shoot(bullets, resourceManager.GetTexture("bullet"));
-                    soundManager.Play("shoot");
+                    if (player->GetCurrentCooldown() <= 0.0f)
+                    {
+                        player->Shoot(
+                            bullets,
+                            resourceManager.GetTexture("bullet"));
+
+                        soundManager.Play("shoot");
+                    }
                 }
             }
             else if (currentState == GameState::MainMenu && !viewingHistory)
@@ -306,8 +312,14 @@ void Game::ProcessEvents()
                     }
                     else if (!isPaused)
                     {
-                        player->Shoot(bullets, resourceManager.GetTexture("bullet"));
-                        soundManager.Play("shoot");
+                        if (player->GetCurrentCooldown() <= 0.0f)
+                        {
+                            player->Shoot(
+                                bullets,
+                                resourceManager.GetTexture("bullet"));
+
+                            soundManager.Play("shoot");
+                        }
                     }
                 }
                 else if (currentState == GameState::MainMenu)

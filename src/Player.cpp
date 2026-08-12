@@ -177,42 +177,42 @@ void Player::Render(sf::RenderWindow &window)
     }
 }
 
-void Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
+bool Player::Shoot(std::vector<Bullet *> &bulletList, sf::Texture *bulletTexture)
 {
-    if (currentCooldown <= 0.0f)
+    if (currentCooldown > 0.0f)
+        return false;
+    sf::FloatRect playerBounds = sprite.getGlobalBounds();
+    sf::Vector2u bulletSize = bulletTexture->getSize();
+
+    sf::Vector2f bulletStartPos;
+
+    bulletStartPos.x = position.x + playerBounds.size.x / 2.f - bulletSize.x / 2.f;
+    bulletStartPos.y = position.y - bulletSize.y;
+
+    sf::Vector2f bulletVelocity(0.0f, -500.0f);
+
+    if (doubleShot)
     {
-        sf::FloatRect playerBounds = sprite.getGlobalBounds();
-        sf::Vector2u bulletSize = bulletTexture->getSize();
+        sf::Vector2f leftPos = bulletStartPos;
+        sf::Vector2f rightPos = bulletStartPos;
 
-        sf::Vector2f bulletStartPos;
+        leftPos.x -= 12.f;
+        rightPos.x += 12.f;
 
-        bulletStartPos.x = position.x + playerBounds.size.x / 2.f - bulletSize.x / 2.f;
-        bulletStartPos.y = position.y - bulletSize.y;
+        bulletList.push_back(
+            new Bullet(bulletTexture, leftPos, bulletVelocity, true));
 
-        sf::Vector2f bulletVelocity(0.0f, -500.0f);
-
-        if (doubleShot)
-        {
-            sf::Vector2f leftPos = bulletStartPos;
-            sf::Vector2f rightPos = bulletStartPos;
-
-            leftPos.x -= 12.f;
-            rightPos.x += 12.f;
-
-            bulletList.push_back(
-                new Bullet(bulletTexture, leftPos, bulletVelocity, true));
-
-            bulletList.push_back(
-                new Bullet(bulletTexture, rightPos, bulletVelocity, true));
-        }
-        else
-        {
-            bulletList.push_back(
-                new Bullet(bulletTexture, bulletStartPos, bulletVelocity, true));
-        }
-
-        currentCooldown = fireCooldown;
+        bulletList.push_back(
+            new Bullet(bulletTexture, rightPos, bulletVelocity, true));
     }
+    else
+    {
+        bulletList.push_back(
+            new Bullet(bulletTexture, bulletStartPos, bulletVelocity, true));
+    }
+
+    currentCooldown = fireCooldown;
+    return true;
 }
 
 void Player::TakeDamage()
