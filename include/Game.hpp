@@ -59,6 +59,7 @@ private:
     void SaveHighScore();
     void LoadHistory();
     void SaveHistory();
+    void CreatePlayerFromSelectedShip();
     void AddScoreToHistory(int score);
     void DestroyNearestAliens(sf::Vector2f center);
     void RestartGame();

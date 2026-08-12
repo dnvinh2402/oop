@@ -14,6 +14,10 @@ private:
     float fireCooldown;
     float currentCooldown;
 
+    int healthLevel;
+    int fireRateLevel;
+    int speedLevel;
+
     // ===== Buff =====
     bool doubleShot;
     bool shield;
@@ -32,7 +36,10 @@ private:
     // ================
 
 public:
-    Player(sf::Texture *texture, sf::Vector2f startPos);
+    Player(sf::Texture *texture, sf::Vector2f startPos,
+           int healthLevel,
+           int fireRateLevel,
+           int speedLevel);
     ~Player();
 
     void Update(float deltaTime) override;

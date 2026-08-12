@@ -1,14 +1,36 @@
 #include "Player.hpp"
 #include <cmath>
-Player::Player(sf::Texture *texture, sf::Vector2f startPos) : GameObject(texture)
+Player::Player(sf::Texture *texture, sf::Vector2f startPos,
+               int healthLevel,
+               int fireRateLevel,
+               int speedLevel) : GameObject(texture),
+                                 healthLevel(healthLevel),
+                                 fireRateLevel(fireRateLevel),
+                                 speedLevel(speedLevel)
 {
     position = startPos;
     sprite.setPosition(position);
 
-    speed = 300.0f;
+    speed = 320.0f;
+    if (speedLevel >= 12)
+    {
+        speed = 360.f;
+    }
+    else if (speedLevel <= 8)
+    {
+        speed = 280.f;
+    }
     lives = 3;
     score = 0;
-    fireCooldown = 0.3f;
+    fireCooldown = 0.5f;
+    if (fireRateLevel >= 12)
+    {
+        fireCooldown = 0.3f;
+    }
+    else if (fireRateLevel <= 8)
+    {
+        fireCooldown = 0.7f;
+    }
     currentCooldown = 0.0f;
     doubleShot = false;
     shield = false;
@@ -49,7 +71,6 @@ void Player::HandleInput(float deltaTime)
     {
         position.y += speed * deltaTime;
     }
-
 }
 
 void Player::Update(float deltaTime)
@@ -60,13 +81,13 @@ void Player::Update(float deltaTime)
     {
         position.x = 0.f;
     }
-    else if (position.x > 900.f - bounds.size.x) 
+    else if (position.x > 900.f - bounds.size.x)
     {
         position.x = 900.f - bounds.size.x;
     }
 
-    float maxY = 900.f - bounds.size.y; 
-    float minY = 450.f; 
+    float maxY = 900.f - bounds.size.y;
+    float minY = 450.f;
 
     if (position.y < minY)
     {
@@ -76,7 +97,7 @@ void Player::Update(float deltaTime)
     {
         position.y = maxY;
     }
-    
+
     sprite.setPosition(position);
 
     if (currentCooldown > 0.0f)
@@ -91,7 +112,18 @@ void Player::Update(float deltaTime)
         if (doubleShotTimer <= 0.0f)
         {
             doubleShot = false;
-            fireCooldown = 0.3f;
+            if (fireRateLevel >= 12)
+            {
+                fireCooldown = 0.3f;
+            }
+            else if (fireRateLevel <= 8)
+            {
+                fireCooldown = 0.7f;
+            }
+            else
+            {
+                fireCooldown = 0.5f;
+            }
         }
     }
 
@@ -130,7 +162,7 @@ void Player::Update(float deltaTime)
     }
 }
 
-void Player::Render(sf::RenderWindow& window)
+void Player::Render(sf::RenderWindow &window)
 {
     if (invincible)
     {
@@ -228,7 +260,7 @@ void Player::TakeShieldHit()
         shieldHitsRemaining--;
         if (shieldHitsRemaining <= 0)
         {
-            shield = false; 
+            shield = false;
         }
     }
 }
@@ -237,14 +269,14 @@ void Player::ActivateDoubleShot()
 {
     doubleShot = true;
     doubleShotTimer = 10.0f;
-    fireCooldown = 0.15f;
+    fireCooldown = 0.3f;
 }
 
 void Player::ActivateShield()
 {
     shield = true;
-    shieldTimer = 10.0f;        
-    shieldHitsRemaining = 2;   
+    shieldTimer = 10.0f;
+    shieldHitsRemaining = 2;
 }
 
 bool Player::HasShield() const

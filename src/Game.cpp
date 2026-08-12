@@ -106,7 +106,10 @@ Game::Game() : window(sf::VideoMode({900, 900}), "Space Invaders", sf::Style::De
     if (!initialPlayerTexture)
         initialPlayerTexture = resourceManager.GetTexture("player");
 
-    player = new Player(initialPlayerTexture, startPos);
+    player = new Player(initialPlayerTexture, startPos,
+                        shipSelectionMenu->GetHealthLevel(),
+                        shipSelectionMenu->GetFireRateLevel(),
+                        shipSelectionMenu->GetSpeedLevel());
     std::cout << "Da tao xong Player\n";
 
     currentState = GameState::MainMenu;
@@ -245,7 +248,10 @@ void Game::ProcessEvents()
                         selectedTexture = shipTextures[selectedShip];
                     if (!selectedTexture)
                         selectedTexture = resourceManager.GetTexture("player");
-                    player = new Player(selectedTexture, startPos);
+                    player = new Player(selectedTexture, startPos,
+                                        shipSelectionMenu->GetHealthLevel(),
+                                        shipSelectionMenu->GetFireRateLevel(),
+                                        shipSelectionMenu->GetSpeedLevel());
                     currentState = GameState::Playing;
                 }
                 else if (keyPressed->code == sf::Keyboard::Key::Escape)
@@ -683,7 +689,12 @@ void Game::RestartGame()
         selectedTexture = shipTextures[selectedShip];
     if (!selectedTexture)
         selectedTexture = resourceManager.GetTexture("player");
-    player = new Player(selectedTexture, startPos);
+    player = new Player(
+        selectedTexture,
+        startPos,
+        shipSelectionMenu->GetHealthLevel(),
+        shipSelectionMenu->GetFireRateLevel(),
+        shipSelectionMenu->GetSpeedLevel());
 
     for (Bullet *bullet : bullets)
         delete bullet;
@@ -731,4 +742,38 @@ sf::Texture *Game::GetAlienTextureForRound(int round)
     if (round == 2)
         return resourceManager.GetTexture("alien_2");
     return resourceManager.GetTexture("boss");
+}
+void Game::CreatePlayerFromSelectedShip()
+{
+    int selected =
+        shipSelectionMenu->GetSelectedShip();
+
+    sf::Texture *texture = nullptr;
+
+    if (selected == 0)
+    {
+        texture =
+            resourceManager.GetTexture("player");
+    }
+    else if (selected == 1)
+    {
+        texture =
+            resourceManager.GetTexture("player2");
+    }
+    else
+    {
+        texture =
+            resourceManager.GetTexture("player3");
+    }
+
+    sf::Vector2f startPos(
+        WORLD_WIDTH / 2.0f,
+        WORLD_HEIGHT - 100.0f);
+
+    player = new Player(
+        texture,
+        startPos,
+        shipSelectionMenu->GetHealthLevel(),
+        shipSelectionMenu->GetFireRateLevel(),
+        shipSelectionMenu->GetSpeedLevel());
 }
