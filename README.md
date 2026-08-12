@@ -8,6 +8,7 @@ Space Invaders OOP là một đồ án game shooter 2D phát triển bằng C++ 
 
 - Di chuyển bằng `WASD` / `arrow keys`.
 - Bắn bằng `Space` hoặc chuột trái.
+- 3 loại thuyền chính với các chỉ số khác nhau
 - 3 loại quái: `Patrol`, `Orbit`, `Boss`.
 - Buff gồm `doubleShot`, `Shield`, `Bomb`.
 - Menu chính, Pause menu, Game over, Victory và Score history.
@@ -45,6 +46,7 @@ oop/
 │   ├── ResourceManager.hpp
 │   ├── ScoreHistoryMenu.hpp
 │   ├── SoundManager.hpp
+├   ├── ShipSelectionMenu.hpp
 │   └── UI.hpp
 ├── src/
 │   ├── Alien.cpp
@@ -63,6 +65,7 @@ oop/
 │   ├── ResourceManager.cpp
 │   ├── ScoreHistoryMenu.cpp
 │   ├── SoundManager.cpp
+├   ├── ShipSelectionMenu.cpp
 │   ├── UI.cpp
 │   └── main.cpp
 ├── UML/
@@ -115,6 +118,7 @@ Các sơ đồ UML được cập nhật theo source code hiện tại và nằm
 ## Chi tiết game flow
 
 - Khi ở `MainMenu`, người chơi có thể bắt đầu game hoặc xem lịch sử điểm.
+- khi ở phần `ShipSelectionMenu`, người chơi có thể chọn thuyền tùy sở thích
 - Khi đang chơi, người chơi có thể bắn, di chuyển, nhặt buff và pause.
 - Khi mất hết mạng, chuyển sang `GameOver` và có thể restart.
 - Khi tiêu diệt hết vòng cuối cùng, chuyển sang `Victory`.

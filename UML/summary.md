@@ -15,11 +15,9 @@
 
 - Mỗi file trong `UML/` chứa nội dung nhỏ, tập trung:
   - `class_diagram.md`: sơ đồ lớp và quan hệ.
-  - `sequence_diagrams.md`: sơ đồ trình tự game loop và menu.
+  - `sequence_diagrams.md`: sơ đồ trình tự game loop.
   - `summary.md`: tóm tắt các thành phần chính.
 
 ## File gốc
 
 - `UML/uml_diagrams.md`: chứa cả class diagram và sequence diagram đầy đủ.
-
-Những file này giúp bạn tham khảo nhanh mà không cần mở toàn bộ tài liệu UML lớn.
